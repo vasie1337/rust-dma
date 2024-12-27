@@ -9,7 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dma-library", "libs\dma-lib
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "overlay-library", "libs\overlay-library\overlay-library\overlay-library.vcxproj", "{72FDA80B-C497-4D94-81EC-E1DCBAB294D6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "template-dma", "template-dma\template-dma.vcxproj", "{9E2A54F7-0192-45A7-9885-8807A3E3B6EB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rust-dma", "rust-dma\rust-dma.vcxproj", "{9E2A54F7-0192-45A7-9885-8807A3E3B6EB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{72FDA80B-C497-4D94-81EC-E1DCBAB294D6} = {72FDA80B-C497-4D94-81EC-E1DCBAB294D6}
 		{8C79CAA4-CD81-4AA7-8324-46582DB0213A} = {8C79CAA4-CD81-4AA7-8324-46582DB0213A}
