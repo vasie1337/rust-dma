@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="dma\dma.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include.hpp" />
+    <ClInclude Include="dma\dma.hpp" />
+    <ClInclude Include="libs\leechcore.h" />
+    <ClInclude Include="libs\vmmdll.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="libs\FTD3XX.lib" />
+    <Library Include="libs\leechcore.lib" />
+    <Library Include="libs\vmm.lib" />
+  </ItemGroup>
+</Project>
