@@ -1,12 +1,12 @@
 [submodule "libs/overlay-library"]
 	path = libs/overlay-library
-	url = https://github.com/awhare-club/overlay-library.git
+	url = https://github.com/awhare-club/overlay-library/
 	branch = main
 [submodule "libs/cheat-library"]
 	path = libs/cheat-library
-	url = https://github.com/awhare-club/cheat-library.git
+	url = https://github.com/awhare-club/cheat-library/
 	branch = main
 [submodule "libs/dma-library"]
 	path = libs/dma-library
-	url = https://github.com/awhare-club/dma-library.git
+	url = https://github.com/awhare-club/dma-library/
 	branch = main
