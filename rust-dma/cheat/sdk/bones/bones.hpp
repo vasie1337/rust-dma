@@ -101,7 +101,8 @@ public:
 
 #define max_bones 60
 
-struct BoneConnection {
+struct BoneConnection 
+{
     Vector3 start;
     Vector3 end;
 };

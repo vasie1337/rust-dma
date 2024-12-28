@@ -2,7 +2,7 @@
 
 int main()
 {
-	std::cout << "Starting DMA Cheat" << std::endl;
+	dma.verbose = true;
 
 	try
 	{

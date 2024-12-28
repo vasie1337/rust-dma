@@ -9,22 +9,16 @@ public:
 
 	void Run()
 	{
-		//globals_thread.Run();
+		globals_thread.Run();
 		entities_thread.Run();
 		bones_thread.Run();
 		pos_thread.Run();
 		bones_update_thread.Run();
-
-		HANDLE scatter_handle = dma.CreateScatterHandle();
-
-		FetchGlobals(scatter_handle);
-
-		dma.CloseScatterHandle(scatter_handle);
 	}
 
 	void Stop()
 	{
-		//globals_thread.Stop();
+		globals_thread.Stop();
 		entities_thread.Stop();
 		bones_thread.Stop();
 		pos_thread.Stop();
@@ -57,7 +51,7 @@ private:
 	std::string FormatObjectName(const std::string& object_name);
 	
 protected:
-	//CacheThread globals_thread = CacheThread(std::function<void(HANDLE)>(std::bind(&Cache::FetchGlobals, this, std::placeholders::_1)), 3000);
+	CacheThread globals_thread = CacheThread(std::function<void(HANDLE)>(std::bind(&Cache::FetchGlobals, this, std::placeholders::_1)), 3000);
 	CacheThread entities_thread = CacheThread(std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)), 1000);
 	CacheThread bones_thread = CacheThread(std::function<void(HANDLE)>(std::bind(&Cache::FetchBones, this, std::placeholders::_1)), 1000);
 	CacheThread pos_thread = CacheThread(std::function<void(HANDLE)>(std::bind(&Cache::FetchPositions, this, std::placeholders::_1)), 10);
@@ -67,46 +61,34 @@ protected:
 void Cache::FetchGlobals(HANDLE scatter_handle)
 {
 	uintptr_t base_net_workable = dma.Read<uintptr_t>(base_address.Get() + Offsets::base_net_workable);
-	printf("base_net_workable: 0x%llx\n", base_net_workable);
 
 	uintptr_t bn_static_fields = dma.Read<uintptr_t>(base_net_workable + 0xB8);
-	printf("bn_static_fields: 0x%llx\n", base_net_workable);
 
 	uintptr_t bn_wrapper_class_ptr = dma.Read<uintptr_t>(bn_static_fields + 0x30);
-	printf("bn_wrapper_class_ptr: 0x%llx\n", base_net_workable);
 
 	uintptr_t bn_wrapper_class = decryption::BaseNetworkable(base_address.Get(), bn_wrapper_class_ptr);
-	printf("bn_wrapper_class: 0x%llx\n", base_net_workable);
 
 	uintptr_t bn_parent_static_fields = dma.Read<uintptr_t>(bn_wrapper_class + 0x10);
-	printf("bn_parent_static_fields: 0x%llx\n", base_net_workable);
 
 	uintptr_t bn_parent_static_class = decryption::BaseNetworkable(base_address.Get(), bn_parent_static_fields);
-	printf("bn_parent_static_class: 0x%llx\n", base_net_workable);
 
 	entity_list.Set(dma.Read<uintptr_t>(bn_parent_static_class + 0x18));
 
 	uintptr_t main_camera_manager = dma.Read<uintptr_t>(base_address.Get() + Offsets::main_camera);
-	printf("main_camera_manager: 0x%llx\n", base_net_workable);
 
 	uintptr_t camera_manager = dma.Read<uintptr_t>(main_camera_manager + 0xB8);
-	printf("camera_manager: 0x%llx\n", base_net_workable);
 
 	uintptr_t camera = dma.Read<uintptr_t>(camera_manager + 0xC0);
-	printf("camera: 0x%llx\n", base_net_workable);
 
 	camera_object.Set(dma.Read<uintptr_t>(camera + 0x10));
 }
 
 void Cache::FetchEntities(HANDLE scatter_handle)
 {
-	auto entity_list_data = dma.Read<EntityListData>(entity_list.Get() + 0x10);
+	const EntityListData entity_list_data = dma.Read<EntityListData>(entity_list.Get() + 0x10);
 	if (!entity_list_data)
 	{
-		printf("Failed to read entity list data\n");
-		printf("Trying to fetch globals again\n");
 		FetchGlobals(scatter_handle);
-
 		return;
 	}
 
