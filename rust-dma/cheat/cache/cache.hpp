@@ -9,6 +9,8 @@ public:
 
 	void Run()
 	{
+		view_scatter_handle = dma.CreateScatterHandle();
+
 		globals_thread.Run();
 		entities_thread.Run();
 		bones_thread.Run();
@@ -23,22 +25,25 @@ public:
 		bones_thread.Stop();
 		pos_thread.Stop();
 		bones_update_thread.Stop();
+
+		dma.CloseScatterHandle(view_scatter_handle);
 	}
 
 	static void UpdateViewMatrix()
 	{
-		const static HANDLE scatter_handle = dma.CreateScatterHandle();
+		if (view_scatter_handle)
+		{
+			Matrix4x4 new_view_matrix;
+			Vector3 new_camera_pos;
 
-		Matrix4x4 new_view_matrix;
-		Vector3 new_camera_pos;
+			dma.AddScatterRead(view_scatter_handle, camera_object.Get() + Offsets::view_matrix, &new_view_matrix, sizeof(new_view_matrix));
+			dma.AddScatterRead(view_scatter_handle, camera_object.Get() + Offsets::camera_pos, &new_camera_pos, sizeof(new_camera_pos));
 
-		dma.AddScatterRead(scatter_handle, camera_object.Get() + Offsets::view_matrix, &new_view_matrix, sizeof(new_view_matrix));
-		dma.AddScatterRead(scatter_handle, camera_object.Get() + Offsets::camera_pos, &new_camera_pos, sizeof(new_camera_pos));
- 
-		dma.ExecuteScatterRead(scatter_handle);
+			dma.ExecuteScatterRead(view_scatter_handle);
 
-		view_matrix.Set(new_view_matrix);
-		camera_pos.Set(new_camera_pos);
+			view_matrix.Set(new_view_matrix);
+			camera_pos.Set(new_camera_pos);
+		}
 	}
 
 private:
@@ -56,6 +61,8 @@ protected:
 	CacheThread bones_thread = CacheThread(std::function<void(HANDLE)>(std::bind(&Cache::FetchBones, this, std::placeholders::_1)), 1000);
 	CacheThread pos_thread = CacheThread(std::function<void(HANDLE)>(std::bind(&Cache::FetchPositions, this, std::placeholders::_1)), 10);
 	CacheThread bones_update_thread = CacheThread(std::function<void(HANDLE)>(std::bind(&Cache::UpdateBones, this, std::placeholders::_1)), 10);
+
+	static inline HANDLE view_scatter_handle = 0;
 };
 
 void Cache::FetchGlobals(HANDLE scatter_handle)
