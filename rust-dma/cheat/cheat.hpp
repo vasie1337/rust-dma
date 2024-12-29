@@ -83,6 +83,8 @@ private:
 		ImGui::Text("Entity List: 0x%llX", Cache::entity_list.Get());
 		ImGui::Text("Local Player: 0x%llX", Cache::local_player.Get().object_ptr);
 		ImGui::Text("Camera Position: %.2f %.2f %.2f", Cache::camera_pos.Get().x, Cache::camera_pos.Get().y, Cache::camera_pos.Get().z);
+		ImGui::Text("Players: %d", Cache::players.Get().size());
+		ImGui::Text("Entities: %d", Cache::entities.Get().size());
 
 		ImGui::End();
 
@@ -117,13 +119,7 @@ private:
 
 		ImGui::End();
 
-
 		ImGui::Begin("Statistics", nullptr, ImGuiWindowFlags_NoCollapse);
-
-		ImGui::Text("Cache");
-
-		ImGui::Text("Players: %d", Cache::players.Get().size());
-		ImGui::Text("Entities: %d", Cache::entities.Get().size());
 
 		ImGui::Text("Threads");
 
@@ -187,6 +183,11 @@ private:
 				);
 			}
 		}
+
+		ImGui::Text("Overlay");
+
+		overlay->RenderPerformanceMetrics();
+
 		ImGui::End();
 
 		if (crosshair)

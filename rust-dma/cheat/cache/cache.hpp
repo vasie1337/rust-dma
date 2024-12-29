@@ -145,7 +145,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 	for (uint32_t i = 0; i < entity_list_data.size; i++)
 	{
 		new_entities[i].idx = i;
-		dma.AddScatterRead(scatter_handle, entity_list_data.content + (0x20 + (i * 8)), &new_entities[i].object_ptr, sizeof(new_entities[i].object_ptr));
+		dma.AddScatterRead(scatter_handle, entity_list_data.content + (0x20 + (static_cast<unsigned long long>(i) * 8)), &new_entities[i].object_ptr, sizeof(new_entities[i].object_ptr));
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
@@ -212,7 +212,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 	{
 		if (entity.tag == 6) // player
 		{
-			if (entity.idx != 0) // not local player
+			if (entity.idx != 0) // not local player idx
 			{
 				auto it = existing_player_map.find(entity.object_ptr);
 				if (it == existing_player_map.end())
@@ -283,7 +283,7 @@ void Cache::FetchBones(HANDLE scatter_handle)
 
 		if (player.bones.empty())
 		{
-			player.bones.resize(max_bones);
+			player.bones.resize(BoneList::max_bones);
 		}
 
 		if (it == existing_players.end() || it->second.bone_transforms != player.bone_transforms)
@@ -308,7 +308,7 @@ void Cache::FetchBones(HANDLE scatter_handle)
 	for (auto& player_ref : players_to_update)
 	{
 		auto& player = player_ref.get();
-		for (int idx = 0; idx < max_bones; ++idx)
+		for (int idx = 0; idx < BoneList::max_bones; ++idx)
 		{
 			if (player.IsIndexValid(idx))
 			{

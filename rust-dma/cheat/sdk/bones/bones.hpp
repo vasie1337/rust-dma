@@ -13,7 +13,13 @@ enum BoneList
     neck = 46,
     head = 47,
     r_forearm = 56,
-    r_hand = 57
+    r_hand = 57,
+	max_bones = 60
+};
+
+struct BoneConnection {
+    Vector3 start;
+    Vector3 end;
 };
 
 class Bone
@@ -96,12 +102,4 @@ public:
     {
         return Vector3(result.m128_f32[0], result.m128_f32[1], result.m128_f32[2]);
     }
-};
-
-#define max_bones 60
-
-struct BoneConnection 
-{
-    Vector3 start;
-    Vector3 end;
 };
