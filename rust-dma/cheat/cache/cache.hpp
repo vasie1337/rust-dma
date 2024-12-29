@@ -121,16 +121,17 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		return;
 	}
 
-	std::unordered_map<uintptr_t, Entity> old_entity_map;
+	std::unordered_map<uintptr_t, Entity> existing_entity_map;
+	std::unordered_map<uintptr_t, Player> existing_player_map;
+
 	for (const auto& entity : entities.Get())
 	{
-		old_entity_map[entity.object_ptr] = entity;
+		existing_entity_map[entity.object_ptr] = entity;
 	}
 
-	std::unordered_map<uintptr_t, Player> old_player_map;
 	for (const auto& player : players.Get())
 	{
-		old_player_map[player.object_ptr] = player;
+		existing_player_map[player.object_ptr] = player;
 	}
 
 	std::vector<Entity> new_entities(entity_list_data.size);
@@ -143,111 +144,114 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
+	std::vector<std::reference_wrapper<Entity>> entities_to_update;
 	for (auto& entity : new_entities)
 	{
+		auto it = existing_entity_map.find(entity.object_ptr);
+		if (it == existing_entity_map.end())
+		{
+			entities_to_update.push_back(std::ref(entity));
+		}
+		else
+		{
+			entity = it->second;
+		}
+	}
+
+	for (auto& entity_ref : entities_to_update)
+	{
+		auto& entity = entity_ref.get();
 		dma.AddScatterRead(scatter_handle, entity.object_ptr + 0x10, &entity.base_object, sizeof(entity.base_object));
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
-	if (new_entities.empty())
+	for (auto& entity_ref : entities_to_update)
 	{
-		return;
-	}
-
-	for (auto& entity : new_entities)
-	{
-		if (old_entity_map.find(entity.object_ptr) != old_entity_map.end())
-		{
-			entity = old_entity_map[entity.object_ptr];
-			continue;
-		}
-
+		auto& entity = entity_ref.get();
 		dma.AddScatterRead(scatter_handle, entity.base_object + 0x30, &entity.object, sizeof(entity.object));
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
-	for (auto& entity : new_entities)
+	for (auto& entity_ref : entities_to_update)
 	{
-		if (old_entity_map.find(entity.object_ptr) != old_entity_map.end())
-			continue;
-
+		auto& entity = entity_ref.get();
 		dma.AddScatterRead(scatter_handle, entity.object + 0x30, &entity.object_class, sizeof(entity.object_class));
 		dma.AddScatterRead(scatter_handle, entity.object + 0x60, &entity.nameptr, sizeof(entity.nameptr));
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
-	for (auto& entity : new_entities)
+	for (auto& entity_ref : entities_to_update)
 	{
-		if (old_entity_map.find(entity.object_ptr) != old_entity_map.end())
-			continue;
-
+		auto& entity = entity_ref.get();
 		dma.AddScatterRead(scatter_handle, entity.object_class + 0x8, &entity.transform, sizeof(entity.transform));
 		dma.AddScatterRead(scatter_handle, entity.nameptr, entity.name_buffer, sizeof(entity.name_buffer));
 		dma.AddScatterRead(scatter_handle, entity.object + 0x54, &entity.tag, sizeof(entity.tag));
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
-	for (auto& entity : new_entities)
+	for (auto& entity_ref : entities_to_update)
 	{
-		if (old_entity_map.find(entity.object_ptr) != old_entity_map.end())
-			continue;
-
+		auto& entity = entity_ref.get();
 		dma.AddScatterRead(scatter_handle, entity.transform + 0x38, &entity.visual_state, sizeof(entity.visual_state));
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
-	for (auto& entity : new_entities)
+	for (auto& entity_ref : entities_to_update)
 	{
-		if (old_entity_map.find(entity.object_ptr) != old_entity_map.end())
-			continue;
-
+		auto& entity = entity_ref.get();
 		entity.obj_name = entity.name_buffer;
 		entity.formatted_name = FormatObjectName(entity.obj_name);
 	}
 
 	for (auto& entity : new_entities)
 	{
-		if (entity.tag == 6)
+		if (entity.tag == 6) // player
 		{
-			Player player(entity);
-
-			if (entity.idx != 0)
+			if (entity.idx != 0) // not local player
 			{
-				new_players.push_back(player);
+				auto it = existing_player_map.find(entity.object_ptr);
+				if (it == existing_player_map.end())
+				{
+					new_players.push_back(Player(entity));
+				}
+				else
+				{
+					new_players.push_back(it->second);
+				}
 			}
 			else
 			{
-				local_player.Set(player);
+				local_player.Set(Player(entity));
 			}
 		}
 	}
 
-	entities.Set(new_entities);
-
+	std::vector<std::reference_wrapper<Player>> players_to_update;
 	for (auto& player : new_players)
 	{
-		if (old_player_map.find(player.object_ptr) != old_player_map.end())
+		if (existing_player_map.find(player.object_ptr) == existing_player_map.end())
 		{
-			player = old_player_map[player.object_ptr];
-			continue;
+			players_to_update.push_back(std::ref(player));
 		}
+	}
+
+	for (auto& player_ref : players_to_update)
+	{
+		auto& player = player_ref.get();
 		dma.AddScatterRead(scatter_handle, player.object_ptr + 0xC8, &player.model, sizeof(player.model));
 		dma.AddScatterRead(scatter_handle, player.object_ptr + 0x310, &player.player_model, sizeof(player.player_model));
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
-	for (auto& player : new_players)
+	for (auto& player_ref : players_to_update)
 	{
-		if (old_player_map.find(player.object_ptr) != old_player_map.end())
-		{
-			player = old_player_map[player.object_ptr];
-			continue;
-		}
+		auto& player = player_ref.get();
 		dma.AddScatterRead(scatter_handle, player.player_model + 0x2E2, &player.is_npc, sizeof(player.is_npc));
 		dma.AddScatterRead(scatter_handle, player.model + 0x50, &player.bone_transforms, sizeof(player.bone_transforms));
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
+	entities.Set(new_entities);
 	players.Set(new_players);
 }
 
