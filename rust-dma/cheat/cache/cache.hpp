@@ -17,7 +17,7 @@ public:
 		pos_thread.Run();
 		bones_update_thread.Run();
 
-		SetupThreads();
+		threads = { globals_thread, entities_thread, bones_thread, pos_thread, bones_update_thread };
 	}
 
 	void Stop()
@@ -57,11 +57,6 @@ private:
 
 	std::string FormatObjectName(const std::string& object_name);
 
-	void SetupThreads()
-	{
-		threads = { globals_thread, entities_thread, bones_thread, pos_thread, bones_update_thread };
-	}
-	
 public:
 	CacheThread globals_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchGlobals, this, std::placeholders::_1)), 
@@ -89,8 +84,7 @@ public:
 		"Bones Update"
 	);
 
-	static inline std::vector<std::reference_wrapper< CacheThread>> threads = {};
-
+	static inline std::vector<std::reference_wrapper<CacheThread>> threads = {};
 	static inline HANDLE view_scatter_handle = 0;
 };
 
