@@ -25,6 +25,8 @@ private:
 	T data = T();
 };
 
+
+
 class CacheData
 {
 public:

@@ -81,15 +81,12 @@ private:
 		ImGui::Text("Base Address: 0x%llX", Cache::base_address.Get());
 		ImGui::Text("Camera Object: 0x%llX", Cache::camera_object.Get());
 		ImGui::Text("Entity List: 0x%llX", Cache::entity_list.Get());
+		ImGui::Text("Local Player: 0x%llX", Cache::local_player.Get().object_ptr);
+		ImGui::Text("Camera Position: %.2f %.2f %.2f", Cache::camera_pos.Get().x, Cache::camera_pos.Get().y, Cache::camera_pos.Get().z);
 
-		ImGui::Separator();
+		ImGui::End();
 
-		ImGui::Text("Entities: %d", Cache::entities.Get().size());
-		ImGui::Text("Players: %d", Cache::players.Get().size());
-
-		ImGui::Text("Local Player Pos: %s", Cache::camera_pos.Get().to_string().c_str());
-
-		ImGui::Separator();
+		ImGui::Begin("Filters", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
 		ImGui::Checkbox("Collectable Ores", &Filter::collectable_ores.enabled); ImGui::SameLine();
 		ImGui::ColorEdit4("Collectable Ores Color", (float*)&Filter::collectable_ores.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
@@ -118,6 +115,78 @@ private:
 		ImGui::Checkbox("NPC's", &Filter::npcs.enabled); ImGui::SameLine();
 		ImGui::ColorEdit4("NPC's Color", (float*)&Filter::npcs.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
+		ImGui::End();
+
+
+		ImGui::Begin("Statistics", nullptr, ImGuiWindowFlags_NoCollapse);
+
+		ImGui::Text("Cache");
+
+		ImGui::Text("Players: %d", Cache::players.Get().size());
+		ImGui::Text("Entities: %d", Cache::entities.Get().size());
+
+		ImGui::Text("Threads");
+
+		for (auto& refthread : Cache::threads)
+		{
+			auto& thread = refthread.get();
+			auto stats = thread.GetStatistics();
+
+			std::string header = thread.GetName();
+
+			if (ImGui::CollapsingHeader(header.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				ImGui::Indent();
+
+				ImGui::Columns(2, nullptr, false);
+
+				ImGui::BeginGroup();
+				ImGui::TextColored(ImVec4(0.4f, 0.8f, 0.4f, 1.0f), "Current: %.2f ms", stats.current_time);
+				ImGui::TextColored(ImVec4(0.4f, 0.8f, 0.8f, 1.0f), "Average: %.2f ms", stats.average_time);
+				if (ImGui::IsItemHovered())
+					ImGui::SetTooltip("Average over last 128 iterations");
+
+				ImGui::TextColored(ImVec4(0.2f, 0.6f, 0.9f, 1.0f), "Min/Max: %.2f/%.2f ms", stats.min_time, stats.max_time);
+				ImGui::EndGroup();
+
+				ImGui::NextColumn();
+				ImGui::BeginGroup();
+
+				const auto& times = thread.GetIterationTimes();
+
+				float plot_min = stats.min_time * 0.9f;
+				float plot_max = stats.max_time * 1.1f;
+
+				std::string plot_title = "##" + header + "Times";
+
+				ImGui::PlotLines(
+					plot_title.c_str(),
+					times.data(),
+					static_cast<int>(times.size()),
+					0,
+					"Execution Time (ms)",
+					plot_min,
+					plot_max,
+					ImVec2(ImGui::GetContentRegionAvail().x, 80));
+
+				ImGui::SameLine();
+				ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "(Last 128 iterations)");
+
+				ImGui::EndGroup();
+
+				ImGui::Columns(1);
+				ImGui::Unindent();
+			}
+			else
+			{
+				ImGui::SameLine();
+				ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f),
+					"Current: %.2f ms | Avg: %.2f ms",
+					stats.current_time,
+					stats.average_time
+				);
+			}
+		}
 		ImGui::End();
 
 		if (crosshair)

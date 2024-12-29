@@ -34,6 +34,7 @@
 // CHEAT LIB
 #include "../libs/cheat-library/cheat-library/math/math.hpp"
 #include "../libs/cheat-library/cheat-library/drawing/drawing.hpp"
+#include "../libs/cheat-library/cheat-library/timer/timer.hpp"
 #pragma comment(lib, "cheat-library.lib")
 
 // Project

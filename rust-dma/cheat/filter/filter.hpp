@@ -144,7 +144,7 @@ private:
     }
 
     static inline std::once_flag initialized_flag;
-    static inline std::vector<std::reference_wrapper<EntityCategorie>> categories;
+    static inline std::vector<std::reference_wrapper<EntityCategorie>> categories = {};
 
 public:
     static inline EntityCategorie collectable_ores = EntityCategorie(ImColor(0.25f, 0.75f, 0.25f, 1.0f));
