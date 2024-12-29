@@ -84,7 +84,7 @@ public:
 		"Bones Update"
 	);
 
-	static inline std::vector<std::reference_wrapper< CacheThread>> threads = {};
+	static inline std::vector<std::reference_wrapper<CacheThread>> threads = {};
 	static inline HANDLE view_scatter_handle = 0;
 };
 

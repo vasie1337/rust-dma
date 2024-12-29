@@ -121,8 +121,6 @@ private:
 
 		ImGui::Begin("Statistics", nullptr, ImGuiWindowFlags_NoCollapse);
 
-		ImGui::Text("Threads");
-
 		for (auto& thread_ref : Cache::threads)
 		{
 			auto& thread = thread_ref.get();
@@ -183,8 +181,6 @@ private:
 				);
 			}
 		}
-
-		ImGui::Text("Overlay");
 
 		overlay->RenderPerformanceMetrics();
 
