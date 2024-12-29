@@ -17,7 +17,7 @@ public:
 		pos_thread.Run();
 		bones_update_thread.Run();
 
-		SetupThreads();
+		threads = { globals_thread, entities_thread, bones_thread, pos_thread, bones_update_thread };
 	}
 
 	void Stop()
@@ -57,11 +57,6 @@ private:
 
 	std::string FormatObjectName(const std::string& object_name);
 
-	void SetupThreads()
-	{
-		threads = { globals_thread, entities_thread, bones_thread, pos_thread, bones_update_thread };
-	}
-	
 public:
 	CacheThread globals_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchGlobals, this, std::placeholders::_1)), 
@@ -90,7 +85,6 @@ public:
 	);
 
 	static inline std::vector<std::reference_wrapper< CacheThread>> threads = {};
-
 	static inline HANDLE view_scatter_handle = 0;
 };
 
@@ -124,7 +118,6 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 	const EntityListData entity_list_data = dma.Read<EntityListData>(entity_list.Get() + 0x10);
 	if (!entity_list_data)
 	{
-		FetchGlobals(scatter_handle);
 		return;
 	}
 
@@ -462,7 +455,7 @@ void Cache::UpdateBones(HANDLE scatter_handle)
 	{
 		for (auto& bone : player.bones)
 		{
-			bone.Transform();
+			bone.TransformToWorld();
 		}
 	}
 
