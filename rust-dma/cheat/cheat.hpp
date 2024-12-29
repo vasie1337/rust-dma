@@ -127,9 +127,9 @@ private:
 
 		ImGui::Text("Threads");
 
-		for (auto& refthread : Cache::threads)
+		for (auto& thread_ref : Cache::threads)
 		{
-			auto& thread = refthread.get();
+			auto& thread = thread_ref.get();
 			auto stats = thread.GetStatistics();
 
 			std::string header = thread.GetName();
