@@ -90,21 +90,26 @@ public:
 
 void Cache::FetchGlobals(HANDLE scatter_handle)
 {
-	uintptr_t base_net_workable = dma.Read<uintptr_t>(base_address.Get() + Offsets::base_net_workable);
+	if (!entity_list.Get())
+	{
+		uintptr_t base_net_workable = dma.Read<uintptr_t>(base_address.Get() + Offsets::base_net_workable);
 
-	uintptr_t bn_static_fields = dma.Read<uintptr_t>(base_net_workable + 0xB8);
+		uintptr_t bn_static_fields = dma.Read<uintptr_t>(base_net_workable + 0xB8);
 
-	uintptr_t bn_wrapper_class_ptr = dma.Read<uintptr_t>(bn_static_fields + 0x30);
+		uintptr_t bn_wrapper_class_ptr = dma.Read<uintptr_t>(bn_static_fields + 0x30);
 
-	uintptr_t bn_wrapper_class = decryption::BaseNetworkable(base_address.Get(), bn_wrapper_class_ptr);
+		uintptr_t bn_wrapper_class = decryption::BaseNetworkable(base_address.Get(), bn_wrapper_class_ptr);
 
-	uintptr_t bn_parent_static_fields = dma.Read<uintptr_t>(bn_wrapper_class + 0x10);
+		uintptr_t bn_parent_static_fields = dma.Read<uintptr_t>(bn_wrapper_class + 0x10);
 
-	uintptr_t bn_parent_static_class = decryption::BaseNetworkable(base_address.Get(), bn_parent_static_fields);
+		uintptr_t bn_parent_static_class = decryption::BaseNetworkable(base_address.Get(), bn_parent_static_fields);
 
-	entity_list.Set(dma.Read<uintptr_t>(bn_parent_static_class + 0x18));
-
-	uintptr_t main_camera_manager = dma.Read<uintptr_t>(base_address.Get() + Offsets::main_camera);
+		entity_list.Set(dma.Read<uintptr_t>(bn_parent_static_class + 0x18));
+	}
+	
+	static uintptr_t main_camera_manager;
+	if (!main_camera_manager)
+		main_camera_manager = dma.Read<uintptr_t>(base_address.Get() + Offsets::main_camera);
 
 	uintptr_t camera_manager = dma.Read<uintptr_t>(main_camera_manager + 0xB8);
 
