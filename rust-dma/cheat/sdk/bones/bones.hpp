@@ -56,12 +56,11 @@ public:
         return iteration_count;
     }
 
-    void Transform()
+    void TransformToWorld()
     {
         result = _mm_setzero_ps();
 
-        for (const auto& matrix34 : matrix_reads)
-        {
+        for (const auto& matrix34 : matrix_reads) {
             __m128 xxxx = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0x00));
             __m128 yyyy = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0x55));
             __m128 zwxy = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0x8E));

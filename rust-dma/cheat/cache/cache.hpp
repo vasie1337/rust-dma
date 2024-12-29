@@ -84,7 +84,7 @@ public:
 		"Bones Update"
 	);
 
-	static inline std::vector<std::reference_wrapper<CacheThread>> threads = {};
+	static inline std::vector<std::reference_wrapper< CacheThread>> threads = {};
 	static inline HANDLE view_scatter_handle = 0;
 };
 
@@ -118,7 +118,6 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 	const EntityListData entity_list_data = dma.Read<EntityListData>(entity_list.Get() + 0x10);
 	if (!entity_list_data)
 	{
-		FetchGlobals(scatter_handle);
 		return;
 	}
 
@@ -456,7 +455,7 @@ void Cache::UpdateBones(HANDLE scatter_handle)
 	{
 		for (auto& bone : player.bones)
 		{
-			bone.Transform();
+			bone.TransformToWorld();
 		}
 	}
 
