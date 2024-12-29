@@ -11,8 +11,8 @@ public:
 			throw std::exception("Failed to initialize DMA");
 		}
 		
-		Cache::base_address.Set(dma.GetModuleBaseAddress("GameAssembly.dll"));
-		if (!Cache::base_address.Get())
+		Cache::base_address.store(dma.GetModuleBaseAddress("GameAssembly.dll"));
+		if (!Cache::base_address.load())
 		{
 			throw std::exception("Failed to get base address");
 		}
@@ -78,13 +78,13 @@ private:
 			ImGui::SliderFloat("Crosshair Size", &crosshair_size, 1.f, 20.f);
 		}
 
-		ImGui::Text("Base Address: 0x%llX", Cache::base_address.Get());
-		ImGui::Text("Camera Object: 0x%llX", Cache::camera_object.Get());
-		ImGui::Text("Entity List: 0x%llX", Cache::entity_list.Get());
-		ImGui::Text("Local Player: 0x%llX", Cache::local_player.Get().object_ptr);
-		ImGui::Text("Camera Position: %.2f %.2f %.2f", Cache::camera_pos.Get().x, Cache::camera_pos.Get().y, Cache::camera_pos.Get().z);
-		ImGui::Text("Players: %d", Cache::players.Get().size());
-		ImGui::Text("Entities: %d", Cache::entities.Get().size());
+		ImGui::Text("Base Address: 0x%llX", Cache::base_address.load());
+		ImGui::Text("Camera Object: 0x%llX", Cache::camera_object.load());
+		ImGui::Text("Entity List: 0x%llX", Cache::entity_list.load());
+		ImGui::Text("Local Player: 0x%llX", Cache::local_player.load().object_ptr);
+		ImGui::Text("Camera Position: %.2f %.2f %.2f", Cache::camera_pos.load().x, Cache::camera_pos.load().y, Cache::camera_pos.load().z);
+		ImGui::Text("Players: %d", Cache::players.load().size());
+		ImGui::Text("Entities: %d", Cache::entities.load().size());
 
 		ImGui::End();
 

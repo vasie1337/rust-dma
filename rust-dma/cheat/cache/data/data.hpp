@@ -8,13 +8,13 @@ public:
 	DataEntry() = default;
 	DataEntry(T data) : data(data) {}
 
-	void Set(T data)
+	void store(T data)
 	{
 		std::lock_guard<std::mutex> lock(mutex);
 		this->data = data;
 	}
 
-	T Get() const
+	T load() const
 	{
 		std::lock_guard<std::mutex> lock(mutex);
 		return data;
@@ -24,8 +24,6 @@ private:
 	mutable std::mutex mutex;
 	T data = T();
 };
-
-
 
 class CacheData
 {

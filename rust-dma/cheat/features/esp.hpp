@@ -6,9 +6,9 @@ class Esp : public Drawing
 private :
     static void RenderEntities()
     {
-        auto entity_list = Cache::entities.Get();
-        auto camera_position = Cache::camera_pos.Get();
-        auto view_matrix = Cache::view_matrix.Get();
+        auto entity_list = Cache::entities.load();
+        auto camera_position = Cache::camera_pos.load();
+        auto view_matrix = Cache::view_matrix.load();
 
         for (Entity& entity : entity_list)
         {
@@ -31,10 +31,10 @@ private :
     }
     static void RenderPlayers()
     {
-        auto local_player = Cache::local_player.Get();
-        auto player_list = Cache::players.Get();
-        auto camera_position = Cache::camera_pos.Get();
-        auto view_matrix = Cache::view_matrix.Get();
+        auto local_player = Cache::local_player.load();
+        auto player_list = Cache::players.load();
+        auto camera_position = Cache::camera_pos.load();
+        auto view_matrix = Cache::view_matrix.load();
 
         for (Player& player : player_list)
         {
