@@ -65,17 +65,17 @@ public:
 	);
 	CacheThread entities_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)),
-		100,
+		1000,
 		"Entities Fetch"
 	);
 	CacheThread bones_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchBones, this, std::placeholders::_1)),
-		100,
+		1000,
 		"Bones Fetch"
 	);
 	CacheThread pos_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::UpdatePositions, this, std::placeholders::_1)),
-		1000,
+		100,
 		"Positions Update"
 	);
 	CacheThread bones_update_thread = CacheThread(
