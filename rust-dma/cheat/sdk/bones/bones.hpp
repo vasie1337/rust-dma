@@ -3,6 +3,7 @@
 
 enum BoneList
 {
+	start = 0,
     l_knee = 2,
     l_foot = 3,
     r_knee = 14,

@@ -14,9 +14,10 @@ public:
 
     std::uintptr_t model = 0;
     std::uintptr_t player_model = 0;
-	bool is_npc = false;
     std::uintptr_t bone_transforms = 0;
-	std::vector<Bone> bones;
+
+	std::map<BoneList, Transform> new_bone_transforms;
+	bool is_npc = false;
 
 	bool IsIndexValid(int index)
 	{
@@ -42,13 +43,12 @@ public:
 
 	Vector3 GetBonePosition(int index)
 	{
-        if (!IsIndexValid(index))
-			return Vector3(0, 0, 0);
-        if (bones.empty())
-            return Vector3(0, 0, 0);
-		if (index < 0 || index >= max_bones)
-			return Vector3(0, 0, 0);
-		return bones[index].GetPosition();
+		if (!IsIndexValid(index))
+			return Vector3();
+		auto it = new_bone_transforms.find(static_cast<BoneList>(index));
+		if (it == new_bone_transforms.end())
+			return Vector3();
+		return it->second.position();
 	}
 
 	Vector3 GetHeadPosition()

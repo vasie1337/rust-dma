@@ -12,7 +12,7 @@ private :
 
         for (Entity& entity : entity_list)
         {
-            float distance = camera_position.Distance(entity.position);
+            float distance = camera_position.distance(entity.position);
             if (distance > max_entity_distance)
                 continue;
 
@@ -39,10 +39,10 @@ private :
         for (Player& player : player_list)
         {
             Vector3 head_bone = player.GetBonePosition(BoneList::head);
-            if (head_bone.IsZero())
+            if (head_bone.invalid())
                 continue;
 
-            float distance = camera_position.Distance(head_bone);
+            float distance = camera_position.distance(head_bone);
             if (distance > max_entity_distance)
                 continue;
 
@@ -58,9 +58,9 @@ private :
                 Vector3 right_foot = player.GetBonePosition(BoneList::r_foot);
                 Vector3 left_foot = player.GetBonePosition(BoneList::l_foot);
 
-                if (!right_foot.IsZero() && !left_foot.IsZero())
+                if (!right_foot.invalid() && !left_foot.invalid())
                 {
-                    foot_middle = (right_foot + left_foot) / 2;
+                    foot_middle = (right_foot + left_foot) / 2.f;
                 }
             }
 
@@ -76,7 +76,7 @@ private :
                 Vector3 start = player.GetBonePosition(connection.first);
                 Vector3 end = player.GetBonePosition(connection.second);
 
-                if (start.IsZero() || end.IsZero())
+                if (start.invalid() || end.invalid())
                     continue;
 
                 Vector2 start_screen;
