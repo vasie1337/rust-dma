@@ -122,6 +122,7 @@ private:
 
 		static bool show_debug;
 		static bool show_stats;
+
 		ImGui::Checkbox("Show Debug", &show_debug);
 		ImGui::Checkbox("Show Statistics", &show_stats);
 
