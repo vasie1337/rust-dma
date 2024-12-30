@@ -49,7 +49,7 @@ private :
             Vector2 head_screen;
             if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
             {
-                float radius = std::max<float>(1.0f, 100.0f / distance);
+                float radius = std::max<float>(1.0f, 50.0f / distance);
                 DrawCircle(head_screen, radius, ImColor(1.0f, 1.0f, 1.0f, 1.0f), 0);
             }
 
