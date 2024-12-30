@@ -29,6 +29,21 @@ private :
             }
         }
     }
+    static void RenderBones(Player& player)
+    {
+        auto view_matrix = Cache::view_matrix.load();
+
+        for (int i = 0; i < BoneList::max_bones; i++)
+        {
+            Vector3 bone_position = player.GetBonePosition(i);
+
+            Vector2 screen_position;
+            Math::WorldToScreen(bone_position, screen_position, view_matrix);
+            {
+                DrawCircle(screen_position, 1.0f, ImColor(1.0f, 1.0f, 1.0f, 1.0f), 0);
+            }
+        }
+    }
     static void RenderPlayers()
     {
         auto local_player = Cache::local_player.load();
@@ -38,6 +53,9 @@ private :
 
         for (Player& player : player_list)
         {
+			RenderBones(player);
+            continue;
+
             Vector3 head_bone = player.GetBonePosition(BoneList::head);
             if (head_bone.invalid())
                 continue;
@@ -92,7 +110,7 @@ private :
 public:
     static void Render()
     {
-		RenderEntities();
+		//RenderEntities();
         RenderPlayers();
     }
 };

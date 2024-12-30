@@ -40,7 +40,7 @@ class Transform
 			buffer = new T[capacity];
 		}
 
-		void updateBuffer(uintptr_t address, int capacity)
+		void updateBuffer(HANDLE scatter_handle, uintptr_t address, int capacity)
 		{
 			if (capacity > this->capacity)
 			{
@@ -51,7 +51,7 @@ class Transform
 				this->capacity = capacity;
 			}
 
-			dma.Read((void*)address, (void*)buffer, sizeof(T) * capacity);
+			dma.AddScatterRead(scatter_handle, address, buffer, capacity * sizeof(T));
 		}
 
 		T& operator[](int index)
@@ -63,9 +63,8 @@ class Transform
 	};
 
 public:
-	// use the same buffer for all transforms. NOTE: if you're multithreaded, probably mutex these or store buffer another way
-	inline static ResizableBuffer<trsX> trsBuffer;
-	inline static ResizableBuffer<int> parentIndicesBuffer;
+	ResizableBuffer<trsX> trsBuffer;
+	ResizableBuffer<int> parentIndicesBuffer;
 
 	uintptr_t address;
 	uintptr_t address_internal;
@@ -75,14 +74,14 @@ public:
 	uintptr_t localTransforms;
 	uintptr_t parentIndices;
 
-	void updateTrsXBuffer() const
+	void updateTrsXBuffer(HANDLE scatter_handle)
 	{
-		trsBuffer.updateBuffer(localTransforms, transformAccess.index + 1);
+		trsBuffer.updateBuffer(scatter_handle, localTransforms, transformAccess.index + 1);
 	}
 
-	void updateParentIndicesBuffer() const
+	void updateParentIndicesBuffer(HANDLE scatter_handle)
 	{
-		parentIndicesBuffer.updateBuffer(parentIndices, transformAccess.index + 1);
+		parentIndicesBuffer.updateBuffer(scatter_handle, parentIndices, transformAccess.index + 1);
 	}
 
 	Vector3 localPosition() const
@@ -100,7 +99,7 @@ public:
 		return dma.Read<trsX>(localTransforms + transformAccess.index * sizeof(trsX)).q;
 	}
 
-	Vector3 position() const
+	Vector3 position()
 	{
 		Vector3 worldPos = trsBuffer[transformAccess.index].t;
 		int index = parentIndicesBuffer[transformAccess.index];
@@ -118,7 +117,7 @@ public:
 		return worldPos;
 	}
 
-	Vector4 rotation() const
+	Vector4 rotation()
 	{
 		Vector4 worldRot = trsBuffer[transformAccess.index].q;
 		int index = parentIndicesBuffer[transformAccess.index];
@@ -134,35 +133,35 @@ public:
 		return worldRot.normalized();
 	}
 
-	Vector3 right() const
+	Vector3 right()
 	{
 		static Vector3 right = { 1, 0, 0 };
 		return rotation() * right;
 	}
 
-	Vector3 up() const
+	Vector3 up()
 	{
 		static Vector3 up = { 0, 1, 0 };
 		return rotation() * up;
 	}
 
-	Vector3 forward() const
+	Vector3 forward()
 	{
 		static Vector3 forward = { 0, 0, 1 };
 		return rotation() * forward;
 	}
 
-	Vector3 TransformDirection(Vector3 localDirection) const
+	Vector3 TransformDirection(Vector3 localDirection)
 	{
 		return rotation() * localDirection;
 	}
 
-	Vector3 InverseTransformDirection(Vector3 worldDirection) const
+	Vector3 InverseTransformDirection(Vector3 worldDirection)
 	{
 		return rotation().conjugate() * worldDirection;
 	}
 
-	Vector3 TransformPoint(Vector3 localPoint) const
+	Vector3 TransformPoint(Vector3 localPoint)
 	{
 		Vector3 worldPos = localPoint;
 		int index = transformAccess.index;
@@ -180,7 +179,7 @@ public:
 		return worldPos;
 	}
 
-	Vector3 InverseTransformPoint(Vector3 worldPoint) const
+	Vector3 InverseTransformPoint(Vector3 worldPoint)
 	{
 		Vector3 worldPos = trsBuffer[transformAccess.index].t;
 		Vector4 worldRot = trsBuffer[transformAccess.index].q;

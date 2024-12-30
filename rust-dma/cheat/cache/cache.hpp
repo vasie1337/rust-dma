@@ -65,22 +65,22 @@ public:
 	);
 	CacheThread entities_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)),
-		1000,
+		100,
 		"Entities Fetch"
 	);
 	CacheThread bones_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchBones, this, std::placeholders::_1)),
-		1000,
+		100,
 		"Bones Fetch"
 	);
 	CacheThread pos_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::UpdatePositions, this, std::placeholders::_1)),
-		100,
+		1000,
 		"Positions Update"
 	);
 	CacheThread bones_update_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::UpdateBones, this, std::placeholders::_1)),
-		10,
+		100,
 		"Bones Update"
 	);
 
@@ -163,6 +163,12 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		}
 	}
 
+	if (entities_to_update.empty())
+	{
+		entities.store(new_entities);
+		return;
+	}
+
 	for (auto& entity_ref : entities_to_update)
 	{
 		auto& entity = entity_ref.get();
@@ -239,22 +245,24 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 			players_to_update.push_back(std::ref(player));
 		}
 	}
-
-	for (auto& player_ref : players_to_update)
+	if (!players_to_update.empty())
 	{
-		auto& player = player_ref.get();
-		dma.AddScatterRead(scatter_handle, player.object_ptr + 0xC8, &player.model, sizeof(player.model));
-		dma.AddScatterRead(scatter_handle, player.object_ptr + 0x310, &player.player_model, sizeof(player.player_model));
-	}
-	dma.ExecuteScatterRead(scatter_handle);
+		for (auto& player_ref : players_to_update)
+		{
+			auto& player = player_ref.get();
+			dma.AddScatterRead(scatter_handle, player.object_ptr + 0xC8, &player.model, sizeof(player.model));
+			dma.AddScatterRead(scatter_handle, player.object_ptr + 0x310, &player.player_model, sizeof(player.player_model));
+		}
+		dma.ExecuteScatterRead(scatter_handle);
 
-	for (auto& player_ref : players_to_update)
-	{
-		auto& player = player_ref.get();
-		dma.AddScatterRead(scatter_handle, player.player_model + 0x2E2, &player.is_npc, sizeof(player.is_npc));
-		dma.AddScatterRead(scatter_handle, player.model + 0x50, &player.bone_transforms, sizeof(player.bone_transforms));
+		for (auto& player_ref : players_to_update)
+		{
+			auto& player = player_ref.get();
+			dma.AddScatterRead(scatter_handle, player.player_model + 0x2E2, &player.is_npc, sizeof(player.is_npc));
+			dma.AddScatterRead(scatter_handle, player.model + 0x50, &player.bone_transforms, sizeof(player.bone_transforms));
+		}
+		dma.ExecuteScatterRead(scatter_handle);
 	}
-	dma.ExecuteScatterRead(scatter_handle);
 
 	entities.store(new_entities);
 	players.store(new_players);
@@ -266,38 +274,72 @@ void Cache::FetchBones(HANDLE scatter_handle)
 	if (new_players.empty())
 		return;
 
+	std::unordered_map<uintptr_t, Player> existing_players;
+	for (const auto& player : players.load())
+	{
+		if (player.bones_fetched)
+		{
+			existing_players[player.object_ptr] = player;
+		}
+	}
+
+	std::vector<std::reference_wrapper<Player>> players_to_update;
+	
 	for (auto& player : new_players)
 	{
-		for (int i = 0; i < BoneList::max_bones; i++)
-		{
-			if (!player.IsIndexValid(i))
-				continue;
+		auto it = existing_players.find(player.object_ptr);
 
-			auto& bone_transform = player.new_bone_transforms.at(static_cast<BoneList>(i));
-			if (!bone_transform.address)
-			{
-				dma.AddScatterRead(scatter_handle,
-					player.bone_transforms + (0x20 + (static_cast<unsigned long long>(i) * 0x8)),
-					&bone_transform.address,
-					sizeof(bone_transform.address)
-				);
-			}
+		if (player.bones.empty())
+		{
+			player.bones.resize(BoneList::max_bones);
+		}
+
+		if (it == existing_players.end() || it->second.bone_transforms != player.bone_transforms)
+		{
+			players_to_update.push_back(std::ref(player));
+		}
+		else
+		{
+			player.bones = it->second.bones;
+		}
+	}
+
+	if (existing_players.empty())
+	{
+		players_to_update.clear();
+		for (auto& player : new_players)
+		{
+			players_to_update.push_back(std::ref(player));
+		}
+	}
+
+	for (auto& player_ref : players_to_update)
+	{
+		auto& player = player_ref.get();
+		for (int i = 0; i < max_bones; i++)
+		{
+			dma.AddScatterRead(scatter_handle, 
+				player.bone_transforms + (0x20 + (static_cast<unsigned long long>(i) * 0x8)),
+				&player.bones[i].address, 
+				sizeof(player.bones[i].address)
+			);
 		}
 	}
 	dma.ExecuteScatterRead(scatter_handle);
-
-	for (auto& player : new_players)
+	
+	for (auto& player_ref : players_to_update)
 	{
-		for (auto& [bone_id, bone_transform] : player.new_bone_transforms)
+		auto& player = player_ref.get();
+		for (auto& bone_transform : player.bones)
 		{
 			if (!bone_transform.address)
 				continue;
 
 			if (!bone_transform.address_internal)
 			{
-				dma.AddScatterRead(scatter_handle, 
-					bone_transform.address + 0x10, 
-					&bone_transform.address_internal, 
+				dma.AddScatterRead(scatter_handle,
+					bone_transform.address + 0x10,
+					&bone_transform.address_internal,
 					sizeof(bone_transform.address_internal)
 				);
 			}
@@ -305,12 +347,14 @@ void Cache::FetchBones(HANDLE scatter_handle)
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
-	for (auto& player : new_players)
+	for (auto& player_ref : players_to_update)
 	{
-		for (auto& [bone_id, bone_transform] : player.new_bone_transforms)
+		auto& player = player_ref.get();
+		for (auto& bone_transform : player.bones)
 		{
 			if (!bone_transform.address_internal)
 				continue;
+
 			if (!bone_transform.transformAccess)
 			{
 				dma.AddScatterRead(scatter_handle,
@@ -323,12 +367,14 @@ void Cache::FetchBones(HANDLE scatter_handle)
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
-	for (auto& player : new_players)
+	for (auto& player_ref : players_to_update)
 	{
-		for (auto& [bone_id, bone_transform] : player.new_bone_transforms)
+		auto& player = player_ref.get();
+		for (auto& bone_transform : player.bones)
 		{
 			if (!bone_transform.transformAccess)
 				continue;
+
 			if (!bone_transform.localTransforms)
 			{
 				dma.AddScatterRead(scatter_handle,
@@ -345,6 +391,8 @@ void Cache::FetchBones(HANDLE scatter_handle)
 					sizeof(bone_transform.parentIndices)
 				);
 			}
+
+			player.bones_fetched = true;
 		}
 	}
 	dma.ExecuteScatterRead(scatter_handle);
@@ -376,30 +424,13 @@ void Cache::UpdateBones(HANDLE scatter_handle)
 
 	for (auto& player : new_players)
 	{
-		for (auto& [bone_id, bone_transform] : player.new_bone_transforms)
-		{
-			bone_transform.updateTrsXBuffer();
-			bone_transform.updateParentIndicesBuffer();
-		}
-	}
+		if (!player.bones_fetched)
+			continue;
 
-	for (auto& player : new_players)
-	{
-		for (auto& [bone_id, bone_transform] : player.new_bone_transforms)
+		for (auto& bone_transform : player.bones)
 		{
-			if (!bone_transform.transformAccess)
-				continue;
-
-			dma.AddScatterRead(scatter_handle,
-				bone_transform.localTransforms,
-				&bone_transform.trsBuffer.buffer,
-				sizeof(bone_transform.trsBuffer.buffer) * (bone_transform.transformAccess.index + 1)
-			);
-			dma.AddScatterRead(scatter_handle,
-				bone_transform.parentIndices,
-				&bone_transform.parentIndicesBuffer.buffer,
-				sizeof(bone_transform.parentIndicesBuffer.buffer) * (bone_transform.transformAccess.index + 1)
-			);
+			bone_transform.updateTrsXBuffer(scatter_handle);
+			bone_transform.updateParentIndicesBuffer(scatter_handle);
 		}
 	}
 	dma.ExecuteScatterRead(scatter_handle);
