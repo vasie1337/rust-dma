@@ -89,9 +89,12 @@ public:
 	{
 		Vector3 worldPos = trsBuffer[transformAccess.index].t;
 		int index = parentIndicesBuffer[transformAccess.index];
+		int max = 0;
 
 		while (index >= 0)
 		{
+			if (max++ > 30)
+				break;
 			auto& parent = trsBuffer[index];
 
 			worldPos = parent.q * worldPos;
@@ -108,9 +111,10 @@ public:
 		Vector4 worldRot = trsBuffer[transformAccess.index].q;
 		int index = parentIndicesBuffer[transformAccess.index];
 		int max = 0;
+
 		while (index >= 0)
 		{
-			if (max++ > 50000)
+			if (max++ > 5000)
 				break;
 			auto& parent = trsBuffer[index];
 

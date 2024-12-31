@@ -29,23 +29,6 @@ private :
             }
         }
     }
-    static void RenderBones(Player& player)
-    {
-        auto view_matrix = Cache::view_matrix.load();
-
-        for (int i = 1; i < BoneList::max_bones; i++)
-        {
-            Vector3 bone_position = player.GetBonePosition(i);
-            if (bone_position.invalid())
-                continue;
-
-            Vector2 screen_position;
-            Math::WorldToScreen(bone_position, screen_position, view_matrix);
-            {
-                DrawCircle(screen_position, 1.0f, ImColor(1.0f, 1.0f, 1.0f, 1.0f), 0);
-            }
-        }
-    }
     static void RenderPlayers()
     {
         auto local_player = Cache::local_player.load();
@@ -81,15 +64,6 @@ private :
                 }
             }
             
-            Vector2 screen_position;
-            if (Math::WorldToScreen(foot_middle, screen_position, view_matrix))
-            {
-                std::string text = player.formatted_name + " [" + std::to_string(static_cast<int>(distance)) + "m]";
-                DrawString(screen_position, ImColor(1.0f, 1.0f, 1.0f, 1.0f), text);
-            }
-
-			//RenderBones(player);
-
             for (const auto& connection : player.SkeletonConnections)
             {
                 Vector3 start = player.GetBonePosition(connection.first);
@@ -111,7 +85,7 @@ private :
 public:
     static void Render()
     {
-		//RenderEntities();
+		RenderEntities();
         RenderPlayers();
     }
 };

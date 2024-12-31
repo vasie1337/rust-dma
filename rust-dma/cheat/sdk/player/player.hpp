@@ -88,8 +88,12 @@ public:
 
 	bool is_npc = false;
 
+	// Needed since the buffers in the Transform class are not thread safe
+	static inline std::mutex bone_mutex;
+
 	Vector3 GetBonePosition(int index)
 	{
+		std::lock_guard<std::mutex> lock(bone_mutex);
 		if (!bones_fetched)
 			return Vector3(0, 0, 0);
 		if (!bones.size())
@@ -105,15 +109,15 @@ public:
 	}
 
 	std::vector<std::pair<BoneList, BoneList>> SkeletonConnections = {
-			{ BoneList::r_foot, BoneList::r_knee },
-			{ BoneList::l_foot, BoneList::l_knee },
-			{ BoneList::r_knee, BoneList::spine1 },
-			{ BoneList::l_knee, BoneList::spine1 },
-			{ BoneList::spine1, BoneList::neck },
-			{ BoneList::neck, BoneList::head },
-			{ BoneList::neck, BoneList::r_forearm },
-			{ BoneList::r_forearm, BoneList::r_hand },
-			{ BoneList::neck, BoneList::l_forearm },
-			{ BoneList::l_forearm, BoneList::l_hand }
+		{ BoneList::r_foot, BoneList::r_knee },
+		{ BoneList::l_foot, BoneList::l_knee },
+		{ BoneList::r_knee, BoneList::spine1 },
+		{ BoneList::l_knee, BoneList::spine1 },
+		{ BoneList::spine1, BoneList::neck },
+		{ BoneList::neck, BoneList::head },
+		{ BoneList::neck, BoneList::r_forearm },
+		{ BoneList::r_forearm, BoneList::r_hand },
+		{ BoneList::neck, BoneList::l_forearm },
+		{ BoneList::l_forearm, BoneList::l_hand }
 	};
 };

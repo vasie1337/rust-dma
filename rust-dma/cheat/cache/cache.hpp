@@ -80,7 +80,7 @@ public:
 	);
 	CacheThread bones_update_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::UpdateBones, this, std::placeholders::_1)),
-		10,
+		50,
 		"Bones Update"
 	);
 
@@ -318,6 +318,8 @@ void Cache::FetchBones(HANDLE scatter_handle)
 		auto& player = player_ref.get();
 		for (int i = 0; i < max_bones; i++)
 		{
+			// index check here
+
 			dma.AddScatterRead(scatter_handle, 
 				player.bone_transforms + (0x20 + (static_cast<unsigned long long>(i) * 0x8)),
 				&player.bones[i].address, 
@@ -405,6 +407,7 @@ void Cache::FetchBones(HANDLE scatter_handle)
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
+	std::lock_guard<std::mutex> lock(Player::bone_mutex);
 	players.store(new_players);
 }
 
@@ -430,6 +433,8 @@ void Cache::UpdateBones(HANDLE scatter_handle)
 	if (new_players.empty())
 		return;
 
+	std::lock_guard<std::mutex> lock(Player::bone_mutex);
+
 	for (auto& player : new_players)
 	{
 		if (!player.bones_fetched)
@@ -441,6 +446,7 @@ void Cache::UpdateBones(HANDLE scatter_handle)
 			bone_transform.updateParentIndicesBuffer(scatter_handle);
 		}
 	}
+
 	dma.ExecuteScatterRead(scatter_handle);
 
 	players.store(new_players);
