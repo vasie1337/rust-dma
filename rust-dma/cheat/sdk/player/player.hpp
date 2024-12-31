@@ -90,13 +90,8 @@ public:
 
 	Vector3 GetBonePosition(int index)
 	{
-		if (bones.empty())
+        if (!bones_fetched)
 			return Vector3();
-		if (bones.size() <= index)
-			return Vector3();
-		if (!bones[index].transformAccess)
-			return Vector3();
-
 		return bones[index].position();
 	}
 

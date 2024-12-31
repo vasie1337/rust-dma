@@ -95,14 +95,16 @@ private :
                 Vector3 start = player.GetBonePosition(connection.first);
                 Vector3 end = player.GetBonePosition(connection.second);
 
+                if (start.invalid() || end.invalid())
+                    continue;
+
                 Vector2 start_screen;
                 Vector2 end_screen;
-
-                Math::WorldToScreen(start, start_screen, view_matrix); 
-                Math::WorldToScreen(end, end_screen, view_matrix);
-
-                ImColor color = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DrawLine(start_screen, end_screen, 1.f, color);
+                if (Math::WorldToScreen(start, start_screen, view_matrix) && Math::WorldToScreen(end, end_screen, view_matrix))
+                {
+                    ImColor color = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
+                    DrawLine(start_screen, end_screen, 1.f, color);
+                }
             }
         }
     }
