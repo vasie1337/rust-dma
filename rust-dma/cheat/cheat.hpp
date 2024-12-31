@@ -100,8 +100,11 @@ private:
 		ImGui::Checkbox("Hemp", &Filter::hemp.enabled); ImGui::SameLine();
 		ImGui::ColorEdit4("Hemp Color", (float*)&Filter::hemp.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
-		ImGui::Checkbox("Loot Containers", &Filter::loot_containers.enabled); ImGui::SameLine();
-		ImGui::ColorEdit4("Loot Containers Color", (float*)&Filter::loot_containers.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+		ImGui::Checkbox("Barrels", &Filter::barrels.enabled); ImGui::SameLine();
+		ImGui::ColorEdit4("Barrels Color", (float*)&Filter::barrels.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+
+		ImGui::Checkbox("Crates", &Filter::crates.enabled); ImGui::SameLine();
+		ImGui::ColorEdit4("Crates Color", (float*)&Filter::crates.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
 		ImGui::Checkbox("Berries", &Filter::berries.enabled); ImGui::SameLine();
 		ImGui::ColorEdit4("Berries Color", (float*)&Filter::berries.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);

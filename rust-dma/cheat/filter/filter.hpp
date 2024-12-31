@@ -118,8 +118,22 @@ private:
         collectable_ores.AddPath("assets/bundled/prefabs/autospawn/collectable/stone/sulfur-collectable.prefab");
         collectable_ores.AddPath("assets/bundled/prefabs/autospawn/collectable/wood");
 
-        loot_containers.AddPath("assets/bundled/prefabs/autospawn/resource/loot/");
-        loot_containers.AddPath("assets/bundled/prefabs/radtown");
+        barrels.AddPath("assets/bundled/prefabs/radtown/loot_barrel_1.prefab");
+        barrels.AddPath("assets/bundled/prefabs/radtown/loot_barrel_2.prefab");
+        barrels.AddPath("assets/bundled/prefabs/radtown/oil_barrel.prefab");
+        barrels.AddPath("assets/bundled/prefabs/autospawn/resource/loot/loot-barrel-1.prefab");
+        barrels.AddPath("assets/bundled/prefabs/autospawn/resource/loot/loot-barrel-2.prefab");
+
+        crates.AddPath("assets/bundled/prefabs/radtown/crate_basic.prefab");
+        crates.AddPath("assets/bundled/prefabs/radtown/crate_elite.prefab");
+        crates.AddPath("assets/bundled/prefabs/radtown/crate_mine.prefab");
+        crates.AddPath("assets/bundled/prefabs/radtown/crate_normal.prefab");
+        crates.AddPath("assets/bundled/prefabs/radtown/crate_normal_2.prefab");
+        crates.AddPath("assets/bundled/prefabs/radtown/crate_normal_2_food.prefab");
+        crates.AddPath("assets/bundled/prefabs/radtown/crate_normal_2_medical.prefab");
+        crates.AddPath("assets/bundled/prefabs/radtown/crate_tools.prefab");
+        crates.AddPath("assets/bundled/prefabs/radtown/crate_underwater_advanced.prefab");
+        crates.AddPath("assets/bundled/prefabs/radtown/crate_underwater_basic.prefab");
 
         misc.AddPath("assets/content/props/roadsigns/");
 
@@ -153,7 +167,8 @@ private:
             std::ref(berries),
             std::ref(ores),
             std::ref(misc),
-            std::ref(loot_containers),
+            std::ref(barrels),
+            std::ref(crates),
             std::ref(vehicles),
             std::ref(npcs)
         };
@@ -169,7 +184,8 @@ public:
     static inline EntityCategorie berries = EntityCategorie(ImColor(0.9f, 0.1f, 0.9f, 1.0f));
     static inline EntityCategorie ores = EntityCategorie(ImColor(0.0f, 0.6f, 1.0f, 1.0f)); 
     static inline EntityCategorie misc = EntityCategorie(ImColor(0.8f, 0.6f, 0.1f, 1.0f)); 
-    static inline EntityCategorie loot_containers = EntityCategorie(ImColor(0.5f, 0.2f, 0.7f, 1.0f));
+    static inline EntityCategorie barrels = EntityCategorie(ImColor(0.5f, 0.2f, 0.7f, 1.0f));
+    static inline EntityCategorie crates = EntityCategorie(ImColor(0.7f, 0.4f, 0.5f, 1.0f));
     static inline EntityCategorie vehicles = EntityCategorie(ImColor(0.7f, 0.7f, 0.7f, 1.0f), false);
     static inline EntityCategorie npcs = EntityCategorie(ImColor(0.9f, 0.1f, 0.1f, 1.0f), false);
 };
