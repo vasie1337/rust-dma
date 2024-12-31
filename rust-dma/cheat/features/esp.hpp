@@ -58,29 +58,29 @@ private :
             Vector3 head_bone = player.GetBonePosition(BoneList::head);
             if (head_bone.invalid())
                 continue;
-
+            
             float distance = camera_position.distance(head_bone);
             if (distance > max_entity_distance)
                 continue;
-
+            
             Vector2 head_screen;
             if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
             {
                 float radius = std::max<float>(1.0f, 50.0f / distance);
                 DrawCircle(head_screen, radius, ImColor(1.0f, 1.0f, 1.0f, 1.0f), 0);
             }
-
+            
             Vector3 foot_middle = Vector3();
             {
                 Vector3 right_foot = player.GetBonePosition(BoneList::r_foot);
                 Vector3 left_foot = player.GetBonePosition(BoneList::l_foot);
-
+            
                 if (!right_foot.invalid() && !left_foot.invalid())
                 {
                     foot_middle = (right_foot + left_foot) / 2.f;
                 }
             }
-
+            
             Vector2 screen_position;
             if (Math::WorldToScreen(foot_middle, screen_position, view_matrix))
             {
@@ -88,21 +88,21 @@ private :
                 DrawString(screen_position, ImColor(1.0f, 1.0f, 1.0f, 1.0f), text);
             }
 
+			//RenderBones(player);
+
             for (const auto& connection : player.SkeletonConnections)
             {
                 Vector3 start = player.GetBonePosition(connection.first);
                 Vector3 end = player.GetBonePosition(connection.second);
 
-                if (start.invalid() || end.invalid())
-                    continue;
-
                 Vector2 start_screen;
                 Vector2 end_screen;
-                if (Math::WorldToScreen(start, start_screen, view_matrix) && Math::WorldToScreen(end, end_screen, view_matrix))
-                {
-                    ImColor color = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
-                    DrawLine(start_screen, end_screen, 1.f, color);
-                }
+
+                Math::WorldToScreen(start, start_screen, view_matrix); 
+                Math::WorldToScreen(end, end_screen, view_matrix);
+
+                ImColor color = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
+                DrawLine(start_screen, end_screen, 1.f, color);
             }
         }
     }

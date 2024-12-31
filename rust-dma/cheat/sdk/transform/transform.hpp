@@ -92,7 +92,7 @@ public:
 		int max = 0;
 		while (index >= 0)
 		{
-			if (max++ > 10000) 
+			if (max++ > 50000)
 				break;
 			auto& parent = trsBuffer[index];
 
@@ -112,7 +112,7 @@ public:
 		int max = 0;
 		while (index >= 0)
 		{
-			if (max++ > 10000)
+			if (max++ > 50000)
 				break;
 			auto& parent = trsBuffer[index];
 
