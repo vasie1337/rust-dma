@@ -65,12 +65,12 @@ public:
 	);
 	CacheThread entities_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)),
-		1000,
+		500,
 		"Entities Fetch"
 	);
 	CacheThread bones_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchBones, this, std::placeholders::_1)),
-		1000,
+		500,
 		"Bones Fetch"
 	);
 	CacheThread pos_thread = CacheThread(
@@ -212,6 +212,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		auto& entity = entity_ref.get();
 		entity.obj_name = entity.name_buffer;
 		entity.formatted_name = FormatObjectName(entity.obj_name);
+		entity.category = Filter::GetCategory(entity.obj_name);
 	}
 
 	for (auto& entity : new_entities)
@@ -318,7 +319,8 @@ void Cache::FetchBones(HANDLE scatter_handle)
 		auto& player = player_ref.get();
 		for (int i = 0; i < max_bones; i++)
 		{
-			// index check here
+			if (!player.IsIndexValid(i))
+				continue;
 
 			dma.AddScatterRead(scatter_handle, 
 				player.bone_transforms + (0x20 + (static_cast<unsigned long long>(i) * 0x8)),
@@ -415,10 +417,15 @@ void Cache::UpdatePositions(HANDLE scatter_handle)
 {
 	std::vector<Entity> new_entities = entities.load();
 
-	// TODO ONLY UPDATE POSITIONS OF NON-STATIONARY OBJECTS
-
 	for (auto& entity : new_entities)
 	{
+		const auto& category = entity.category;
+		if (!category.Enabled())
+			continue;
+
+		if (category.IsStatic() && !entity.position.invalid())
+			continue;
+
 		dma.AddScatterRead(scatter_handle, entity.visual_state + 0x90, &entity.position, sizeof(Vector3));
 	}
 

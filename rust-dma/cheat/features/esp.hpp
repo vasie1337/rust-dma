@@ -19,7 +19,7 @@ private :
             Vector2 screen_position;
             if (Math::WorldToScreen(entity.position, screen_position, view_matrix))
             {
-                const auto category = Filter::GetCategory(entity);
+                const auto& category = entity.category;
                 if (!category.Enabled())
                     continue;
 
@@ -49,19 +49,8 @@ private :
             Vector2 head_screen;
             if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
             {
-                float radius = std::max<float>(1.0f, 50.0f / distance);
+                float radius = std::max<float>(1.0f, 30.0f / distance);
                 DrawCircle(head_screen, radius, ImColor(1.0f, 1.0f, 1.0f, 1.0f), 0);
-            }
-            
-            Vector3 foot_middle = Vector3();
-            {
-                Vector3 right_foot = player.GetBonePosition(BoneList::r_foot);
-                Vector3 left_foot = player.GetBonePosition(BoneList::l_foot);
-            
-                if (!right_foot.invalid() && !left_foot.invalid())
-                {
-                    foot_middle = (right_foot + left_foot) / 2.f;
-                }
             }
             
             for (const auto& connection : player.SkeletonConnections)

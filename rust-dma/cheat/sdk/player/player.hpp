@@ -120,4 +120,25 @@ public:
 		{ BoneList::neck, BoneList::l_forearm },
 		{ BoneList::l_forearm, BoneList::l_hand }
 	};
+
+	bool IsIndexValid(int index) const
+	{
+        switch (index)
+        {
+		case BoneList::r_foot:
+		case BoneList::l_foot:
+		case BoneList::r_knee:
+		case BoneList::l_knee:
+		case BoneList::spine1:
+		case BoneList::neck:
+		case BoneList::head:
+		case BoneList::r_forearm:
+		case BoneList::r_hand:
+		case BoneList::l_forearm:
+		case BoneList::l_hand:
+			return true;
+		default:
+			return false;
+        }
+	}
 };

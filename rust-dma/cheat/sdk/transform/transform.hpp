@@ -91,7 +91,7 @@ public:
 		int index = parentIndicesBuffer[transformAccess.index];
 		int max = 0;
 
-		while (index >= 0)
+		while (index >= 0 && index <= 100)
 		{
 			if (max++ > 30)
 				break;

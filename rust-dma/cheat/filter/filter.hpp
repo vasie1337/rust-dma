@@ -4,17 +4,27 @@
 class EntityCategorie
 {
 public:
-	EntityCategorie(ImColor color)
+	EntityCategorie() = default;
+	EntityCategorie(ImColor color, bool is_obj_static = true)
+		: color(color), is_obj_static(is_obj_static)
 	{
-		this->color = color;
 	}
 	~EntityCategorie() = default;
 
-	bool IsEntityInCategory(Entity& entity) const
+	EntityCategorie& operator=(const EntityCategorie& other)
+	{
+		paths = other.paths;
+		enabled = other.enabled;
+		color = other.color;
+		is_obj_static = other.is_obj_static;
+		return *this;
+	}
+
+	bool IsEntityInCategory(std::string obj_name) const
 	{
 		for (const std::string& path : paths)
 		{
-			if (entity.obj_name.length() >= path.length() && memcmp(entity.obj_name.data(), path.data(), path.length()) == 0)
+			if (obj_name.length() >= path.length() && memcmp(obj_name.data(), path.data(), path.length()) == 0)
 			{
 				return true;
 			}
@@ -25,6 +35,11 @@ public:
 	bool Enabled() const
 	{
 		return enabled && !paths.empty();
+	}
+
+	bool IsStatic() const
+	{
+		return is_obj_static;
 	}
 
 	ImColor GetColor() const
@@ -42,6 +57,7 @@ private:
 
 public:
 	bool enabled = true;
+	bool is_obj_static = true;
     ImColor color;
 };
 
@@ -51,13 +67,13 @@ public:
     Filter() = default;
     ~Filter() = default;
 
-    static EntityCategorie& GetCategory(Entity& entity)
+    static EntityCategorie& GetCategory(std::string obj_name)
     {
         std::call_once(initialized_flag, PopulateCategories);
 
         for (auto& category : categories)
         {
-            if (category.get().IsEntityInCategory(entity))
+            if (category.get().IsEntityInCategory(obj_name))
             {
                 return category;
             }
@@ -154,6 +170,6 @@ public:
     static inline EntityCategorie ores = EntityCategorie(ImColor(0.0f, 0.6f, 1.0f, 1.0f)); 
     static inline EntityCategorie misc = EntityCategorie(ImColor(0.8f, 0.6f, 0.1f, 1.0f)); 
     static inline EntityCategorie loot_containers = EntityCategorie(ImColor(0.5f, 0.2f, 0.7f, 1.0f));
-    static inline EntityCategorie vehicles = EntityCategorie(ImColor(0.7f, 0.7f, 0.7f, 1.0f));
-    static inline EntityCategorie npcs = EntityCategorie(ImColor(0.9f, 0.1f, 0.1f, 1.0f));
+    static inline EntityCategorie vehicles = EntityCategorie(ImColor(0.7f, 0.7f, 0.7f, 1.0f), false);
+    static inline EntityCategorie npcs = EntityCategorie(ImColor(0.9f, 0.1f, 0.1f, 1.0f), false);
 };
