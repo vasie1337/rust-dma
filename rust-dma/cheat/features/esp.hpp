@@ -33,9 +33,11 @@ private :
     {
         auto view_matrix = Cache::view_matrix.load();
 
-        for (int i = 0; i < BoneList::max_bones; i++)
+        for (int i = 1; i < BoneList::max_bones; i++)
         {
             Vector3 bone_position = player.GetBonePosition(i);
+            if (bone_position.invalid())
+                continue;
 
             Vector2 screen_position;
             Math::WorldToScreen(bone_position, screen_position, view_matrix);

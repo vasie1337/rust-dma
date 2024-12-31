@@ -18,6 +18,7 @@ public:
 
 	std::vector<Transform> bones;
 	bool bones_fetched = false;
+	bool bones_updated = false;
 
 	bool is_npc = false;
 
