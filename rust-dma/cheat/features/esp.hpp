@@ -55,9 +55,6 @@ private :
 
         for (Player& player : player_list)
         {
-			RenderBones(player);
-            continue;
-
             Vector3 head_bone = player.GetBonePosition(BoneList::head);
             if (head_bone.invalid())
                 continue;

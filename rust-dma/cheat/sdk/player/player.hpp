@@ -18,36 +18,11 @@ public:
 
 	std::vector<Transform> bones;
 	bool bones_fetched = false;
-	bool bones_updated = false;
 
 	bool is_npc = false;
 
-	bool IsIndexValid(int index)
-	{
-		switch (index)
-		{
-		case l_knee:
-		case l_foot:
-		case r_knee:
-		case r_foot:
-		case spine1:
-		case l_forearm:
-		case l_hand:
-		case neck:
-		case head:
-		case r_forearm:
-		case r_hand:
-			return true;
-		default:
-			return false;
-		}
-	}
-
-
 	Vector3 GetBonePosition(int index)
 	{
-		//if (!IsIndexValid(index))
-		//	return Vector3();
 		if (bones.empty())
 			return Vector3();
 		if (bones.size() <= index)

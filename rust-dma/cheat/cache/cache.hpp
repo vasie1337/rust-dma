@@ -387,7 +387,6 @@ void Cache::FetchBones(HANDLE scatter_handle)
 					&bone_transform.parentIndices,
 					sizeof(bone_transform.parentIndices)
 				);
-				player.bones_fetched = true;
 			}
 		}
 	}
@@ -402,7 +401,7 @@ void Cache::FetchBones(HANDLE scatter_handle)
 			bone_transform.updateParentIndicesBuffer(scatter_handle);
 		}
 
-		player.bones_updated = true;
+		player.bones_fetched = true;
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
@@ -441,8 +440,6 @@ void Cache::UpdateBones(HANDLE scatter_handle)
 			bone_transform.updateTrsXBuffer(scatter_handle);
 			bone_transform.updateParentIndicesBuffer(scatter_handle);
 		}
-
-		player.bones_updated = true;
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
