@@ -12,7 +12,7 @@ private :
 
         for (Entity& entity : entity_list)
         {
-            float distance = camera_position.Distance(entity.position);
+            float distance = camera_position.distance(entity.position);
             if (distance > max_entity_distance)
                 continue;
 
@@ -29,6 +29,23 @@ private :
             }
         }
     }
+    static void RenderBones(Player& player)
+    {
+        auto view_matrix = Cache::view_matrix.load();
+
+        for (int i = 1; i < BoneList::max_bones; i++)
+        {
+            Vector3 bone_position = player.GetBonePosition(i);
+            if (bone_position.invalid())
+                continue;
+
+            Vector2 screen_position;
+            Math::WorldToScreen(bone_position, screen_position, view_matrix);
+            {
+                DrawCircle(screen_position, 1.0f, ImColor(1.0f, 1.0f, 1.0f, 1.0f), 0);
+            }
+        }
+    }
     static void RenderPlayers()
     {
         auto local_player = Cache::local_player.load();
@@ -39,31 +56,31 @@ private :
         for (Player& player : player_list)
         {
             Vector3 head_bone = player.GetBonePosition(BoneList::head);
-            if (head_bone.IsZero())
+            if (head_bone.invalid())
                 continue;
-
-            float distance = camera_position.Distance(head_bone);
+            
+            float distance = camera_position.distance(head_bone);
             if (distance > max_entity_distance)
                 continue;
-
+            
             Vector2 head_screen;
             if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
             {
                 float radius = std::max<float>(1.0f, 50.0f / distance);
                 DrawCircle(head_screen, radius, ImColor(1.0f, 1.0f, 1.0f, 1.0f), 0);
             }
-
+            
             Vector3 foot_middle = Vector3();
             {
                 Vector3 right_foot = player.GetBonePosition(BoneList::r_foot);
                 Vector3 left_foot = player.GetBonePosition(BoneList::l_foot);
-
-                if (!right_foot.IsZero() && !left_foot.IsZero())
+            
+                if (!right_foot.invalid() && !left_foot.invalid())
                 {
-                    foot_middle = (right_foot + left_foot) / 2;
+                    foot_middle = (right_foot + left_foot) / 2.f;
                 }
             }
-
+            
             Vector2 screen_position;
             if (Math::WorldToScreen(foot_middle, screen_position, view_matrix))
             {
@@ -71,12 +88,14 @@ private :
                 DrawString(screen_position, ImColor(1.0f, 1.0f, 1.0f, 1.0f), text);
             }
 
+			//RenderBones(player);
+
             for (const auto& connection : player.SkeletonConnections)
             {
                 Vector3 start = player.GetBonePosition(connection.first);
                 Vector3 end = player.GetBonePosition(connection.second);
 
-                if (start.IsZero() || end.IsZero())
+                if (start.invalid() || end.invalid())
                     continue;
 
                 Vector2 start_screen;
@@ -92,7 +111,7 @@ private :
 public:
     static void Render()
     {
-		RenderEntities();
+		//RenderEntities();
         RenderPlayers();
     }
 };
