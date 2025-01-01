@@ -1,12 +1,13 @@
 #pragma once
 #include "../../include.hpp"
 
+
 class EntityCategorie
 {
 public:
 	EntityCategorie() = default;
-	EntityCategorie(ImColor color, bool is_obj_static = true)
-		: color(color), is_obj_static(is_obj_static)
+	EntityCategorie(ImColor color, std::string name = "Unknown", bool is_obj_static = true)
+		: color(color), name(name), is_obj_static(is_obj_static)
 	{
 	}
 	~EntityCategorie() = default;
@@ -17,6 +18,7 @@ public:
 		enabled = other.enabled;
 		color = other.color;
 		is_obj_static = other.is_obj_static;
+		name = other.name;
 		return *this;
 	}
 
@@ -52,6 +54,11 @@ public:
 		paths.push_back(path);
 	}
 
+	std::string Name() const
+	{
+		return name;
+	}
+
 private:
 	std::vector<std::string> paths;
 
@@ -59,6 +66,7 @@ public:
 	bool enabled = true;
 	bool is_obj_static = true;
     ImColor color;
+    std::string name;
 };
 
 class Filter
@@ -175,17 +183,18 @@ private:
     }
 
     static inline std::once_flag initialized_flag;
-    static inline std::vector<std::reference_wrapper<EntityCategorie>> categories = {};
 
 public:
-    static inline EntityCategorie collectable_ores = EntityCategorie(ImColor(0.25f, 0.75f, 0.25f, 1.0f));
-    static inline EntityCategorie food = EntityCategorie(ImColor(1.0f, 0.5f, 0.0f, 1.0f)); 
-    static inline EntityCategorie hemp = EntityCategorie(ImColor(0.2f, 0.4f, 1.0f, 1.0f)); 
-    static inline EntityCategorie berries = EntityCategorie(ImColor(0.9f, 0.1f, 0.9f, 1.0f));
-    static inline EntityCategorie ores = EntityCategorie(ImColor(0.0f, 0.6f, 1.0f, 1.0f)); 
-    static inline EntityCategorie misc = EntityCategorie(ImColor(0.8f, 0.6f, 0.1f, 1.0f)); 
-    static inline EntityCategorie barrels = EntityCategorie(ImColor(0.5f, 0.2f, 0.7f, 1.0f));
-    static inline EntityCategorie crates = EntityCategorie(ImColor(0.7f, 0.4f, 0.5f, 1.0f));
-    static inline EntityCategorie vehicles = EntityCategorie(ImColor(0.7f, 0.7f, 0.7f, 1.0f), false);
-    static inline EntityCategorie npcs = EntityCategorie(ImColor(0.9f, 0.1f, 0.1f, 1.0f), false);
+    static inline EntityCategorie collectable_ores = EntityCategorie(ImColor(0.25f, 0.75f, 0.25f, 1.0f), "Collectable Ores");
+	static inline EntityCategorie food = EntityCategorie(ImColor(1.0f, 0.5f, 0.0f, 1.0f), "Food");
+	static inline EntityCategorie hemp = EntityCategorie(ImColor(0.2f, 0.4f, 1.0f, 1.0f), "Hemp");
+	static inline EntityCategorie berries = EntityCategorie(ImColor(0.9f, 0.1f, 0.9f, 1.0f), "Berries");   
+	static inline EntityCategorie ores = EntityCategorie(ImColor(0.0f, 0.6f, 1.0f, 1.0f), "Ores");  
+	static inline EntityCategorie misc = EntityCategorie(ImColor(0.8f, 0.6f, 0.1f, 1.0f), "Misc");  
+	static inline EntityCategorie barrels = EntityCategorie(ImColor(0.5f, 0.2f, 0.7f, 1.0f), "Barrels");
+	static inline EntityCategorie crates = EntityCategorie(ImColor(0.7f, 0.4f, 0.5f, 1.0f), "Crates"); 
+    static inline EntityCategorie vehicles = EntityCategorie(ImColor(0.7f, 0.7f, 0.7f, 1.0f), "Vehicles", false);
+    static inline EntityCategorie npcs = EntityCategorie(ImColor(0.9f, 0.1f, 0.1f, 1.0f), "NPC's", false);
+
+    static inline std::vector<std::reference_wrapper<EntityCategorie>> categories = {};
 };

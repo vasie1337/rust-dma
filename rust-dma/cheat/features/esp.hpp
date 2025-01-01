@@ -12,6 +12,10 @@ private :
 
         for (Entity& entity : entity_list)
         {
+            const auto& category = Filter::GetCategory(entity.obj_name);
+            if (!category.Enabled())
+                continue;
+
             float distance = camera_position.distance(entity.position);
             if (distance > max_entity_distance)
                 continue;
@@ -19,10 +23,6 @@ private :
             Vector2 screen_position;
             if (Math::WorldToScreen(entity.position, screen_position, view_matrix))
             {
-                const auto& category = entity.category;
-                if (!category.Enabled())
-                    continue;
-
                 std::string text = entity.formatted_name + " [" + std::to_string(static_cast<int>(distance)) + "m]";
 
                 DrawString(screen_position, category.GetColor(), text);

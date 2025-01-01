@@ -91,35 +91,14 @@ private:
 
 		ImGui::Separator();
 
-		ImGui::Checkbox("Collectable Ores", &Filter::collectable_ores.enabled); ImGui::SameLine();
-		ImGui::ColorEdit4("Collectable Ores Color", (float*)&Filter::collectable_ores.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-
-		ImGui::Checkbox("Food", &Filter::food.enabled); ImGui::SameLine();
-		ImGui::ColorEdit4("Food Color", (float*)&Filter::food.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-
-		ImGui::Checkbox("Hemp", &Filter::hemp.enabled); ImGui::SameLine();
-		ImGui::ColorEdit4("Hemp Color", (float*)&Filter::hemp.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-
-		ImGui::Checkbox("Barrels", &Filter::barrels.enabled); ImGui::SameLine();
-		ImGui::ColorEdit4("Barrels Color", (float*)&Filter::barrels.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-
-		ImGui::Checkbox("Crates", &Filter::crates.enabled); ImGui::SameLine();
-		ImGui::ColorEdit4("Crates Color", (float*)&Filter::crates.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-
-		ImGui::Checkbox("Berries", &Filter::berries.enabled); ImGui::SameLine();
-		ImGui::ColorEdit4("Berries Color", (float*)&Filter::berries.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-
-		ImGui::Checkbox("Ores", &Filter::ores.enabled); ImGui::SameLine();
-		ImGui::ColorEdit4("Ores Color", (float*)&Filter::ores.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-
-		ImGui::Checkbox("Misc", &Filter::misc.enabled); ImGui::SameLine();
-		ImGui::ColorEdit4("Misc Color", (float*)&Filter::misc.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-
-		ImGui::Checkbox("Vehicles", &Filter::vehicles.enabled); ImGui::SameLine();
-		ImGui::ColorEdit4("Vehicles Color", (float*)&Filter::vehicles.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-
-		ImGui::Checkbox("NPC's", &Filter::npcs.enabled); ImGui::SameLine();
-		ImGui::ColorEdit4("NPC's Color", (float*)&Filter::npcs.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+		for (auto& category_ref : Filter::categories)
+		{
+			auto& category = category_ref.get();
+			ImGui::Checkbox(category.Name().c_str(), &category.enabled);
+			ImGui::SameLine();
+			std::string color_label = category.Name() + " Color";
+			ImGui::ColorEdit4(color_label.c_str(), (float*)&category.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+		}
 
 		ImGui::Separator();
 

@@ -212,7 +212,6 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		auto& entity = entity_ref.get();
 		entity.obj_name = entity.name_buffer;
 		entity.formatted_name = FormatObjectName(entity.obj_name);
-		entity.category = Filter::GetCategory(entity.obj_name);
 	}
 
 	for (auto& entity : new_entities)
@@ -419,13 +418,6 @@ void Cache::UpdatePositions(HANDLE scatter_handle)
 
 	for (auto& entity : new_entities)
 	{
-		const auto& category = entity.category;
-		if (!category.Enabled())
-			continue;
-
-		if (category.IsStatic() && !entity.position.invalid())
-			continue;
-
 		dma.AddScatterRead(scatter_handle, entity.visual_state + 0x90, &entity.position, sizeof(Vector3));
 	}
 
