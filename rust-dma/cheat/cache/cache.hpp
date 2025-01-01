@@ -204,6 +204,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 	{
 		auto& entity = entity_ref.get();
 		dma.AddScatterRead(scatter_handle, entity.transform + 0x38, &entity.visual_state, sizeof(entity.visual_state));
+		dma.AddScatterRead(scatter_handle, entity.object_ptr + 0xC8, &entity.model, sizeof(entity.model));
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
@@ -250,7 +251,6 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		for (auto& player_ref : players_to_update)
 		{
 			auto& player = player_ref.get();
-			dma.AddScatterRead(scatter_handle, player.object_ptr + 0xC8, &player.model, sizeof(player.model));
 			dma.AddScatterRead(scatter_handle, player.object_ptr + 0x310, &player.player_model, sizeof(player.player_model));
 		}
 		dma.ExecuteScatterRead(scatter_handle);

@@ -79,7 +79,6 @@ public:
 		return object_ptr == other.object_ptr;
 	}
 
-    std::uintptr_t model = 0;
     std::uintptr_t player_model = 0;
     std::uintptr_t bone_transforms = 0;
 

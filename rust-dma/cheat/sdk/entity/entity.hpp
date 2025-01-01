@@ -24,6 +24,8 @@ public:
 	std::uintptr_t nameptr = 0;
 	std::uintptr_t transform = 0;
 	std::uintptr_t visual_state = 0;
+
+	std::uintptr_t model = 0;
 };
 
 class EntityListData 
