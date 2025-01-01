@@ -65,7 +65,7 @@ private:
                 Vector2 head_screen;
                 if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
                 {
-                    float radius = std::max<float>(1.0f, 30.0f / distance);
+                    float radius = std::max<float>(1.0f, 40.0f / distance);
                     DrawCircle(head_screen, radius, player_color, 0);
                 }
             }
@@ -109,7 +109,7 @@ private:
 
             if (player_names)
             {
-                Vector3 head_bone = player.GetBonePosition(BoneList::head);
+                Vector3 head_bone = player.GetBonePosition(BoneList::spine1);
                 if (head_bone.invalid())
                     continue;
                 float distance = camera_position.distance(head_bone);

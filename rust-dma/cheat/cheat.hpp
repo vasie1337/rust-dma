@@ -91,6 +91,13 @@ private:
 
 		ImGui::Separator();
 
+		ImGui::Checkbox("Player Boxes", &player_boxes);
+		ImGui::Checkbox("Player Names", &player_names);
+		ImGui::Checkbox("Player Skeletons", &player_skeletons);
+		ImGui::Checkbox("Player Head circle", &player_head_circle);
+
+		ImGui::Separator();
+
 		for (auto& category_ref : Filter::categories)
 		{
 			auto& category = category_ref.get();
