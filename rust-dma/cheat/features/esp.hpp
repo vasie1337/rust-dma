@@ -3,7 +3,7 @@
 
 class Esp : public Drawing
 {
-private :
+private:
     static void RenderEntities()
     {
         auto entity_list = Cache::entities.load();
@@ -36,6 +36,8 @@ private :
         auto camera_position = Cache::camera_pos.load();
         auto view_matrix = Cache::view_matrix.load();
 
+		const ImColor player_color = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
+
         for (Player& player : player_list)
         {
             Vector3 head_bone = player.GetBonePosition(BoneList::head);
@@ -50,7 +52,7 @@ private :
             if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
             {
                 float radius = std::max<float>(1.0f, 30.0f / distance);
-                DrawCircle(head_screen, radius, ImColor(1.0f, 1.0f, 1.0f, 1.0f), 0);
+                DrawCircle(head_screen, radius, player_color, 0);
             }
             
             for (const auto& connection : player.SkeletonConnections)
@@ -65,10 +67,24 @@ private :
                 Vector2 end_screen;
                 if (Math::WorldToScreen(start, start_screen, view_matrix) && Math::WorldToScreen(end, end_screen, view_matrix))
                 {
-                    ImColor color = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
-                    DrawLine(start_screen, end_screen, 1.f, color);
+                    DrawLine(start_screen, end_screen, 1.f, player_color);
                 }
             }
+
+			Vector3 min_box = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+			Vector3 max_box = Vector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+            for (int i = 0; i < BoneList::max_bones; i++)
+            {
+                Vector3 bone_pos = player.GetBonePosition(i);
+                if (bone_pos.invalid())
+                    continue;
+
+                min_box = min_box._min(bone_pos);
+                max_box = max_box._max(bone_pos);
+            }
+
+			DrawBoundingBox(min_box, max_box, view_matrix, player_color);
         }
     }
 public:
