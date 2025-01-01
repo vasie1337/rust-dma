@@ -1,6 +1,13 @@
 #pragma once
 #include "../../../include.hpp"
 
+class EntityBounds
+{
+public:
+	Vector3 center;
+	Vector3 extents;
+};
+
 class Entity
 {
 public:
@@ -12,7 +19,10 @@ public:
 	char name_buffer[128] = { 0 };
 	std::string obj_name = "";
 	std::string formatted_name = "";
+
 	Vector3 position = Vector3();
+
+	EntityBounds bounds = EntityBounds();
 
 	std::uint16_t tag = 0;
 

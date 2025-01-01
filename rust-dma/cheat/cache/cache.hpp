@@ -205,6 +205,8 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		auto& entity = entity_ref.get();
 		dma.AddScatterRead(scatter_handle, entity.transform + 0x38, &entity.visual_state, sizeof(entity.visual_state));
 		dma.AddScatterRead(scatter_handle, entity.object_ptr + 0xC8, &entity.model, sizeof(entity.model));
+		dma.AddScatterRead(scatter_handle, entity.object_ptr + 0xA0, &entity.bounds.center, sizeof(entity.bounds.center));
+		dma.AddScatterRead(scatter_handle, entity.object_ptr + 0xAC, &entity.bounds.extents, sizeof(entity.bounds.extents));
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
