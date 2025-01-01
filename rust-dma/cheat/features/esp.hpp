@@ -1,132 +1,14 @@
 #pragma once
 #include "../../include.hpp"
 
-#include <codecvt>
-
 class Esp : public Drawing
 {
 private:
-#pragma warning(disable: 4996)
-    static std::string ws2s(const std::wstring& wstr)
-    {
-        using convert_typeX = std::codecvt_utf8<wchar_t>;
-        std::wstring_convert<convert_typeX, wchar_t> converterX;
+    static std::string ws2s(const std::wstring& wstr);
 
-        return converterX.to_bytes(wstr);
-    }
-#pragma warning(default: 4996)
+    static void RenderEntities();
+    static void RenderPlayers();
 
-    static void RenderEntities()
-    {
-        auto entity_list = Cache::entities.load();
-        auto camera_position = Cache::camera_pos.load();
-        auto view_matrix = Cache::view_matrix.load();
-
-        for (Entity& entity : entity_list)
-        {
-            const auto& category = Filter::GetCategory(entity.obj_name);
-            if (!category.Enabled())
-                continue;
-
-            float distance = camera_position.distance(entity.position);
-            if (distance > max_entity_distance)
-                continue;
-
-            Vector2 screen_position;
-            if (Math::WorldToScreen(entity.position, screen_position, view_matrix))
-            {
-                std::string text = entity.formatted_name + " [" + std::to_string(static_cast<int>(distance)) + "m]";
-
-                DrawString(screen_position, category.GetColor(), text);
-            }
-        }
-    }
-    static void RenderPlayers()
-    {
-        auto local_player = Cache::local_player.load();
-        auto player_list = Cache::players.load();
-        auto camera_position = Cache::camera_pos.load();
-        auto view_matrix = Cache::view_matrix.load();
-
-		const ImColor player_color = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-        for (Player& player : player_list)
-        {
-            if (player_head_circle)
-            {
-                Vector3 head_bone = player.GetBonePosition(BoneList::head);
-                if (head_bone.invalid())
-                    continue;
-
-                float distance = camera_position.distance(head_bone);
-                if (distance > max_entity_distance)
-                    continue;
-
-                Vector2 head_screen;
-                if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
-                {
-                    float radius = std::max<float>(1.0f, 40.0f / distance);
-                    DrawCircle(head_screen, radius, player_color, 0);
-                }
-            }
-            
-            if (player_skeletons)
-            {
-                for (const auto& connection : player.SkeletonConnections)
-                {
-                    Vector3 start = player.GetBonePosition(connection.first);
-                    Vector3 end = player.GetBonePosition(connection.second);
-
-                    if (start.invalid() || end.invalid())
-                        continue;
-
-                    Vector2 start_screen;
-                    Vector2 end_screen;
-                    if (Math::WorldToScreen(start, start_screen, view_matrix) && Math::WorldToScreen(end, end_screen, view_matrix))
-                    {
-                        DrawLine(start_screen, end_screen, 1.f, player_color);
-                    }
-                }
-            }
-            
-            if (player_boxes)
-            {
-                Vector3 min_box = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
-                Vector3 max_box = Vector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-
-                for (int i = 0; i < BoneList::max_bones; i++)
-                {
-                    Vector3 bone_pos = player.GetBonePosition(i);
-                    if (bone_pos.invalid())
-                        continue;
-
-                    min_box = min_box._min(bone_pos);
-                    max_box = max_box._max(bone_pos);
-                }
-
-                DrawBoundingBox(min_box, max_box, view_matrix, player_color);
-            }
-
-            if (player_names)
-            {
-                Vector3 head_bone = player.GetBonePosition(BoneList::spine1);
-                if (head_bone.invalid())
-                    continue;
-                float distance = camera_position.distance(head_bone);
-                if (distance > max_entity_distance)
-                    continue;
-
-				std::string player_name_converted = ws2s(player.player_name);
-
-                Vector2 head_screen;
-                if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
-                {
-                    std::string text = player_name_converted + " [" + std::to_string(static_cast<int>(distance)) + "m]";
-                    DrawString(head_screen, player_color, text);
-                }
-            }
-        }
-    }
 public:
     static void Render()
     {

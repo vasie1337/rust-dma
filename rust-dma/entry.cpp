@@ -5,7 +5,6 @@ int main()
 	try
 	{
 		Cheat cheat;
-		cheat.Run();
 		return 0;
 	}
 	catch (const std::exception& e)

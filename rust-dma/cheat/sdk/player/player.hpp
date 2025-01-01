@@ -63,9 +63,24 @@ enum BoneList
     max_bones
 };
 
-struct BoneConnection {
+class BoneConnection 
+{
+public:
     Vector3 start;
     Vector3 end;
+};
+
+inline std::vector<std::pair<BoneList, BoneList>> SkeletonConnections = {
+        { BoneList::r_foot, BoneList::r_knee },
+        { BoneList::l_foot, BoneList::l_knee },
+        { BoneList::r_knee, BoneList::spine1 },
+        { BoneList::l_knee, BoneList::spine1 },
+        { BoneList::spine1, BoneList::neck },
+        { BoneList::neck, BoneList::head },
+        { BoneList::neck, BoneList::r_forearm },
+        { BoneList::r_forearm, BoneList::r_hand },
+        { BoneList::neck, BoneList::l_forearm },
+        { BoneList::l_forearm, BoneList::l_hand }
 };
 
 class Player : public Entity
@@ -93,7 +108,7 @@ public:
 	// Needed since the buffers in the Transform class are not thread safe
 	static inline std::mutex bone_mutex;
 
-	Vector3 GetBonePosition(int index)
+    inline Vector3 GetBonePosition(int index)
 	{
 		std::lock_guard<std::mutex> lock(bone_mutex);
 		if (!bones_fetched)
@@ -102,28 +117,15 @@ public:
 			return Vector3(0, 0, 0);
 		if (index >= bones.size())
 			return Vector3(0, 0, 0);
-		return bones[index].position();
+		return bones[index].Position();
 	}
 
-	Vector3 GetHeadPosition()
+    inline Vector3 GetHeadPosition()
 	{
 		return GetBonePosition(BoneList::head);
 	}
 
-	std::vector<std::pair<BoneList, BoneList>> SkeletonConnections = {
-		{ BoneList::r_foot, BoneList::r_knee },
-		{ BoneList::l_foot, BoneList::l_knee },
-		{ BoneList::r_knee, BoneList::spine1 },
-		{ BoneList::l_knee, BoneList::spine1 },
-		{ BoneList::spine1, BoneList::neck },
-		{ BoneList::neck, BoneList::head },
-		{ BoneList::neck, BoneList::r_forearm },
-		{ BoneList::r_forearm, BoneList::r_hand },
-		{ BoneList::neck, BoneList::l_forearm },
-		{ BoneList::l_forearm, BoneList::l_hand }
-	};
-
-	bool IsIndexValid(int index) const
+    inline bool IsIndexValid(int index) const
 	{
         switch (index)
         {
