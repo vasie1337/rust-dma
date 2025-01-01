@@ -1,9 +1,21 @@
 #pragma once
 #include "../../include.hpp"
 
+#include <codecvt>
+
 class Esp : public Drawing
 {
 private:
+#pragma warning(disable: 4996)
+    static std::string ws2s(const std::wstring& wstr)
+    {
+        using convert_typeX = std::codecvt_utf8<wchar_t>;
+        std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+        return converterX.to_bytes(wstr);
+    }
+#pragma warning(default: 4996)
+
     static void RenderEntities()
     {
         auto entity_list = Cache::entities.load();
@@ -40,51 +52,79 @@ private:
 
         for (Player& player : player_list)
         {
-            Vector3 head_bone = player.GetBonePosition(BoneList::head);
-            if (head_bone.invalid())
-                continue;
-            
-            float distance = camera_position.distance(head_bone);
-            if (distance > max_entity_distance)
-                continue;
-            
-            Vector2 head_screen;
-            if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
+            if (player_head_circle)
             {
-                float radius = std::max<float>(1.0f, 30.0f / distance);
-                DrawCircle(head_screen, radius, player_color, 0);
-            }
-            
-            for (const auto& connection : player.SkeletonConnections)
-            {
-                Vector3 start = player.GetBonePosition(connection.first);
-                Vector3 end = player.GetBonePosition(connection.second);
-
-                if (start.invalid() || end.invalid())
+                Vector3 head_bone = player.GetBonePosition(BoneList::head);
+                if (head_bone.invalid())
                     continue;
 
-                Vector2 start_screen;
-                Vector2 end_screen;
-                if (Math::WorldToScreen(start, start_screen, view_matrix) && Math::WorldToScreen(end, end_screen, view_matrix))
+                float distance = camera_position.distance(head_bone);
+                if (distance > max_entity_distance)
+                    continue;
+
+                Vector2 head_screen;
+                if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
                 {
-                    DrawLine(start_screen, end_screen, 1.f, player_color);
+                    float radius = std::max<float>(1.0f, 30.0f / distance);
+                    DrawCircle(head_screen, radius, player_color, 0);
                 }
             }
-
-			Vector3 min_box = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
-			Vector3 max_box = Vector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-
-            for (int i = 0; i < BoneList::max_bones; i++)
+            
+            if (player_skeletons)
             {
-                Vector3 bone_pos = player.GetBonePosition(i);
-                if (bone_pos.invalid())
-                    continue;
+                for (const auto& connection : player.SkeletonConnections)
+                {
+                    Vector3 start = player.GetBonePosition(connection.first);
+                    Vector3 end = player.GetBonePosition(connection.second);
 
-                min_box = min_box._min(bone_pos);
-                max_box = max_box._max(bone_pos);
+                    if (start.invalid() || end.invalid())
+                        continue;
+
+                    Vector2 start_screen;
+                    Vector2 end_screen;
+                    if (Math::WorldToScreen(start, start_screen, view_matrix) && Math::WorldToScreen(end, end_screen, view_matrix))
+                    {
+                        DrawLine(start_screen, end_screen, 1.f, player_color);
+                    }
+                }
+            }
+            
+            if (player_boxes)
+            {
+                Vector3 min_box = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+                Vector3 max_box = Vector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+                for (int i = 0; i < BoneList::max_bones; i++)
+                {
+                    Vector3 bone_pos = player.GetBonePosition(i);
+                    if (bone_pos.invalid())
+                        continue;
+
+                    min_box = min_box._min(bone_pos);
+                    max_box = max_box._max(bone_pos);
+                }
+
+                DrawBoundingBox(min_box, max_box, view_matrix, player_color);
             }
 
-			DrawBoundingBox(min_box, max_box, view_matrix, player_color);
+            if (player_names)
+            {
+                Vector3 head_bone = player.GetBonePosition(BoneList::head);
+                if (head_bone.invalid())
+                    continue;
+                float distance = camera_position.distance(head_bone);
+                if (distance > max_entity_distance)
+                    continue;
+
+				std::string player_name_converted = ws2s(player.player_name);
+
+                Vector2 head_screen;
+                if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
+                {
+                    std::string text = player_name_converted + " [" + std::to_string(static_cast<int>(distance)) + "m]";
+                    DrawString(head_screen, player_color, text);
+                }
+            }
         }
     }
 public:

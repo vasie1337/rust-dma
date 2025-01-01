@@ -87,6 +87,9 @@ public:
 
 	bool is_npc = false;
 
+    wchar_t name_buffer[128] = { 0 };
+	std::wstring player_name;
+
 	// Needed since the buffers in the Transform class are not thread safe
 	static inline std::mutex bone_mutex;
 
