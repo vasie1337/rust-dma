@@ -83,6 +83,7 @@ void Cheat::RenderCallback(Overlay* overlay)
 	ImGui::Checkbox("Player Names", &player_names);
 	ImGui::Checkbox("Player Skeletons", &player_skeletons);
 	ImGui::Checkbox("Player Head circle", &player_head_circle);
+	ImGui::Checkbox("Player Snaplines", &player_snaplines);
 	ImGui::ColorEdit4("Player Color", (float*)&player_color);
 
 	ImGui::Separator();

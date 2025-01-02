@@ -11,4 +11,5 @@ inline bool player_boxes = true;
 inline bool player_names = true;
 inline bool player_skeletons = true;
 inline bool player_head_circle = true;
+inline bool player_snaplines = true;
 inline ImColor player_color = ImColor(1.0f, 0.0f, 0.0f, 1.0f);

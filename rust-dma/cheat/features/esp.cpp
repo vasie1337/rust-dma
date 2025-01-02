@@ -44,6 +44,9 @@ void Esp::RenderPlayers()
 
     for (Player& player : player_list)
     {
+        if (player.is_npc)
+			continue;
+
         if (player_head_circle)
         {
             Vector3 head_bone = player.GetBonePosition(BoneList::head);
@@ -99,15 +102,15 @@ void Esp::RenderPlayers()
             DrawBoundingBox(min_box, max_box, view_matrix, player_color);
         }
 
+        Vector3 head_bone = player.GetBonePosition(BoneList::spine1);
+        if (head_bone.invalid())
+            continue;
+        float distance = camera_position.distance(head_bone);
+        if (distance > max_entity_distance)
+            continue;
+
         if (player_names)
         {
-            Vector3 head_bone = player.GetBonePosition(BoneList::spine1);
-            if (head_bone.invalid())
-                continue;
-            float distance = camera_position.distance(head_bone);
-            if (distance > max_entity_distance)
-                continue;
-
             std::string player_name_converted = ws2s(player.player_name);
 
             Vector2 head_screen;
@@ -115,6 +118,16 @@ void Esp::RenderPlayers()
             {
                 std::string text = player_name_converted + " [" + std::to_string(static_cast<int>(distance)) + "m]";
                 DrawString(head_screen, player_color, text);
+            }
+        }
+
+        if (player_snaplines)
+        {
+            Vector2 head_screen;
+            if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
+            {
+                Vector2 screen_center = Vector2(Math::screen_size.x / 2.f, 0.f);
+                DrawLine(screen_center, head_screen, 1.f, player_color);
             }
         }
     }

@@ -257,7 +257,8 @@ void Cache::FetchBones(HANDLE scatter_handle)
 
 		if (it == existing_players.end() || it->second.bone_transforms != player.bone_transforms)
 		{
-			players_to_update.push_back(std::ref(player));
+			if (!player.is_npc)
+				players_to_update.push_back(std::ref(player));
 		}
 		else
 		{
@@ -270,7 +271,8 @@ void Cache::FetchBones(HANDLE scatter_handle)
 		players_to_update.clear();
 		for (auto& player : new_players)
 		{
-			players_to_update.push_back(std::ref(player));
+			if (!player.is_npc)
+				players_to_update.push_back(std::ref(player));
 		}
 	}
 
