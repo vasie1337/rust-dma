@@ -8,9 +8,8 @@ void Cache::Run()
 	entities_thread.Run();
 	bones_thread.Run();
 	pos_thread.Run();
-	bones_update_thread.Run();
 
-	threads = { globals_thread, entities_thread, bones_thread, pos_thread, bones_update_thread };
+	threads = { globals_thread, entities_thread, bones_thread, pos_thread };
 }
 
 void Cache::Stop()
@@ -19,7 +18,6 @@ void Cache::Stop()
 	entities_thread.Stop();
 	bones_thread.Stop();
 	pos_thread.Stop();
-	bones_update_thread.Stop();
 
 	dma.CloseScatterHandle(view_scatter_handle);
 }
@@ -166,6 +164,8 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		auto& entity = entity_ref.get();
 		entity.obj_name = entity.name_buffer;
 		entity.formatted_name = FormatObjectName(entity.obj_name);
+		auto& category = Filter::GetCategory(entity.obj_name);
+		entity.is_static = category.IsStatic();
 	}
 
 	for (auto& entity : new_entities)
@@ -377,22 +377,17 @@ void Cache::FetchBones(HANDLE scatter_handle)
 void Cache::UpdatePositions(HANDLE scatter_handle)
 {
 	std::vector<Entity> new_entities = entities.load();
+	std::vector<Player> new_players = players.load();
 
 	for (auto& entity : new_entities)
 	{
+		if (!entity.visual_state)
+			continue;
+		if (entity.is_static && !entity.position.invalid())
+			continue;
+
 		dma.AddScatterRead(scatter_handle, entity.visual_state + 0x90, &entity.position, sizeof(Vector3));
 	}
-
-	dma.ExecuteScatterRead(scatter_handle);
-
-	entities.store(new_entities);
-}
-
-void Cache::UpdateBones(HANDLE scatter_handle)
-{
-	std::vector<Player> new_players = players.load();
-	if (new_players.empty())
-		return;
 
 	for (auto& player : new_players)
 	{
@@ -409,4 +404,5 @@ void Cache::UpdateBones(HANDLE scatter_handle)
 	dma.ExecuteScatterRead(scatter_handle);
 
 	players.store(new_players);
+	entities.store(new_entities);
 }
