@@ -26,6 +26,9 @@ public:
     void Run();
     void Stop();
 
+	void Pause() { paused.store(true); }
+	void Resume() { paused.store(false); }
+
     CacheStatistics GetStatistics() const;
     std::vector<float> GetIterationTimes() const;
     const std::string& GetName() const { return name; }
@@ -40,6 +43,7 @@ private:
     std::function<void(HANDLE)> func;
     int delay = 0;
     std::atomic<bool> running{ false };
+	std::atomic<bool> paused{ false };
     HANDLE scatter_handle = 0;
     std::string name;
 

@@ -44,8 +44,6 @@ void Cheat::WindowCallback(Overlay* overlay)
 {
 	Drawing::SetDrawList(overlay->DrawList);
 
-	Cache::UpdateViewMatrix();
-
 	if (GetAsyncKeyState(VK_INSERT) & 1)
 	{
 		overlay->MenuVisible = !overlay->MenuVisible;
@@ -172,6 +170,14 @@ void Cheat::RenderCallback(Overlay* overlay)
 
 				ImGui::Columns(1);
 				ImGui::Unindent();
+
+				if (ImGui::Button("Pause")) {
+					thread.Pause();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Resume")) {
+					thread.Resume();
+				}
 			}
 			else
 			{

@@ -2,13 +2,12 @@
 
 void Cache::Run()
 {
-	view_scatter_handle = dma.CreateScatterHandle();
-
 	globals_thread.Run();
 	entities_thread.Run();
 	pos_thread.Run();
+	view_thread.Run();
 
-	threads = { globals_thread, entities_thread, pos_thread };
+	threads = { globals_thread, entities_thread, pos_thread, view_thread };
 }
 
 void Cache::Stop()
@@ -16,25 +15,21 @@ void Cache::Stop()
 	globals_thread.Stop();
 	entities_thread.Stop();
 	pos_thread.Stop();
-
-	dma.CloseScatterHandle(view_scatter_handle);
+	view_thread.Stop();
 }
 
-void Cache::UpdateViewMatrix()
+void Cache::UpdateViewMatrix(HANDLE scatter_handle)
 {
-	if (view_scatter_handle)
-	{
-		Matrix4x4 new_view_matrix;
-		Vector3 new_camera_pos;
+	Matrix4x4 new_view_matrix;
+	Vector3 new_camera_pos;
 
-		dma.AddScatterRead(view_scatter_handle, camera_object.load() + Offsets::view_matrix, &new_view_matrix, sizeof(new_view_matrix));
-		dma.AddScatterRead(view_scatter_handle, camera_object.load() + Offsets::camera_pos, &new_camera_pos, sizeof(new_camera_pos));
+	dma.AddScatterRead(scatter_handle, camera_object.load() + Offsets::view_matrix, &new_view_matrix, sizeof(new_view_matrix));
+	dma.AddScatterRead(scatter_handle, camera_object.load() + Offsets::camera_pos, &new_camera_pos, sizeof(new_camera_pos));
 
-		dma.ExecuteScatterRead(view_scatter_handle);
+	dma.ExecuteScatterRead(scatter_handle);
 
-		view_matrix.store(new_view_matrix);
-		camera_pos.store(new_camera_pos);
-	}
+	view_matrix.store(new_view_matrix);
+	camera_pos.store(new_camera_pos);
 }
 
 void Cache::FetchGlobals(HANDLE scatter_handle)

@@ -10,12 +10,12 @@ public:
 	void Run();
 	void Stop();
 
-	static void UpdateViewMatrix();
 
 private:
 	void FetchGlobals(HANDLE scatter_handle);
 	void FetchEntities(HANDLE scatter_handle);
 	void UpdatePositions(HANDLE scatter_handle);
+	void UpdateViewMatrix(HANDLE scatter_handle);
 
 	std::string FormatObjectName(const std::string& object_name);
 
@@ -27,7 +27,7 @@ public:
 	);
 	CacheThread entities_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)),
-		1000,
+		3000,
 		"Entities Fetch"
 	);
 	CacheThread pos_thread = CacheThread(
@@ -35,9 +35,13 @@ public:
 		50,
 		"Positions Update"
 	);
+	CacheThread view_thread = CacheThread(
+		std::function<void(HANDLE)>(std::bind(&Cache::UpdateViewMatrix, this, std::placeholders::_1)),
+		1,
+		"View Update"
+	);
 
 	static inline std::vector<std::reference_wrapper<CacheThread>> threads = {};
-	static inline HANDLE view_scatter_handle = 0;
 };
 
 inline std::string Cache::FormatObjectName(const std::string& object_name)
