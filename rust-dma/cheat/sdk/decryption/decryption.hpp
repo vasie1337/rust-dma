@@ -11,11 +11,11 @@ namespace decryption
 #define LODWORD(x) (*((unsigned long*)&(x)))
 
 	// __int64 __fastcall il2cpp_gchandle_get_target_0(unsigned int a1)
-	inline ULONG64 Il2cppGetHandle(uintptr_t base, __int64 ObjectHandleID)
-	{
+	inline uintptr_t Il2cppGetHandle(uintptr_t base, int32_t ObjectHandleID) {
+
 		uint64_t rdi_1 = ObjectHandleID >> 3;
 		uint64_t rcx_1 = (ObjectHandleID & 7) - 1;
-		uint64_t baseAddr = base + HANDLE_BASE + rcx_1 * 0x28;
+		uint64_t baseAddr = base + 0xDD06B20 + rcx_1 * 0x28;
 		uint32_t limit = dma.Read<uint32_t>(baseAddr + 0x10);
 		if (rdi_1 < limit) {
 			uintptr_t objAddr = dma.Read<uintptr_t>(baseAddr);
@@ -31,6 +31,7 @@ namespace decryption
 		printf("IL2CppGetHandle: Failed to decrypt address\n");
 		return 0;
 	}
+
 
 	inline ULONG64 BaseNetworkable(uintptr_t base, ULONG64 Address)
 	{
