@@ -22,14 +22,14 @@ Cheat::Cheat() : Cache()
 		throw std::exception("Failed to initialize overlay");
 	}
 
-	Cache::Run();
+	//Cache::Run();
 	Overlay::Run();
 }
 
 Cheat::~Cheat()
 {
 	Overlay::Stop();
-	Cache::Stop();
+	//Cache::Stop();
 }
 
 void Cheat::StyleCallback(Overlay* overlay)
@@ -57,7 +57,7 @@ void Cheat::WindowCallback(Overlay* overlay)
 
 void Cheat::RenderCallback(Overlay* overlay)
 {
-	Esp::Render();
+	//Esp::Render();
 
 	if (!overlay->MenuVisible)
 		return;

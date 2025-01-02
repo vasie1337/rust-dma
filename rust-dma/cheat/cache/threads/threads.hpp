@@ -32,6 +32,8 @@ public:
     CacheStatistics GetStatistics() const;
     std::vector<float> GetIterationTimes() const;
     const std::string& GetName() const { return name; }
+	void SetDelay(int delay) { this->delay = delay; }
+	int GetDelay() const { return delay; }
 
 private:
     void UpdateStatistics(const std::chrono::high_resolution_clock::time_point& start_time,

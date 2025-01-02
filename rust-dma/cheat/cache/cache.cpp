@@ -306,8 +306,6 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 				bone_transform.UpdateTrsXBuffer(scatter_handle);
 				bone_transform.UpdateParentIndicesBuffer(scatter_handle);
 			}
-
-			player.bones_fetched = true;
 		}
 		dma.ExecuteScatterRead(scatter_handle);
 	}
@@ -333,9 +331,6 @@ void Cache::UpdatePositions(HANDLE scatter_handle)
 
 	for (auto& player : new_players)
 	{
-		if (!player.bones_fetched)
-			continue;
-
 		for (auto& bone_transform : player.bones)
 		{
 			bone_transform.UpdateTrsXBuffer(scatter_handle);

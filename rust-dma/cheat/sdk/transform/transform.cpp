@@ -18,8 +18,9 @@ Vector3 Transform::Position()
 
 	while (index >= 0 && index <= 100)
 	{
-		if (max++ > 30)
+		if (max++ > 100)
 			break;
+
 		auto& parent = trsBuffer[index];
 
 		worldPos = parent.q * worldPos;
@@ -39,8 +40,9 @@ Vector4 Transform::Rotation()
 
 	while (index >= 0 && index <= 100)
 	{
-		if (max++ > 30)
+		if (max++ > 100)
 			break;
+
 		auto& parent = trsBuffer[index];
 
 		worldRot = parent.q * worldRot;

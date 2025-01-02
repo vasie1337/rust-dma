@@ -10,7 +10,6 @@ public:
 	void Run();
 	void Stop();
 
-
 private:
 	void FetchGlobals(HANDLE scatter_handle);
 	void FetchEntities(HANDLE scatter_handle);
@@ -22,17 +21,17 @@ private:
 public:
 	CacheThread globals_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchGlobals, this, std::placeholders::_1)), 
-		5000,
+		1000,
 		"Globals Fetch"
 	);
 	CacheThread entities_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)),
-		1000,
+		100,
 		"Entities Fetch"
 	);
 	CacheThread pos_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::UpdatePositions, this, std::placeholders::_1)),
-		50,
+		10,
 		"Positions Update"
 	);
 	CacheThread view_thread = CacheThread(
