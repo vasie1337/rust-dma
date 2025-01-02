@@ -369,7 +369,6 @@ void Cache::FetchBones(HANDLE scatter_handle)
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
-	std::lock_guard<std::mutex> lock(Player::bone_mutex);
 	players.store(new_players);
 }
 
@@ -392,8 +391,6 @@ void Cache::UpdateBones(HANDLE scatter_handle)
 	std::vector<Player> new_players = players.load();
 	if (new_players.empty())
 		return;
-
-	std::lock_guard<std::mutex> lock(Player::bone_mutex);
 
 	for (auto& player : new_players)
 	{

@@ -105,12 +105,8 @@ public:
     wchar_t name_buffer[128] = { 0 };
 	std::wstring player_name;
 
-	// Needed since the buffers in the Transform class are not thread safe
-	static inline std::mutex bone_mutex;
-
     inline Vector3 GetBonePosition(int index)
 	{
-		std::lock_guard<std::mutex> lock(bone_mutex);
 		if (!bones_fetched)
 			return Vector3(0, 0, 0);
 		if (!bones.size())

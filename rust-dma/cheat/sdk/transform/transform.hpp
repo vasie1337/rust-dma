@@ -26,29 +26,20 @@ private:
 	char pad_0014[4];
 };
 
-template <typename T>
-class ResizableBuffer
+template <typename T, int Capacity = 200>
+class StackBuffer
 {
 public:
-	T* buffer;
-	int capacity;
+	T buffer[Capacity]; 
+	static constexpr int capacity = Capacity;
 
-	ResizableBuffer() : buffer(nullptr), capacity(200)
-	{
-		buffer = new T[capacity];
-	}
+	StackBuffer() = default;
 
 	void updateBuffer(HANDLE scatter_handle, uintptr_t address, int capacity)
 	{
-		if (capacity > this->capacity)
-		{
-			if (buffer)
-				delete[] buffer;
-
-			buffer = new T[capacity];
-			this->capacity = capacity;
+		if (capacity > Capacity) {
+			throw std::out_of_range("Requested capacity exceeds buffer size");
 		}
-
 		dma.AddScatterRead(scatter_handle, address, buffer, capacity * sizeof(T));
 	}
 
@@ -63,8 +54,8 @@ public:
 class Transform
 {
 public:
-	ResizableBuffer<TRSX> trsBuffer;
-	ResizableBuffer<int> parentIndicesBuffer;
+	StackBuffer<TRSX> trsBuffer;
+	StackBuffer<int> parentIndicesBuffer;
 
 	uintptr_t address;
 	uintptr_t address_internal;
