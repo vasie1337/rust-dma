@@ -4,6 +4,7 @@
 namespace decryption
 {
 #pragma warning(disable: 4319)
+#pragma warning(disable: 4244)
 #pragma optimize("", off)
 
 #define TEST_BITD(x, y) ((x) & (1 << (y)))
@@ -32,7 +33,6 @@ namespace decryption
 		return 0;
 	}
 
-
 	inline ULONG64 BaseNetworkable(uintptr_t base, ULONG64 Address)
 	{
 		__m128 a1 = dma.Read<__m128>(Address + 0x18);
@@ -60,4 +60,5 @@ namespace decryption
 
 #pragma optimize("", on)
 #pragma warning(default: 4319)
+#pragma warning(default: 4244)
 }
