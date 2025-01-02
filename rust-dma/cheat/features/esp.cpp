@@ -11,10 +11,6 @@ std::string Esp::ws2s(const std::wstring& wstr)
 
 void Esp::RenderEntities()
 {
-    auto entity_list = Cache::entities.load();
-    auto camera_position = Cache::camera_pos.load();
-    auto view_matrix = Cache::view_matrix.load();
-
     for (Entity& entity : entity_list)
     {
         const auto& category = Filter::GetCategory(entity.obj_name);
@@ -37,11 +33,6 @@ void Esp::RenderEntities()
 
 void Esp::RenderPlayers()
 {
-    auto local_player = Cache::local_player.load();
-    auto player_list = Cache::players.load();
-    auto camera_position = Cache::camera_pos.load();
-    auto view_matrix = Cache::view_matrix.load();
-
     for (Player& player : player_list)
     {
         if (player.is_npc)

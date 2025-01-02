@@ -22,14 +22,14 @@ Cheat::Cheat() : Cache()
 		throw std::exception("Failed to initialize overlay");
 	}
 
-	//Cache::Run();
+	Cache::Run();
 	Overlay::Run();
 }
 
 Cheat::~Cheat()
 {
 	Overlay::Stop();
-	//Cache::Stop();
+	Cache::Stop();
 }
 
 void Cheat::StyleCallback(Overlay* overlay)
@@ -44,12 +44,22 @@ void Cheat::WindowCallback(Overlay* overlay)
 {
 	Drawing::SetDrawList(overlay->DrawList);
 
-	if (GetAsyncKeyState(VK_INSERT) & 1)
+	//if (GetAsyncKeyState(VK_INSERT) & 1)
+	//{
+	//	overlay->MenuVisible = !overlay->MenuVisible;
+	//}
+	//
+	//if (GetAsyncKeyState(VK_END) & 1)
+	//{
+	//	overlay->Stop();
+	//}
+
+	if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_Insert))
 	{
 		overlay->MenuVisible = !overlay->MenuVisible;
 	}
 
-	if (GetAsyncKeyState(VK_END) & 1)
+	if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_End))
 	{
 		overlay->Stop();
 	}
@@ -57,7 +67,7 @@ void Cheat::WindowCallback(Overlay* overlay)
 
 void Cheat::RenderCallback(Overlay* overlay)
 {
-	//Esp::Render();
+	Esp::Render();
 
 	if (!overlay->MenuVisible)
 		return;

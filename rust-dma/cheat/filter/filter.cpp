@@ -1,15 +1,16 @@
 #include "../../include.hpp"
 
-EntityCategorie& Filter::GetCategory(std::string obj_name)
+EntityCategorie& Filter::GetCategory(const std::string& obj_name)
 {
     std::call_once(initialized_flag, PopulateCategories);
 
-    for (auto& category : categories)
+    auto it = std::find_if(categories.begin(), categories.end(), [&obj_name](const auto& category) {
+        return category.get().IsEntityInCategory(obj_name);
+    });
+
+    if (it != categories.end())
     {
-        if (category.get().IsEntityInCategory(obj_name))
-        {
-            return category;
-        }
+        return *it;
     }
 
     static EntityCategorie default_category(ImColor(1.0f, 1.0f, 1.0f, 0.0f));
