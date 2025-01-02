@@ -171,6 +171,8 @@ void Cheat::RenderCallback(Overlay* overlay)
 				ImGui::Columns(1);
 				ImGui::Unindent();
 
+				ImGui::PushID(&thread);
+
 				if (ImGui::Button("Pause")) {
 					thread.Pause();
 				}
@@ -178,6 +180,8 @@ void Cheat::RenderCallback(Overlay* overlay)
 				if (ImGui::Button("Resume")) {
 					thread.Resume();
 				}
+
+				ImGui::PopID();
 			}
 			else
 			{
