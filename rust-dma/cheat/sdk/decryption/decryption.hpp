@@ -8,15 +8,15 @@ namespace decryption
 #pragma optimize("", off)
 
 #define TEST_BITD(x, y) ((x) & (1 << (y)))
-#define HANDLE_BASE 0xDD06B20
+#define HANDLE_BASE 0xE1A5BF0
 #define LODWORD(x) (*((unsigned long*)&(x)))
 
 	// __int64 __fastcall il2cpp_gchandle_get_target_0(unsigned int a1)
-	inline uintptr_t Il2cppGetHandle(uintptr_t base, int32_t ObjectHandleID) {
+	inline ULONG64 IL2CppGetHandle(uintptr_t base, int32_t ObjectHandleID) {
 
 		uint64_t rdi_1 = ObjectHandleID >> 3;
 		uint64_t rcx_1 = (ObjectHandleID & 7) - 1;
-		uint64_t baseAddr = base + 0xDD06B20 + rcx_1 * 0x28;
+		uint64_t baseAddr = base + HANDLE_BASE + rcx_1 * 0x28;
 		uint32_t limit = dma.Read<uint32_t>(baseAddr + 0x10);
 		if (rdi_1 < limit) {
 			uintptr_t objAddr = dma.Read<uintptr_t>(baseAddr);
@@ -35,27 +35,22 @@ namespace decryption
 
 	inline ULONG64 BaseNetworkable(uintptr_t base, ULONG64 Address)
 	{
-		__m128 a1 = dma.Read<__m128>(Address + 0x18);
-		unsigned int v5; // ecx
-		unsigned int v6; // eax
-		bool v7; // zf
-		__m128 v24; // [rsp+20h] [rbp-28h] BYREF
-		__m128* a2;
-		__int64 a3;
+		int* v17; // rdx
+		int v18; // r8d
+		int v19; // eax
+		__m128 v36; // [rsp+68h] [rbp+20h] OVERLAPPED BYREF
 
-		a2 = &v24;
-		LODWORD(a3) = 2;
-		v24 = a1;
+		v17 = (int*)&v36;
+		v18 = 2;
+		v36 = dma.Read<__m128>(Address + 24);
 		do
 		{
-			v5 = *(DWORD*)a2;
-			v6 = *(DWORD*)a2;
-			a2 = (__m128*)((char*)a2 + 4);
-			*((DWORD*)a2 - 1) = ((((v6 << 26) | (v5 >> 6)) - 886443769) << 18) | ((((v6 << 26) | (v5 >> 6)) - 886443769) >> 14);
-			v7 = (DWORD)a3 == 1;
-			a3 = (unsigned int)(a3 - 1);
-		} while (!v7);
-		return Il2cppGetHandle(base, *reinterpret_cast<signed __int64*>(&v24));
+			v19 = *v17++;
+			*(v17 - 1) = ((((v19 + 2088045315) << 20) | ((unsigned int)(v19 + 2088045315) >> 12)) + 62779575) ^ 0xEA3B039;
+			--v18;
+		} while (v18);
+		signed __int64 v9 = *reinterpret_cast<signed __int64*>(&v36);
+		return IL2CppGetHandle(base, v9);
 	}
 
 #pragma optimize("", on)
