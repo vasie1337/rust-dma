@@ -113,8 +113,6 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		return;
 	}
 
-	std::cout << "Entities to update: " << entities_to_update.size() << std::endl;
-
 	for (auto& entity_ref : entities_to_update)
 	{
 		auto& entity = entity_ref.get();
@@ -288,17 +286,12 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 				if (!bone_transform.transformAccess)
 					continue;
 
-				if (!bone_transform.localTransforms)
+				if (!bone_transform.transformArrays)
 				{
 					dma.AddScatterRead(scatter_handle,
 						bone_transform.transformAccess.hierarchyAddr + 0x18,
-						&bone_transform.localTransforms,
-						sizeof(bone_transform.localTransforms)
-					);
-					dma.AddScatterRead(scatter_handle,
-						bone_transform.transformAccess.hierarchyAddr + 0x20,
-						&bone_transform.parentIndices,
-						sizeof(bone_transform.parentIndices)
+						&bone_transform.transformArrays,
+						sizeof(bone_transform.transformArrays)
 					);
 				}
 			}

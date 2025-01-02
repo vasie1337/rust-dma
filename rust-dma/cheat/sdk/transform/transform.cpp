@@ -2,12 +2,12 @@
 
 void Transform::UpdateTrsXBuffer(HANDLE scatter_handle)
 {
-	trsBuffer.updateBuffer(scatter_handle, localTransforms, transformAccess.index + 1);
+	trsBuffer.updateBuffer(scatter_handle, transformArrays.localTransforms, transformAccess.index + 1);
 }
 
 void Transform::UpdateParentIndicesBuffer(HANDLE scatter_handle)
 {
-	parentIndicesBuffer.updateBuffer(scatter_handle, parentIndices, transformAccess.index + 1);
+	parentIndicesBuffer.updateBuffer(scatter_handle, transformArrays.parentIndices, transformAccess.index + 1);
 }
 
 Vector3 Transform::Position()
