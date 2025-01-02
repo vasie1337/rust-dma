@@ -13,6 +13,18 @@ public:
 	}
 };
 
+class TransformArrays
+{
+public:
+	uintptr_t localTransforms;
+	uintptr_t parentIndices;
+
+	operator bool() const
+	{
+		return localTransforms != 0 && parentIndices != 0;
+	}
+};
+
 class TRSX
 {
 public:
@@ -26,7 +38,7 @@ private:
 	char pad_0014[4];
 };
 
-template <typename T, int Capacity = 200>
+template <typename T, int Capacity = 100>
 class StackBuffer
 {
 public:
@@ -61,9 +73,7 @@ public:
 	uintptr_t address_internal;
 
 	TransformAccess transformAccess;
-
-	uintptr_t localTransforms;
-	uintptr_t parentIndices;
+	TransformArrays transformArrays;
 
 	void UpdateTrsXBuffer(HANDLE scatter_handle);
 	void UpdateParentIndicesBuffer(HANDLE scatter_handle);

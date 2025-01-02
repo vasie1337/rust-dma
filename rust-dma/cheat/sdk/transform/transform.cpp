@@ -2,12 +2,12 @@
 
 void Transform::UpdateTrsXBuffer(HANDLE scatter_handle)
 {
-	trsBuffer.updateBuffer(scatter_handle, localTransforms, transformAccess.index + 1);
+	trsBuffer.updateBuffer(scatter_handle, transformArrays.localTransforms, transformAccess.index + 1);
 }
 
 void Transform::UpdateParentIndicesBuffer(HANDLE scatter_handle)
 {
-	parentIndicesBuffer.updateBuffer(scatter_handle, parentIndices, transformAccess.index + 1);
+	parentIndicesBuffer.updateBuffer(scatter_handle, transformArrays.parentIndices, transformAccess.index + 1);
 }
 
 Vector3 Transform::Position()
@@ -18,8 +18,9 @@ Vector3 Transform::Position()
 
 	while (index >= 0 && index <= 100)
 	{
-		if (max++ > 30)
+		if (max++ > 100)
 			break;
+
 		auto& parent = trsBuffer[index];
 
 		worldPos = parent.q * worldPos;
@@ -39,8 +40,9 @@ Vector4 Transform::Rotation()
 
 	while (index >= 0 && index <= 100)
 	{
-		if (max++ > 30)
+		if (max++ > 100)
 			break;
+
 		auto& parent = trsBuffer[index];
 
 		worldRot = parent.q * worldRot;

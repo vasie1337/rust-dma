@@ -26,9 +26,14 @@ public:
     void Run();
     void Stop();
 
+	void Pause() { paused.store(true); }
+	void Resume() { paused.store(false); }
+
     CacheStatistics GetStatistics() const;
     std::vector<float> GetIterationTimes() const;
     const std::string& GetName() const { return name; }
+	void SetDelay(int delay) { this->delay = delay; }
+	int GetDelay() const { return delay; }
 
 private:
     void UpdateStatistics(const std::chrono::high_resolution_clock::time_point& start_time,
@@ -40,6 +45,7 @@ private:
     std::function<void(HANDLE)> func;
     int delay = 0;
     std::atomic<bool> running{ false };
+	std::atomic<bool> paused{ false };
     HANDLE scatter_handle = 0;
     std::string name;
 

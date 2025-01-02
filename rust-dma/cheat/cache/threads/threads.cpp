@@ -8,6 +8,12 @@ void CacheThread::Run()
     {
         while (running.load(std::memory_order_relaxed))
         {
+			if (paused.load())
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				continue;
+			}
+
             auto start_time = std::chrono::high_resolution_clock::now();
 
             func(scatter_handle);

@@ -10,46 +10,37 @@ public:
 	void Run();
 	void Stop();
 
-	static void UpdateViewMatrix();
-
 private:
 	void FetchGlobals(HANDLE scatter_handle);
 	void FetchEntities(HANDLE scatter_handle);
-	void FetchBones(HANDLE scatter_handle);
 	void UpdatePositions(HANDLE scatter_handle);
-	void UpdateBones(HANDLE scatter_handle);
+	void UpdateViewMatrix(HANDLE scatter_handle);
 
 	std::string FormatObjectName(const std::string& object_name);
 
 public:
 	CacheThread globals_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchGlobals, this, std::placeholders::_1)), 
-		3000,
+		1000,
 		"Globals Fetch"
 	);
 	CacheThread entities_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)),
-		500,
+		100,
 		"Entities Fetch"
-	);
-	CacheThread bones_thread = CacheThread(
-		std::function<void(HANDLE)>(std::bind(&Cache::FetchBones, this, std::placeholders::_1)),
-		500,
-		"Bones Fetch"
 	);
 	CacheThread pos_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::UpdatePositions, this, std::placeholders::_1)),
-		100,
+		10,
 		"Positions Update"
 	);
-	CacheThread bones_update_thread = CacheThread(
-		std::function<void(HANDLE)>(std::bind(&Cache::UpdateBones, this, std::placeholders::_1)),
-		50,
-		"Bones Update"
+	CacheThread view_thread = CacheThread(
+		std::function<void(HANDLE)>(std::bind(&Cache::UpdateViewMatrix, this, std::placeholders::_1)),
+		1,
+		"View Update"
 	);
 
 	static inline std::vector<std::reference_wrapper<CacheThread>> threads = {};
-	static inline HANDLE view_scatter_handle = 0;
 };
 
 inline std::string Cache::FormatObjectName(const std::string& object_name)

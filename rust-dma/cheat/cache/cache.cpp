@@ -2,43 +2,34 @@
 
 void Cache::Run()
 {
-	view_scatter_handle = dma.CreateScatterHandle();
-
 	globals_thread.Run();
 	entities_thread.Run();
-	bones_thread.Run();
 	pos_thread.Run();
-	bones_update_thread.Run();
+	view_thread.Run();
 
-	threads = { globals_thread, entities_thread, bones_thread, pos_thread, bones_update_thread };
+	threads = { globals_thread, entities_thread, pos_thread, view_thread };
 }
 
 void Cache::Stop()
 {
 	globals_thread.Stop();
 	entities_thread.Stop();
-	bones_thread.Stop();
 	pos_thread.Stop();
-	bones_update_thread.Stop();
-
-	dma.CloseScatterHandle(view_scatter_handle);
+	view_thread.Stop();
 }
 
-void Cache::UpdateViewMatrix()
+void Cache::UpdateViewMatrix(HANDLE scatter_handle)
 {
-	if (view_scatter_handle)
-	{
-		Matrix4x4 new_view_matrix;
-		Vector3 new_camera_pos;
+	Matrix4x4 new_view_matrix;
+	Vector3 new_camera_pos;
 
-		dma.AddScatterRead(view_scatter_handle, camera_object.load() + Offsets::view_matrix, &new_view_matrix, sizeof(new_view_matrix));
-		dma.AddScatterRead(view_scatter_handle, camera_object.load() + Offsets::camera_pos, &new_camera_pos, sizeof(new_camera_pos));
+	dma.AddScatterRead(scatter_handle, camera_object.load() + Offsets::view_matrix, &new_view_matrix, sizeof(new_view_matrix));
+	dma.AddScatterRead(scatter_handle, camera_object.load() + Offsets::camera_pos, &new_camera_pos, sizeof(new_camera_pos));
 
-		dma.ExecuteScatterRead(view_scatter_handle);
+	dma.ExecuteScatterRead(scatter_handle);
 
-		view_matrix.store(new_view_matrix);
-		camera_pos.store(new_camera_pos);
-	}
+	view_matrix.store(new_view_matrix);
+	camera_pos.store(new_camera_pos);
 }
 
 void Cache::FetchGlobals(HANDLE scatter_handle)
@@ -49,7 +40,7 @@ void Cache::FetchGlobals(HANDLE scatter_handle)
 
 		uintptr_t bn_static_fields = dma.Read<uintptr_t>(base_net_workable + 0xB8);
 
-		uintptr_t bn_wrapper_class_ptr = dma.Read<uintptr_t>(bn_static_fields + 0x30);
+		uintptr_t bn_wrapper_class_ptr = dma.Read<uintptr_t>(bn_static_fields + 0x28);
 
 		uintptr_t bn_wrapper_class = decryption::BaseNetworkable(base_address.load(), bn_wrapper_class_ptr);
 
@@ -66,7 +57,7 @@ void Cache::FetchGlobals(HANDLE scatter_handle)
 
 	uintptr_t camera_manager = dma.Read<uintptr_t>(main_camera_manager + 0xB8);
 
-	uintptr_t camera = dma.Read<uintptr_t>(camera_manager + 0xC0);
+	uintptr_t camera = dma.Read<uintptr_t>(camera_manager + 0xE0);
 
 	camera_object.store(dma.Read<uintptr_t>(camera + 0x10));
 }
@@ -166,6 +157,8 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		auto& entity = entity_ref.get();
 		entity.obj_name = entity.name_buffer;
 		entity.formatted_name = FormatObjectName(entity.obj_name);
+		auto& category = Filter::GetCategory(entity.obj_name);
+		entity.is_static = category.IsStatic();
 	}
 
 	for (auto& entity : new_entities)
@@ -204,8 +197,8 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		for (auto& player_ref : players_to_update)
 		{
 			auto& player = player_ref.get();
-			dma.AddScatterRead(scatter_handle, player.object_ptr + 0x310, &player.player_model, sizeof(player.player_model));
-			dma.AddScatterRead(scatter_handle, player.object_ptr + 0x400, &player.nameptr, sizeof(player.nameptr));
+			dma.AddScatterRead(scatter_handle, player.object_ptr + 0x258, &player.player_model, sizeof(player.player_model));
+			dma.AddScatterRead(scatter_handle, player.object_ptr + 0x270, &player.nameptr, sizeof(player.nameptr));
 		}
 		dma.ExecuteScatterRead(scatter_handle);
 
@@ -222,183 +215,122 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		{
 			auto& player = player_ref.get();
 			player.player_name = player.name_buffer;
+			if (player.bones.empty())
+			{
+				player.bones.resize(BoneList::max_bones);
+			}
 		}
+
+		for (auto& player_ref : players_to_update)
+		{
+			auto& player = player_ref.get();
+			for (int i = 0; i < max_bones; i++)
+			{
+				if (!player.IsIndexValid(i))
+					continue;
+
+				dma.AddScatterRead(scatter_handle,
+					player.bone_transforms + (0x20 + (static_cast<unsigned long long>(i) * 0x8)),
+					&player.bones[i].address,
+					sizeof(player.bones[i].address)
+				);
+			}
+		}
+		dma.ExecuteScatterRead(scatter_handle);
+
+		for (auto& player_ref : players_to_update)
+		{
+			auto& player = player_ref.get();
+			for (auto& bone_transform : player.bones)
+			{
+				if (!bone_transform.address)
+					continue;
+
+				if (!bone_transform.address_internal)
+				{
+					dma.AddScatterRead(scatter_handle,
+						bone_transform.address + 0x10,
+						&bone_transform.address_internal,
+						sizeof(bone_transform.address_internal)
+					);
+				}
+			}
+		}
+		dma.ExecuteScatterRead(scatter_handle);
+
+		for (auto& player_ref : players_to_update)
+		{
+			auto& player = player_ref.get();
+			for (auto& bone_transform : player.bones)
+			{
+				if (!bone_transform.address_internal)
+					continue;
+
+				if (!bone_transform.transformAccess)
+				{
+					dma.AddScatterRead(scatter_handle,
+						bone_transform.address_internal + 0x38,
+						&bone_transform.transformAccess,
+						sizeof(bone_transform.transformAccess)
+					);
+				}
+			}
+		}
+		dma.ExecuteScatterRead(scatter_handle);
+
+		for (auto& player_ref : players_to_update)
+		{
+			auto& player = player_ref.get();
+			for (auto& bone_transform : player.bones)
+			{
+				if (!bone_transform.transformAccess)
+					continue;
+
+				if (!bone_transform.transformArrays)
+				{
+					dma.AddScatterRead(scatter_handle,
+						bone_transform.transformAccess.hierarchyAddr + 0x18,
+						&bone_transform.transformArrays,
+						sizeof(bone_transform.transformArrays)
+					);
+				}
+			}
+		}
+		dma.ExecuteScatterRead(scatter_handle);
+
+		for (auto& player_ref : players_to_update)
+		{
+			auto& player = player_ref.get();
+			for (auto& bone_transform : player.bones)
+			{
+				bone_transform.UpdateTrsXBuffer(scatter_handle);
+				bone_transform.UpdateParentIndicesBuffer(scatter_handle);
+			}
+		}
+		dma.ExecuteScatterRead(scatter_handle);
 	}
 
 	entities.store(new_entities);
-	players.store(new_players);
-}
-
-void Cache::FetchBones(HANDLE scatter_handle)
-{
-	std::vector<Player> new_players = players.load();
-	if (new_players.empty())
-		return;
-
-	std::unordered_map<uintptr_t, Player> existing_players;
-	for (const auto& player : players.load())
-	{
-		if (player.bones_fetched)
-		{
-			existing_players[player.object_ptr] = player;
-		}
-	}
-
-	std::vector<std::reference_wrapper<Player>> players_to_update;
-
-	for (auto& player : new_players)
-	{
-		auto it = existing_players.find(player.object_ptr);
-
-		if (player.bones.empty())
-		{
-			player.bones.resize(BoneList::max_bones);
-		}
-
-		if (it == existing_players.end() || it->second.bone_transforms != player.bone_transforms)
-		{
-			if (!player.is_npc)
-				players_to_update.push_back(std::ref(player));
-		}
-		else
-		{
-			player.bones = it->second.bones;
-		}
-	}
-
-	if (existing_players.empty())
-	{
-		players_to_update.clear();
-		for (auto& player : new_players)
-		{
-			if (!player.is_npc)
-				players_to_update.push_back(std::ref(player));
-		}
-	}
-
-	for (auto& player_ref : players_to_update)
-	{
-		auto& player = player_ref.get();
-		for (int i = 0; i < max_bones; i++)
-		{
-			if (!player.IsIndexValid(i))
-				continue;
-
-			dma.AddScatterRead(scatter_handle,
-				player.bone_transforms + (0x20 + (static_cast<unsigned long long>(i) * 0x8)),
-				&player.bones[i].address,
-				sizeof(player.bones[i].address)
-			);
-		}
-	}
-	dma.ExecuteScatterRead(scatter_handle);
-
-	for (auto& player_ref : players_to_update)
-	{
-		auto& player = player_ref.get();
-		for (auto& bone_transform : player.bones)
-		{
-			if (!bone_transform.address)
-				continue;
-
-			if (!bone_transform.address_internal)
-			{
-				dma.AddScatterRead(scatter_handle,
-					bone_transform.address + 0x10,
-					&bone_transform.address_internal,
-					sizeof(bone_transform.address_internal)
-				);
-			}
-		}
-	}
-	dma.ExecuteScatterRead(scatter_handle);
-
-	for (auto& player_ref : players_to_update)
-	{
-		auto& player = player_ref.get();
-		for (auto& bone_transform : player.bones)
-		{
-			if (!bone_transform.address_internal)
-				continue;
-
-			if (!bone_transform.transformAccess)
-			{
-				dma.AddScatterRead(scatter_handle,
-					bone_transform.address_internal + 0x38,
-					&bone_transform.transformAccess,
-					sizeof(bone_transform.transformAccess)
-				);
-			}
-		}
-	}
-	dma.ExecuteScatterRead(scatter_handle);
-
-	for (auto& player_ref : players_to_update)
-	{
-		auto& player = player_ref.get();
-		for (auto& bone_transform : player.bones)
-		{
-			if (!bone_transform.transformAccess)
-				continue;
-
-			if (!bone_transform.localTransforms)
-			{
-				dma.AddScatterRead(scatter_handle,
-					bone_transform.transformAccess.hierarchyAddr + 0x18,
-					&bone_transform.localTransforms,
-					sizeof(bone_transform.localTransforms)
-				);
-				dma.AddScatterRead(scatter_handle,
-					bone_transform.transformAccess.hierarchyAddr + 0x20,
-					&bone_transform.parentIndices,
-					sizeof(bone_transform.parentIndices)
-				);
-			}
-		}
-	}
-	dma.ExecuteScatterRead(scatter_handle);
-
-	for (auto& player_ref : players_to_update)
-	{
-		auto& player = player_ref.get();
-		for (auto& bone_transform : player.bones)
-		{
-			bone_transform.UpdateTrsXBuffer(scatter_handle);
-			bone_transform.UpdateParentIndicesBuffer(scatter_handle);
-		}
-
-		player.bones_fetched = true;
-	}
-	dma.ExecuteScatterRead(scatter_handle);
-
 	players.store(new_players);
 }
 
 void Cache::UpdatePositions(HANDLE scatter_handle)
 {
 	std::vector<Entity> new_entities = entities.load();
+	std::vector<Player> new_players = players.load();
 
 	for (auto& entity : new_entities)
 	{
+		if (!entity.visual_state)
+			continue;
+		if (entity.is_static && !entity.position.invalid())
+			continue;
+
 		dma.AddScatterRead(scatter_handle, entity.visual_state + 0x90, &entity.position, sizeof(Vector3));
 	}
 
-	dma.ExecuteScatterRead(scatter_handle);
-
-	entities.store(new_entities);
-}
-
-void Cache::UpdateBones(HANDLE scatter_handle)
-{
-	std::vector<Player> new_players = players.load();
-	if (new_players.empty())
-		return;
-
 	for (auto& player : new_players)
 	{
-		if (!player.bones_fetched)
-			continue;
-
 		for (auto& bone_transform : player.bones)
 		{
 			bone_transform.UpdateTrsXBuffer(scatter_handle);
@@ -409,4 +341,5 @@ void Cache::UpdateBones(HANDLE scatter_handle)
 	dma.ExecuteScatterRead(scatter_handle);
 
 	players.store(new_players);
+	entities.store(new_entities);
 }

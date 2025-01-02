@@ -44,14 +44,22 @@ void Cheat::WindowCallback(Overlay* overlay)
 {
 	Drawing::SetDrawList(overlay->DrawList);
 
-	Cache::UpdateViewMatrix();
+	//if (GetAsyncKeyState(VK_INSERT) & 1)
+	//{
+	//	overlay->MenuVisible = !overlay->MenuVisible;
+	//}
+	//
+	//if (GetAsyncKeyState(VK_END) & 1)
+	//{
+	//	overlay->Stop();
+	//}
 
-	if (GetAsyncKeyState(VK_INSERT) & 1)
+	if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_Insert))
 	{
 		overlay->MenuVisible = !overlay->MenuVisible;
 	}
 
-	if (GetAsyncKeyState(VK_END) & 1)
+	if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_End))
 	{
 		overlay->Stop();
 	}
@@ -172,6 +180,18 @@ void Cheat::RenderCallback(Overlay* overlay)
 
 				ImGui::Columns(1);
 				ImGui::Unindent();
+
+				ImGui::PushID(&thread);
+
+				if (ImGui::Button("Pause")) {
+					thread.Pause();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Resume")) {
+					thread.Resume();
+				}
+
+				ImGui::PopID();
 			}
 			else
 			{

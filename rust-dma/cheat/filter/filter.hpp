@@ -7,7 +7,7 @@ public:
     Filter() = default;
     ~Filter() = default;
 
-    static EntityCategorie& GetCategory(std::string obj_name);
+    static EntityCategorie& GetCategory(const std::string& obj_name);
 
     static inline EntityCategorie collectable_ores = EntityCategorie(ImColor(0.25f, 0.75f, 0.25f, 1.0f), "Collectable Ores");
     static inline EntityCategorie food = EntityCategorie(ImColor(1.0f, 0.5f, 0.0f, 1.0f), "Food");

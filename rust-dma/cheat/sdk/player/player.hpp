@@ -98,7 +98,6 @@ public:
     std::uintptr_t bone_transforms = 0;
 
 	std::vector<Transform> bones;
-	bool bones_fetched = false;
 
 	bool is_npc = false;
 
@@ -107,8 +106,6 @@ public:
 
     inline Vector3 GetBonePosition(int index)
 	{
-		if (!bones_fetched)
-			return Vector3(0, 0, 0);
 		if (!bones.size())
 			return Vector3(0, 0, 0);
 		if (index >= bones.size())

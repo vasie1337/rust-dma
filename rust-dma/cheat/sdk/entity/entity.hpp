@@ -8,14 +8,16 @@ public:
 	~Entity() {}
 
 	int idx = 0;
-
 	char name_buffer[128] = { 0 };
+
+	std::uint16_t tag = 0;
+
 	std::string obj_name = "";
 	std::string formatted_name = "";
 
 	Vector3 position = Vector3();
 
-	std::uint16_t tag = 0;
+	bool is_static = true;
 
 	std::uintptr_t object_ptr = 0;
 	std::uintptr_t base_object = 0;
