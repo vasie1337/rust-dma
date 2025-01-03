@@ -7,40 +7,36 @@ class BufferedData
 public:
     BufferedData() = default;
 
-    void store(T new_data) {
-        std::lock_guard<std::mutex> lock(mutex);
-        back_buffer = new_data;
-
-        if (!middle_in_use.exchange(true)) {
-            std::swap(middle_buffer, back_buffer);
-            middle_updated = true;
-        }
+    void store(T new_data) noexcept {
+        std::lock_guard<std::mutex> lock(mutex_);
+        back_buffer_ = std::move(new_data);
+        buffer_updated_ = true;
     }
 
-    T load() {
-        std::lock_guard<std::mutex> lock(mutex);
-        if (middle_updated) {
-            std::swap(front_buffer, middle_buffer);
-            middle_updated = false;
-            middle_in_use = false;
+    T load() noexcept {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (buffer_updated_) {
+            std::swap(front_buffer_, back_buffer_);
+            buffer_updated_ = false;
         }
-        return front_buffer;
+        return front_buffer_;
     }
 
-	T swap(T new_data) {
-		std::lock_guard<std::mutex> lock(mutex);
-		std::swap(front_buffer, new_data);
-		return front_buffer;
-	}
+    T swap(T new_data) noexcept {
+        std::lock_guard<std::mutex> lock(mutex_);
+        std::swap(front_buffer_, new_data);
+        return new_data;
+    }
+
+    bool has_update() const noexcept {
+        return buffer_updated_;
+    }
 
 private:
-    mutable std::mutex mutex;
-    T front_buffer = T();
-    T middle_buffer = T();
-    T back_buffer = T();
-
-    std::atomic<bool> middle_in_use{ false };
-    bool middle_updated = false;
+    mutable std::mutex mutex_;
+    T front_buffer_ = T();
+    T back_buffer_ = T();
+    bool buffer_updated_ = false;
 };
 
 class CacheData {
@@ -54,7 +50,4 @@ public:
 
     inline static BufferedData<Matrix4x4> view_matrix;
     inline static BufferedData<Vector3> camera_pos;
-
-	inline static BufferedData<EntityListData> entity_list_data;
-
 };

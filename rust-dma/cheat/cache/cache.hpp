@@ -26,12 +26,12 @@ private:
 public:
 	CacheThread globals_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchGlobals, this, std::placeholders::_1)), 
-		1000,
+		3000,
 		"Globals Fetch"
 	);
 	CacheThread entities_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)),
-		1000,
+		100,
 		"Entities Fetch"
 	);
 	CacheThread pos_thread = CacheThread(

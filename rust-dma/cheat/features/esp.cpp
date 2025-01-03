@@ -115,11 +115,10 @@ void Esp::RenderPlayers()
         if (player_snaplines)
         {
             Vector2 head_screen;
-            if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
-            {
-                Vector2 screen_center = Vector2(Math::screen_size.x / 2.f, 0.f);
-                DrawLine(screen_center, head_screen, 1.f, player_color);
-            }
+            Math::WorldToScreen(head_bone, head_screen, view_matrix, true);
+            
+            Vector2 screen_center = Vector2(Math::screen_size.x / 2.f, 0.f);
+            DrawLine(screen_center, head_screen, 1.f, player_color);
         }
     }
 }
