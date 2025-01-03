@@ -122,7 +122,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     }
 
     if (!entities_to_update.empty()) {
-        UpdateEntityData(scatter_handle, entities_to_update);
+        FetchEntityData(scatter_handle, entities_to_update);
     }
 
     std::vector<Player> new_players;
@@ -144,7 +144,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     }
 
     if (!players_to_update.empty()) {
-        UpdatePlayerData(scatter_handle, players_to_update);
+        FetchPlayerData(scatter_handle, players_to_update);
     }
 
     entities.store(std::move(new_entities));
@@ -217,7 +217,7 @@ void Cache::FetchPlayerData(HANDLE scatter_handle, const std::vector<Player*>& p
         }
     }
 
-    UpdatePlayerBones(scatter_handle, players_to_update);
+    FetchPlayerBones(scatter_handle, players_to_update);
 }
 
 void Cache::FetchPlayerBones(HANDLE scatter_handle, const std::vector<Player*>& players_to_update)
