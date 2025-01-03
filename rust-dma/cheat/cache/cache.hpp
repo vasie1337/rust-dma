@@ -13,12 +13,13 @@ public:
 private:
 	void FetchGlobals(HANDLE scatter_handle);
 	void FetchEntities(HANDLE scatter_handle);
+
+	void FetchEntityData(HANDLE scatter_handle, const std::vector<Entity*>& entities_to_update);
+	void FetchPlayerData(HANDLE scatter_handle, const std::vector<Player*>& players_to_update);
+	void FetchPlayerBones(HANDLE scatter_handle, const std::vector<Player*>& players_to_update);
+
 	void UpdatePositions(HANDLE scatter_handle);
 	void UpdateViewMatrix(HANDLE scatter_handle);
-
-	void UpdateEntityData(HANDLE scatter_handle, const std::vector<Entity*>& entities_to_update);
-	void UpdatePlayerData(HANDLE scatter_handle, const std::vector<Player*>& players_to_update);
-	void UpdatePlayerBones(HANDLE scatter_handle, const std::vector<Player*>& players_to_update);
 
 	std::string FormatObjectName(const std::string& object_name);
 

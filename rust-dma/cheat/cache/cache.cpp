@@ -151,7 +151,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     players.store(std::move(new_players));
 }
 
-void Cache::UpdateEntityData(HANDLE scatter_handle, const std::vector<Entity*>& entities_to_update)
+void Cache::FetchEntityData(HANDLE scatter_handle, const std::vector<Entity*>& entities_to_update)
 {
     CACHE_LOG("Updating %zu new entities\n", entities_to_update.size());
 
@@ -191,7 +191,7 @@ void Cache::UpdateEntityData(HANDLE scatter_handle, const std::vector<Entity*>& 
     dma.ExecuteScatterRead(scatter_handle);
 }
 
-void Cache::UpdatePlayerData(HANDLE scatter_handle, const std::vector<Player*>& players_to_update)
+void Cache::FetchPlayerData(HANDLE scatter_handle, const std::vector<Player*>& players_to_update)
 {
     CACHE_LOG("Updating %zu new players\n", players_to_update.size());
 
@@ -220,7 +220,7 @@ void Cache::UpdatePlayerData(HANDLE scatter_handle, const std::vector<Player*>& 
     UpdatePlayerBones(scatter_handle, players_to_update);
 }
 
-void Cache::UpdatePlayerBones(HANDLE scatter_handle, const std::vector<Player*>& players_to_update)
+void Cache::FetchPlayerBones(HANDLE scatter_handle, const std::vector<Player*>& players_to_update)
 {
     for (auto* player : players_to_update) {
         if (player->is_npc) continue;
