@@ -18,7 +18,6 @@ private:
 public:
     static void Render()
     {
-        local_player = Cache::local_player.load();
         player_list = Cache::players.load();
         entity_list = Cache::entities.load();
         camera_position = Cache::camera_pos.load();

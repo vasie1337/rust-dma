@@ -13,6 +13,11 @@ public:
 private:
 	void FetchGlobals(HANDLE scatter_handle);
 	void FetchEntities(HANDLE scatter_handle);
+
+	void FetchEntityData(HANDLE scatter_handle, const std::vector<Entity*>& entities_to_update);
+	void FetchPlayerData(HANDLE scatter_handle, const std::vector<Player*>& players_to_update);
+	void FetchPlayerBones(HANDLE scatter_handle, const std::vector<Player*>& players_to_update);
+
 	void UpdatePositions(HANDLE scatter_handle);
 	void UpdateViewMatrix(HANDLE scatter_handle);
 
@@ -26,7 +31,7 @@ public:
 	);
 	CacheThread entities_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)),
-		100,
+		1000,
 		"Entities Fetch"
 	);
 	CacheThread pos_thread = CacheThread(
