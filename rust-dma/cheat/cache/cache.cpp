@@ -148,7 +148,6 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 	{
 		auto& entity = entity_ref.get();
 		dma.AddScatterRead(scatter_handle, entity.transform + 0x38, &entity.visual_state, sizeof(entity.visual_state));
-		dma.AddScatterRead(scatter_handle, entity.object_ptr + 0xC8, &entity.model, sizeof(entity.model));
 	}
 	dma.ExecuteScatterRead(scatter_handle);
 
@@ -198,6 +197,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 		{
 			auto& player = player_ref.get();
 			dma.AddScatterRead(scatter_handle, player.object_ptr + 0x258, &player.player_model, sizeof(player.player_model));
+			dma.AddScatterRead(scatter_handle, player.object_ptr + 0xC8, &player.model, sizeof(player.model));
 			dma.AddScatterRead(scatter_handle, player.object_ptr + 0x270, &player.nameptr, sizeof(player.nameptr));
 		}
 		dma.ExecuteScatterRead(scatter_handle);
@@ -210,6 +210,10 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 			dma.AddScatterRead(scatter_handle, player.nameptr + 0x14, player.name_buffer, sizeof(player.name_buffer));
 		}
 		dma.ExecuteScatterRead(scatter_handle);
+
+		// loop players and check if player.is_npc == 1
+		// if so, remove from new_players
+		new_players.erase(std::remove_if(new_players.begin(), new_players.end(), [](const Player& player) { return player.is_npc; }), new_players.end());
 
 		for (auto& player_ref : players_to_update)
 		{

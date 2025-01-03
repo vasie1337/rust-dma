@@ -74,6 +74,11 @@ void Cheat::RenderCallback(Overlay* overlay)
 
 	ImGui::Begin("Awhare Rust", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
+	if (ImGui::Button("Exit"))
+	{
+		overlay->Stop();
+	}
+
 	ImGui::Checkbox("VSync", &overlay->VSync);
 	ImGui::SliderFloat("Max entity distance", &max_entity_distance, 10.f, 300.f);
 	ImGui::Checkbox("Crosshair Dot", &crosshair);
