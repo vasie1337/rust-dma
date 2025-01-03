@@ -2,41 +2,59 @@
 #include "../../../include.hpp"
 
 template <typename T>
-class DataEntry
+class BufferedData 
 {
 public:
-	DataEntry() = default;
-	DataEntry(T data) : data(data) {}
+    BufferedData() = default;
 
-	void store(T data)
-	{
-		std::lock_guard<std::mutex> lock(mutex);
-		this->data = data;
-	}
+    void store(T new_data) {
+        std::lock_guard<std::mutex> lock(mutex);
+        back_buffer = new_data;
 
-	T load() const
-	{
+        if (!middle_in_use.exchange(true)) {
+            std::swap(middle_buffer, back_buffer);
+            middle_updated = true;
+        }
+    }
+
+    T load() {
+        std::lock_guard<std::mutex> lock(mutex);
+        if (middle_updated) {
+            std::swap(front_buffer, middle_buffer);
+            middle_updated = false;
+            middle_in_use = false;
+        }
+        return front_buffer;
+    }
+
+	T swap(T new_data) {
 		std::lock_guard<std::mutex> lock(mutex);
-		return data;
+		std::swap(front_buffer, new_data);
+		return front_buffer;
 	}
 
 private:
-	mutable std::mutex mutex;
-	T data = T();
+    mutable std::mutex mutex;
+    T front_buffer = T();
+    T middle_buffer = T();
+    T back_buffer = T();
+
+    std::atomic<bool> middle_in_use{ false };
+    bool middle_updated = false;
 };
 
-class CacheData
-{
+class CacheData {
 public:
-	inline static DataEntry<uintptr_t> base_address;
-	inline static DataEntry<uintptr_t> camera_object;
-	inline static DataEntry<uintptr_t> entity_list;
+    inline static BufferedData<uintptr_t> base_address;
+    inline static BufferedData<uintptr_t> camera_address;
+    inline static BufferedData<uintptr_t> entity_list_address;
 
-	inline static DataEntry<Player> local_player;
+	inline static BufferedData<std::vector<Entity>> entities;
+	inline static BufferedData<std::vector<Player>> players;
 
-	inline static DataEntry<std::vector<Entity>> entities = std::vector<Entity>();
-	inline static DataEntry<std::vector<Player>> players = std::vector<Player>();
+    inline static BufferedData<Matrix4x4> view_matrix;
+    inline static BufferedData<Vector3> camera_pos;
 
-	inline static DataEntry<Matrix4x4> view_matrix = Matrix4x4();
-	inline static DataEntry<Vector3> camera_pos = Vector3();
+	inline static BufferedData<EntityListData> entity_list_data;
+
 };

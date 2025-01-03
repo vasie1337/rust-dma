@@ -26,7 +26,7 @@ public:
 	);
 	CacheThread entities_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)),
-		100,
+		1000,
 		"Entities Fetch"
 	);
 	CacheThread pos_thread = CacheThread(

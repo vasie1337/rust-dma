@@ -124,9 +124,8 @@ void Cheat::RenderCallback(Overlay* overlay)
 	{
 		ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 		ImGui::Text("Base Address: 0x%llX", Cache::base_address.load());
-		ImGui::Text("Camera Object: 0x%llX", Cache::camera_object.load());
-		ImGui::Text("Entity List: 0x%llX", Cache::entity_list.load());
-		ImGui::Text("Local Player: 0x%llX", Cache::local_player.load().object_ptr);
+		ImGui::Text("Camera Object: 0x%llX", Cache::camera_address.load());
+		ImGui::Text("Entity List: 0x%llX", Cache::entity_list_address.load());
 		ImGui::Text("Camera Position: %.2f %.2f %.2f", Cache::camera_pos.load().x, Cache::camera_pos.load().y, Cache::camera_pos.load().z);
 		ImGui::Text("Players: %d", Cache::players.load().size());
 		ImGui::Text("Entities: %d", Cache::entities.load().size());
