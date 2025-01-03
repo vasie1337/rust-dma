@@ -1,7 +1,5 @@
 #include "../../include.hpp"
 
-#define CACHE_LOG(fmt, ...) printf("[CACHE] " fmt, __VA_ARGS__)
-
 void Cache::Run()
 {
 	globals_thread.Run();
@@ -40,8 +38,6 @@ void Cache::FetchGlobals(HANDLE scatter_handle)
 {
 	if (!entity_list_address.load())
 	{
-		CACHE_LOG("Fetching entity list address\n");
-
 		uintptr_t base_net_workable = dma.Read<uintptr_t>(base_address.load() + Offsets::base_net_workable);
 		uintptr_t bn_static_fields = dma.Read<uintptr_t>(base_net_workable + 0xB8);
 		uintptr_t bn_wrapper_class_ptr = dma.Read<uintptr_t>(bn_static_fields + 0x28);
@@ -51,29 +47,21 @@ void Cache::FetchGlobals(HANDLE scatter_handle)
 		entity_list_address.store(dma.Read<uintptr_t>(bn_parent_static_class + 0x18));
 	}
 
-	if (!camera_address.load())
+    static uintptr_t main_camera_manager;
+	if (!main_camera_manager)
 	{
-		CACHE_LOG("Fetching camera address\n");
-
-		uintptr_t main_camera_manager = dma.Read<uintptr_t>(base_address.load() + Offsets::main_camera);
-		uintptr_t camera_manager = dma.Read<uintptr_t>(main_camera_manager + 0xB8);
-		uintptr_t camera = dma.Read<uintptr_t>(camera_manager + 0xE0);
-		camera_address.store(dma.Read<uintptr_t>(camera + 0x10));
+		main_camera_manager = dma.Read<uintptr_t>(base_address.load() + Offsets::main_camera);
 	}
 
-	entity_list_data.store(dma.Read<EntityListData>(entity_list_address.load() + 0x10));
-	if (!entity_list_data.load())
-	{
-		CACHE_LOG("Entity list data is null\n");
-		return;
-	}
+    uintptr_t camera_manager = dma.Read<uintptr_t>(main_camera_manager + 0xB8);
+    uintptr_t camera = dma.Read<uintptr_t>(camera_manager + 0xE0);
+    camera_address.store(dma.Read<uintptr_t>(camera + 0x10));
 }
 
 void Cache::FetchEntities(HANDLE scatter_handle)
 {
-    auto entity_list = entity_list_data.load();
+    auto entity_list = dma.Read<EntityListData>(entity_list_address.load() + 0x10);
     if (!entity_list) {
-        CACHE_LOG("Entity list data is null\n");
         return;
     }
 
@@ -147,14 +135,14 @@ void Cache::FetchEntities(HANDLE scatter_handle)
         FetchPlayerData(scatter_handle, players_to_update);
     }
 
+	new_players.erase(std::remove_if(new_players.begin(), new_players.end(), [](const Player& player) { return player.is_npc; }), new_players.end());
+
     entities.store(std::move(new_entities));
     players.store(std::move(new_players));
 }
 
 void Cache::FetchEntityData(HANDLE scatter_handle, const std::vector<Entity*>& entities_to_update)
 {
-    CACHE_LOG("Updating %zu new entities\n", entities_to_update.size());
-
     for (auto* entity : entities_to_update) {
         dma.AddScatterRead(scatter_handle, entity->object_ptr + 0x10, &entity->base_object, sizeof(entity->base_object));
     }
@@ -193,8 +181,6 @@ void Cache::FetchEntityData(HANDLE scatter_handle, const std::vector<Entity*>& e
 
 void Cache::FetchPlayerData(HANDLE scatter_handle, const std::vector<Player*>& players_to_update)
 {
-    CACHE_LOG("Updating %zu new players\n", players_to_update.size());
-
     for (auto* player : players_to_update) {
         dma.AddScatterRead(scatter_handle, player->object_ptr + Offsets::player_model, &player->player_model, sizeof(player->player_model));
         dma.AddScatterRead(scatter_handle, player->object_ptr + Offsets::model, &player->model, sizeof(player->model));
