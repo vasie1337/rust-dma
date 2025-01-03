@@ -15,7 +15,7 @@ namespace Offsets
 	inline std::uintptr_t prefab_name = 0x60;
 	inline std::uintptr_t transform = 0x8;
 	inline std::uintptr_t visual_state = 0x38;
-	inline std::uintptr_t vec3_position = 0x38;
+	inline std::uintptr_t vec3_position = 0x90;
 
 	// BaseCombatEntity
 	inline std::uintptr_t player_model = 0x258;
