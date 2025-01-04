@@ -1,17 +1,17 @@
 #pragma once
 #include "../../../include.hpp"
 
-class EntityCategorie
+class EntityCategory
 {
 public:
-    EntityCategorie() = default;
-    EntityCategorie(ImColor color, bool enabled = false, std::string name = "Unknown", bool is_obj_static = true)
+    EntityCategory() = default;
+    EntityCategory(ImColor color, bool enabled = false, std::string name = "Unknown", bool is_obj_static = true)
         : color(color), enabled(enabled), name(name), is_obj_static(is_obj_static)
     {
     }
-    ~EntityCategorie() = default;
+    ~EntityCategory() = default;
 
-    EntityCategorie& operator=(const EntityCategorie& other)
+    EntityCategory& operator=(const EntityCategory& other)
     {
         path_trie = other.path_trie;
         enabled = other.enabled;

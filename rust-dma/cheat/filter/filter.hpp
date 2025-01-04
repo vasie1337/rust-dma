@@ -7,30 +7,30 @@ public:
     Filter() = default;
     ~Filter() = default;
 
-    static EntityCategorie& GetCategory(const std::string& obj_name);
+    static EntityCategory& GetCategory(const std::string& obj_name);
 
-    static inline EntityCategorie collectable_ores = EntityCategorie(ImColor(0.25f, 0.75f, 0.25f, 1.0f), false, "Collectable Ores");
-    static inline EntityCategorie food = EntityCategorie(ImColor(1.0f, 0.5f, 0.0f, 1.0f), false, "Food");
-    static inline EntityCategorie hemp = EntityCategorie(ImColor(0.2f, 0.4f, 1.0f, 1.0f), false, "Hemp");
-    static inline EntityCategorie berries = EntityCategorie(ImColor(0.9f, 0.1f, 0.9f, 1.0f), false, "Berries");
-    static inline EntityCategorie ores = EntityCategorie(ImColor(0.0f, 0.6f, 1.0f, 1.0f), false, "Ores");
-    static inline EntityCategorie base_items = EntityCategorie(ImColor(0.4f, 0.9f, 0.6f, 1.0f), false, "Base Items");
-    static inline EntityCategorie base_construction = EntityCategorie(ImColor(0.5f, 0.2f, 0.7f, 1.0f), false, "Base Construction");
-    static inline EntityCategorie traps = EntityCategorie(ImColor(0.8f, 0.1f, 0.1f, 1.0f), false, "Traps");
-    static inline EntityCategorie barrels = EntityCategorie(ImColor(0.5f, 0.2f, 0.7f, 1.0f), false, "Barrels");
-    static inline EntityCategorie crates = EntityCategorie(ImColor(0.7f, 0.4f, 0.5f, 1.0f), false, "Crates");
-    static inline EntityCategorie vehicles = EntityCategorie(ImColor(0.7f, 0.7f, 0.7f, 1.0f), false, "Vehicles", false);
-    static inline EntityCategorie npcs = EntityCategorie(ImColor(0.9f, 0.1f, 0.1f, 1.0f), false, "NPC's", false);
-    static inline EntityCategorie dropped_items = EntityCategorie(ImColor(0.8f, 0.6f, 0.1f, 1.0f), true, "Dropped Items", false);
+    static inline EntityCategory collectable_ores = EntityCategory(ImColor(0.25f, 0.75f, 0.25f, 1.0f), false, "Collectable Ores");
+    static inline EntityCategory food = EntityCategory(ImColor(1.0f, 0.5f, 0.0f, 1.0f), false, "Food");
+    static inline EntityCategory hemp = EntityCategory(ImColor(0.2f, 0.4f, 1.0f, 1.0f), false, "Hemp");
+    static inline EntityCategory berries = EntityCategory(ImColor(0.9f, 0.1f, 0.9f, 1.0f), false, "Berries");
+    static inline EntityCategory ores = EntityCategory(ImColor(0.0f, 0.6f, 1.0f, 1.0f), false, "Ores");
+    static inline EntityCategory base_items = EntityCategory(ImColor(0.4f, 0.9f, 0.6f, 1.0f), false, "Base Items");
+    static inline EntityCategory base_construction = EntityCategory(ImColor(0.5f, 0.2f, 0.7f, 1.0f), false, "Base Construction");
+    static inline EntityCategory traps = EntityCategory(ImColor(0.8f, 0.1f, 0.1f, 1.0f), false, "Traps");
+    static inline EntityCategory barrels = EntityCategory(ImColor(0.5f, 0.2f, 0.7f, 1.0f), false, "Barrels");
+    static inline EntityCategory crates = EntityCategory(ImColor(0.7f, 0.4f, 0.5f, 1.0f), false, "Crates");
+    static inline EntityCategory vehicles = EntityCategory(ImColor(0.7f, 0.7f, 0.7f, 1.0f), false, "Vehicles", false);
+    static inline EntityCategory npcs = EntityCategory(ImColor(0.9f, 0.1f, 0.1f, 1.0f), false, "NPC's", false);
+    static inline EntityCategory dropped_items = EntityCategory(ImColor(0.8f, 0.6f, 0.1f, 1.0f), true, "Dropped Items", false);
 
-    static inline std::vector<std::reference_wrapper<EntityCategorie>> categories = {};
+    static inline std::vector<std::reference_wrapper<EntityCategory>> categories = {};
 
 private:
     static void PopulateCategories();
 	static bool IsDroppedItem(const std::string& obj_name);
 
-    static inline std::unordered_map<std::string, EntityCategorie&> category_map;
-    static inline EntityCategorie default_category{ ImColor(1.0f, 1.0f, 1.0f, 0.0f) };
+    static inline std::unordered_map<std::string, EntityCategory&> category_map;
+    static inline EntityCategory default_category{ ImColor(1.0f, 1.0f, 1.0f, 0.0f) };
     static inline std::once_flag initialized_flag;
 
 };

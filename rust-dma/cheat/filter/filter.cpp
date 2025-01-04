@@ -1,6 +1,6 @@
 #include "../../include.hpp"
 
-EntityCategorie& Filter::GetCategory(const std::string& obj_name)
+EntityCategory& Filter::GetCategory(const std::string& obj_name)
 {
     std::call_once(initialized_flag, PopulateCategories);
 

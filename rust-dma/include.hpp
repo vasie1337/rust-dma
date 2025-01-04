@@ -43,7 +43,7 @@
 #include "cheat/sdk/offsets/offsets.hpp"
 #include "cheat/sdk/decryption/decryption.hpp"
 #include "cheat/sdk/transform/transform.hpp"
-#include "cheat/filter/categorie/categorie.hpp"
+#include "cheat/filter/category/category.hpp"
 #include "cheat/filter/filter.hpp"
 #include "cheat/sdk/entity/entity.hpp"
 #include "cheat/sdk/player/player.hpp"
