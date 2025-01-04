@@ -41,7 +41,7 @@ private:
 
 class CacheData {
 public:
-    inline static BufferedData<uintptr_t> base_address;
+    inline static uintptr_t base_address;
     inline static BufferedData<uintptr_t> camera_address;
     inline static BufferedData<uintptr_t> entity_list_address;
 

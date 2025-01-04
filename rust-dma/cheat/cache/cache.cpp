@@ -38,19 +38,19 @@ void Cache::FetchGlobals(HANDLE scatter_handle)
 {
 	if (!entity_list_address.load())
 	{
-		uintptr_t base_net_workable = dma.Read<uintptr_t>(base_address.load() + Offsets::base_net_workable);
+		uintptr_t base_net_workable = dma.Read<uintptr_t>(base_address + Offsets::base_net_workable);
 		uintptr_t bn_static_fields = dma.Read<uintptr_t>(base_net_workable + 0xB8);
 		uintptr_t bn_wrapper_class_ptr = dma.Read<uintptr_t>(bn_static_fields + 0x28);
-		uintptr_t bn_wrapper_class = decryption::BaseNetworkable(base_address.load(), bn_wrapper_class_ptr);
+		uintptr_t bn_wrapper_class = decryption::BaseNetworkable(base_address, bn_wrapper_class_ptr);
 		uintptr_t bn_parent_static_fields = dma.Read<uintptr_t>(bn_wrapper_class + 0x10);
-		uintptr_t bn_parent_static_class = decryption::BaseNetworkable(base_address.load(), bn_parent_static_fields);
+		uintptr_t bn_parent_static_class = decryption::BaseNetworkable(base_address, bn_parent_static_fields);
 		entity_list_address.store(dma.Read<uintptr_t>(bn_parent_static_class + 0x18));
 	}
 
     static uintptr_t main_camera_manager;
 	if (!main_camera_manager)
 	{
-		main_camera_manager = dma.Read<uintptr_t>(base_address.load() + Offsets::main_camera);
+		main_camera_manager = dma.Read<uintptr_t>(base_address + Offsets::main_camera);
 	}
 
     uintptr_t camera_manager = dma.Read<uintptr_t>(main_camera_manager + 0xB8);

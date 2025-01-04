@@ -7,11 +7,16 @@ Cheat::Cheat()
 		throw std::exception("Failed to initialize DMA");
 	}
 	
-	Cache::base_address.store(dma.GetModuleBaseAddress("GameAssembly.dll"));
-	if (!Cache::base_address.load())
+	printf("[CHEAT] Initialized\n");
+
+	Cache::base_address = dma.GetModuleBaseAddress("GameAssembly.dll");
+	if (!Cache::base_address)
 	{
+		printf("[CHEAT] Failed to get base address\n");
 		throw std::exception("Failed to get base address");
 	}
+
+	printf("[CHEAT] Base Address: 0x%llX\n", Cache::base_address);
 
 	Overlay::SetStyleCallback(StyleCallback);
 	Overlay::SetWindowCallback(WindowCallback);
@@ -21,6 +26,8 @@ Cheat::Cheat()
 	{
 		throw std::exception("Failed to initialize overlay");
 	}
+
+	printf("[CHEAT] Overlay Initialized\n");
 
 	Cache::Run();
 	Overlay::Run();

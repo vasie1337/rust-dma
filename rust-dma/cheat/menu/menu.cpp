@@ -72,7 +72,7 @@ void Menu::RenderSettings(Overlay* overlay)
 
 void Menu::RenderDebug(Overlay* overlay)
 {
-	ImGui::Text("Base Address: 0x%llX", Cache::base_address.load());
+	ImGui::Text("Base Address: 0x%llX", Cache::base_address);
 	ImGui::Text("Camera Object: 0x%llX", Cache::camera_address.load());
 	ImGui::Text("Entity List: 0x%llX", Cache::entity_list_address.load());
 	ImGui::Text("Camera Position: %.2f %.2f %.2f", Cache::camera_pos.load().x, Cache::camera_pos.load().y, Cache::camera_pos.load().z);
