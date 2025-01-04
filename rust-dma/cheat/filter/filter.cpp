@@ -74,6 +74,12 @@ void Filter::PopulateCategories()
 
     misc.AddPath("assets/content/props/roadsigns/");
 
+	base.AddPath("assets/prefabs/deployable");
+
+	traps.AddPath("assets/prefabs/npc/autoturret/autoturret_deployed.prefab");
+	traps.AddPath("assets/prefabs/npc/sam_site_turret/sam_site_turret_deployed.prefab");
+	traps.AddPath("assets/prefabs/npc/flame turret/flameturret.deployed.prefab");
+
     vehicles.AddPath("assets/content/vehicles/modularcar/_base_car_chassis.entity.prefab");
     vehicles.AddPath("assets/content/vehicles/modularcar/2module_car_spawned.entity.prefab");
     vehicles.AddPath("assets/content/vehicles/modularcar/3module_car_spawned.entity.prefab");
@@ -104,6 +110,8 @@ void Filter::PopulateCategories()
         std::ref(berries),
         std::ref(ores),
         std::ref(misc),
+		std::ref(base),
+		std::ref(traps),
         std::ref(barrels),
         std::ref(crates),
         std::ref(vehicles),

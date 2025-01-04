@@ -59,6 +59,9 @@ void Cheat::RenderCallback(Overlay* overlay)
 {
 	Esp::Render();
 
+	if (crosshair)
+		DrawCircleFilled({ Math::screen_center.x, Math::screen_center.y }, crosshair_size, crosshair_color, 0);
+
 	if (overlay->MenuVisible)
 		Menu::Render(overlay);
 }

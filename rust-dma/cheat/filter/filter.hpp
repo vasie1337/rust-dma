@@ -15,6 +15,8 @@ public:
     static inline EntityCategorie berries = EntityCategorie(ImColor(0.9f, 0.1f, 0.9f, 1.0f), false, "Berries");
     static inline EntityCategorie ores = EntityCategorie(ImColor(0.0f, 0.6f, 1.0f, 1.0f), false, "Ores");
     static inline EntityCategorie misc = EntityCategorie(ImColor(0.8f, 0.6f, 0.1f, 1.0f), false, "Misc");
+    static inline EntityCategorie base = EntityCategorie(ImColor(0.4f, 0.9f, 0.6f, 1.0f), false, "Base Items");
+    static inline EntityCategorie traps = EntityCategorie(ImColor(0.8f, 0.1f, 0.1f, 1.0f), false, "Traps");
     static inline EntityCategorie barrels = EntityCategorie(ImColor(0.5f, 0.2f, 0.7f, 1.0f), false, "Barrels");
     static inline EntityCategorie crates = EntityCategorie(ImColor(0.7f, 0.4f, 0.5f, 1.0f), false, "Crates");
     static inline EntityCategorie vehicles = EntityCategorie(ImColor(0.7f, 0.7f, 0.7f, 1.0f), false, "Vehicles", false);

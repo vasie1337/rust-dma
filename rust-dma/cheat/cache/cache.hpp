@@ -50,45 +50,46 @@ public:
 
 inline std::string Cache::FormatObjectName(const std::string& object_name)
 {
-	size_t start = object_name.find_last_of('/');
-	std::string name = (start == std::string::npos) ? object_name : object_name.substr(start + 1);
+    size_t start = object_name.find_last_of('/');
+    std::string name = (start == std::string::npos) ? object_name : object_name.substr(start + 1);
+    const std::array<std::string_view, 4> suffixes = { ".prefab", ".entity", "_spawned", "deployed" };
 
-	const std::array<std::string_view, 5> suffixes = { ".prefab", ".entity", "_spawned", "deployed", " (world)"};
+    bool found_suffix;
+    do {
+        found_suffix = false;
+        for (const auto& suffix : suffixes) {
+            if (name.size() >= suffix.size() &&
+                name.compare(name.size() - suffix.size(), suffix.size(), suffix) == 0) {
+                name.resize(name.size() - suffix.size());
+                found_suffix = true;
+                break;
+            }
+        }
+    } while (found_suffix);
 
-	for (const auto& suffix : suffixes) {
-		if (name.size() >= suffix.size() && name.compare(name.size() - suffix.size(), suffix.size(), suffix) == 0) {
-			name.resize(name.size() - suffix.size());
-			break;
-		}
-	}
-
-	std::string result;
-	result.reserve(name.size());
-
-	bool capitalize_next = true;
-	for (char c : name) {
-		if (c == '.') continue;
-
-		if (c == '-' || c == '_') {
-			result.push_back(' ');
-			capitalize_next = true;
-			continue;
-		}
-
-		if (std::isdigit(c)) continue;
-
-		if (std::isalpha(c)) {
-			if (capitalize_next) {
-				result.push_back(std::toupper(c));
-				capitalize_next = false;
-			}
-			else {
-				result.push_back(std::tolower(c));
-			}
-		}
-		else {
-			result.push_back(c);
-		}
-	}
-	return result;
+    std::string result;
+    result.reserve(name.size());
+    bool capitalize_next = true;
+    for (char c : name) {
+        if (c == '.') continue;
+        if (c == '-' || c == '_') {
+            result.push_back(' ');
+            capitalize_next = true;
+            continue;
+        }
+        if (std::isdigit(c)) continue;
+        if (std::isalpha(c)) {
+            if (capitalize_next) {
+                result.push_back(std::toupper(c));
+                capitalize_next = false;
+            }
+            else {
+                result.push_back(std::tolower(c));
+            }
+        }
+        else {
+            result.push_back(c);
+        }
+    }
+    return result;
 }

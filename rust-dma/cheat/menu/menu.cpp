@@ -67,7 +67,6 @@ void Menu::RenderSettings(Overlay* overlay)
 	{
 		ImGui::ColorEdit4("Crosshair Color", (float*)&crosshair_color);
 		ImGui::SliderFloat("Crosshair Size", &crosshair_size, 1.f, 20.f);
-		ImGui::GetBackgroundDrawList()->AddCircleFilled({ Math::screen_center.x, Math::screen_center.y }, crosshair_size, crosshair_color, 0);
 	}
 }
 
