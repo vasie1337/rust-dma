@@ -26,6 +26,7 @@
     <ClInclude Include="cheat\features\esp.hpp" />
     <ClInclude Include="cheat\filter\categorie\categorie.hpp" />
     <ClInclude Include="cheat\filter\filter.hpp" />
+    <ClInclude Include="cheat\menu\menu.hpp" />
     <ClInclude Include="cheat\sdk\decryption\decryption.hpp" />
     <ClInclude Include="cheat\sdk\entity\entity.hpp" />
     <ClInclude Include="cheat\sdk\offsets\offsets.hpp" />
@@ -40,6 +41,7 @@
     <ClCompile Include="cheat\cheat.cpp" />
     <ClCompile Include="cheat\features\esp.cpp" />
     <ClCompile Include="cheat\filter\filter.cpp" />
+    <ClCompile Include="cheat\menu\menu.cpp" />
     <ClCompile Include="cheat\sdk\transform\transform.cpp" />
     <ClCompile Include="entry.cpp" />
   </ItemGroup>

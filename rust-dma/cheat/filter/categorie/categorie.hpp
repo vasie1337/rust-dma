@@ -62,7 +62,7 @@ private:
 	std::vector<std::string> paths;
 
 public:
-	bool enabled = true;
+	bool enabled = false;
 	bool is_obj_static = true;
 	ImColor color;
 	std::string name;

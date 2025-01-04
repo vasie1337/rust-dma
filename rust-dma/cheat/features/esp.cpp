@@ -33,6 +33,9 @@ void Esp::RenderEntities()
 
 void Esp::RenderPlayers()
 {
+	if (!player_enable)
+		return;
+
     for (Player& player : player_list)
     {
         if (player.is_npc)
