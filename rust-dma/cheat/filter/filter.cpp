@@ -96,10 +96,10 @@ void Filter::PopulateCategories()
     vehicles.AddPath("assets/content/vehicles/snowmobiles/snowmobile.prefab");
     vehicles.AddPath("assets/content/vehicles/submarine/submarinesolo.entity.prefab");
     vehicles.AddPath("assets/content/vehicles/submarine/submarineduo.entity.prefab");
-    vehicles.AddPath("assets/prefabs/deployable/hot air balloon/hotairballoon.prefab");
     vehicles.AddPath("assets/content/vehicles/trains/workcart/workcart.entity.prefab");
     vehicles.AddPath("assets/content/vehicles/trains/locomotive/locomotive.entity.prefab");
     vehicles.AddPath("assets/rust.ai/nextai/testridablehorse.prefab");
+    vehicles.AddPath("assets/prefabs/deployable/hot air balloon/hotairballoon.prefab");
 
     npcs.AddPath("assets/rust.ai/agents");
 
@@ -110,8 +110,8 @@ void Filter::PopulateCategories()
         std::ref(berries),
         std::ref(ores),
         std::ref(misc),
-		std::ref(base),
 		std::ref(traps),
+		std::ref(base),
         std::ref(barrels),
         std::ref(crates),
         std::ref(vehicles),
