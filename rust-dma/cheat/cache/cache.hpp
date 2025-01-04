@@ -53,7 +53,6 @@ inline std::string Cache::FormatObjectName(const std::string& object_name)
     size_t start = object_name.find_last_of('/');
     std::string name = (start == std::string::npos) ? object_name : object_name.substr(start + 1);
     const std::array<std::string_view, 4> suffixes = { ".prefab", ".entity", "_spawned", "deployed" };
-
     bool found_suffix;
     do {
         found_suffix = false;
@@ -66,7 +65,6 @@ inline std::string Cache::FormatObjectName(const std::string& object_name)
             }
         }
     } while (found_suffix);
-
     std::string result;
     result.reserve(name.size());
     bool capitalize_next = true;
@@ -91,5 +89,11 @@ inline std::string Cache::FormatObjectName(const std::string& object_name)
             result.push_back(c);
         }
     }
+
+    size_t world_pos = result.find("(world)");
+    if (world_pos != std::string::npos) {
+        result.replace(world_pos, 7, "(dropped)");
+    }
+
     return result;
 }
