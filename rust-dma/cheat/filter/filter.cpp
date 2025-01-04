@@ -4,6 +4,11 @@ EntityCategorie& Filter::GetCategory(const std::string& obj_name)
 {
     std::call_once(initialized_flag, PopulateCategories);
 
+    if (IsDroppedItem(obj_name))
+    {
+        return dropped_items;
+    }
+
     auto it = std::find_if(categories.begin(), categories.end(), [&obj_name](const auto& category) {
         return category.get().IsEntityInCategory(obj_name);
     });
@@ -102,6 +107,12 @@ void Filter::PopulateCategories()
         std::ref(barrels),
         std::ref(crates),
         std::ref(vehicles),
-        std::ref(npcs)
+        std::ref(npcs),
+		std::ref(dropped_items)
     };
+}
+
+bool Filter::IsDroppedItem(const std::string& obj_name)
+{
+	return obj_name.size() >= 7 && obj_name.compare(obj_name.size() - 7, 7, "(world)") == 0;
 }

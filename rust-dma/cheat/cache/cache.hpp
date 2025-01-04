@@ -53,7 +53,7 @@ inline std::string Cache::FormatObjectName(const std::string& object_name)
 	size_t start = object_name.find_last_of('/');
 	std::string name = (start == std::string::npos) ? object_name : object_name.substr(start + 1);
 
-	const std::array<std::string_view, 4> suffixes = { ".prefab", ".entity", "_spawned", "deployed" };
+	const std::array<std::string_view, 5> suffixes = { ".prefab", ".entity", "_spawned", "deployed", " (world)"};
 
 	for (const auto& suffix : suffixes) {
 		if (name.size() >= suffix.size() && name.compare(name.size() - suffix.size(), suffix.size(), suffix) == 0) {

@@ -5,8 +5,8 @@ class EntityCategorie
 {
 public:
 	EntityCategorie() = default;
-	EntityCategorie(ImColor color, std::string name = "Unknown", bool is_obj_static = true)
-		: color(color), name(name), is_obj_static(is_obj_static)
+	EntityCategorie(ImColor color, bool enabled = false, std::string name = "Unknown", bool is_obj_static = true)
+		: color(color), enabled(enabled), name(name), is_obj_static(is_obj_static)
 	{
 	}
 	~EntityCategorie() = default;
@@ -35,7 +35,7 @@ public:
 
 	bool Enabled() const
 	{
-		return enabled && !paths.empty();
+		return enabled;
 	}
 
 	bool IsStatic() const
@@ -62,7 +62,7 @@ private:
 	std::vector<std::string> paths;
 
 public:
-	bool enabled = false;
+	bool enabled = true;
 	bool is_obj_static = true;
 	ImColor color;
 	std::string name;
