@@ -53,7 +53,6 @@ int main()
 	try
 	{
 		Cheat cheat;
-		std::getchar();
 		return 0;
 	}
 	catch (const std::exception& e)
