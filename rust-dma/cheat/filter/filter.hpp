@@ -14,7 +14,6 @@ public:
     static inline EntityCategorie hemp = EntityCategorie(ImColor(0.2f, 0.4f, 1.0f, 1.0f), false, "Hemp");
     static inline EntityCategorie berries = EntityCategorie(ImColor(0.9f, 0.1f, 0.9f, 1.0f), false, "Berries");
     static inline EntityCategorie ores = EntityCategorie(ImColor(0.0f, 0.6f, 1.0f, 1.0f), false, "Ores");
-    static inline EntityCategorie misc = EntityCategorie(ImColor(0.8f, 0.6f, 0.1f, 1.0f), false, "Misc");
     static inline EntityCategorie base_items = EntityCategorie(ImColor(0.4f, 0.9f, 0.6f, 1.0f), false, "Base Items");
     static inline EntityCategorie base_construction = EntityCategorie(ImColor(0.5f, 0.2f, 0.7f, 1.0f), false, "Base Construction");
     static inline EntityCategorie traps = EntityCategorie(ImColor(0.8f, 0.1f, 0.1f, 1.0f), false, "Traps");
@@ -30,5 +29,8 @@ private:
     static void PopulateCategories();
 	static bool IsDroppedItem(const std::string& obj_name);
 
+    static inline std::unordered_map<std::string, EntityCategorie&> category_map;
+    static inline EntityCategorie default_category{ ImColor(1.0f, 1.0f, 1.0f, 0.0f) };
     static inline std::once_flag initialized_flag;
+
 };

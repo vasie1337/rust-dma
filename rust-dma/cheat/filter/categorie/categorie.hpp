@@ -4,66 +4,79 @@
 class EntityCategorie
 {
 public:
-	EntityCategorie() = default;
-	EntityCategorie(ImColor color, bool enabled = false, std::string name = "Unknown", bool is_obj_static = true)
-		: color(color), enabled(enabled), name(name), is_obj_static(is_obj_static)
-	{
-	}
-	~EntityCategorie() = default;
+    EntityCategorie() = default;
+    EntityCategorie(ImColor color, bool enabled = false, std::string name = "Unknown", bool is_obj_static = true)
+        : color(color), enabled(enabled), name(name), is_obj_static(is_obj_static)
+    {
+    }
+    ~EntityCategorie() = default;
 
-	EntityCategorie& operator=(const EntityCategorie& other)
-	{
-		paths = other.paths;
-		enabled = other.enabled;
-		color = other.color;
-		is_obj_static = other.is_obj_static;
-		name = other.name;
-		return *this;
-	}
+    EntityCategorie& operator=(const EntityCategorie& other)
+    {
+        path_trie = other.path_trie;
+        enabled = other.enabled;
+        color = other.color;
+        is_obj_static = other.is_obj_static;
+        name = other.name;
+        return *this;
+    }
 
-	bool IsEntityInCategory(std::string obj_name) const
+    bool IsEntityInCategory(const std::string& obj_name) const
+    {
+        const TrieNode* current = &path_trie;
+        for (char c : obj_name) {
+            auto it = current->children.find(c);
+            if (it == current->children.end()) {
+                return false;
+            }
+            current = &it->second;
+            if (current->is_end) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool Enabled() const { return enabled; }
+    bool IsStatic() const { return is_obj_static; }
+    ImColor GetColor() const { return color; }
+    std::string Name() const { return name; }
+
+    void AddPath(const std::string& path)
+    {
+        TrieNode* current = &path_trie;
+        for (char c : path) {
+            current = &current->children[c];
+        }
+        current->is_end = true;
+    }
+
+	std::vector<std::string> GetPaths() const
 	{
-		for (const std::string& path : paths)
-		{
-			if (obj_name.length() >= path.length() && memcmp(obj_name.data(), path.data(), path.length()) == 0)
-			{
-				return true;
+		std::vector<std::string> paths;
+		std::function<void(const TrieNode&, std::string)> dfs = [&](const TrieNode& node, std::string path) {
+			if (node.is_end) {
+				paths.push_back(path);
 			}
-		}
-		return false;
-	}
-
-	bool Enabled() const
-	{
-		return enabled;
-	}
-
-	bool IsStatic() const
-	{
-		return is_obj_static;
-	}
-
-	ImColor GetColor() const
-	{
-		return color;
-	}
-
-	void AddPath(const std::string& path)
-	{
-		paths.push_back(path);
-	}
-
-	std::string Name() const
-	{
-		return name;
+			for (const auto& [c, child] : node.children) {
+				dfs(child, path + c);
+			}
+			};
+		dfs(path_trie, "");
+		return paths;
 	}
 
 private:
-	std::vector<std::string> paths;
+    struct TrieNode {
+        std::unordered_map<char, TrieNode> children;
+        bool is_end = false;
+    };
+
+    TrieNode path_trie;
 
 public:
-	bool enabled = true;
-	bool is_obj_static = true;
-	ImColor color;
-	std::string name;
+    bool enabled = true;
+    bool is_obj_static = true;
+    ImColor color;
+    std::string name;
 };
