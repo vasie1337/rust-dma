@@ -11,7 +11,7 @@ EntityCategorie& Filter::GetCategory(const std::string& obj_name)
 
     auto it = std::find_if(categories.begin(), categories.end(), [&obj_name](const auto& category) {
         return category.get().IsEntityInCategory(obj_name);
-    });
+        });
 
     if (it != categories.end())
     {
@@ -74,11 +74,68 @@ void Filter::PopulateCategories()
 
     misc.AddPath("assets/content/props/roadsigns/");
 
-	base.AddPath("assets/prefabs/deployable");
+    base_items.AddPath("assets/prefabs/deployable/advanced lootbox/advancedlootbox.prefab");
+    base_items.AddPath("assets/prefabs/deployable/bed/bed_deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/dropbox/dropbox.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/gun_rack");
+    base_items.AddPath("assets/prefabs/deployable/weaponracks/weaponrack_horizontal.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/assets/prefabs/deployable/weaponracks/weaponrack_single1.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/assets/prefabs/deployable/weaponracks/weaponrack_single2.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/assets/prefabs/deployable/weaponracks/weaponrack_single3.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/assets/prefabs/deployable/weaponracks/weaponrack_stand.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/weaponracks/weaponrack_tall.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/weaponracks/weaponrack_wide.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/large wood storage/box.wooden.large.prefab");
+    base_items.AddPath("assets/prefabs/deployable/liquidbarrel/waterbarrel.prefab");
+    base_items.AddPath("assets/prefabs/deployable/locker/locker.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/loot barrels/hobo_barrel.prefab");
+    base_items.AddPath("assets/prefabs/deployable/mixingtable/mixingtable.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/primitive lootbox/primitivelootbox.prefab");
+    base_items.AddPath("assets/prefabs/deployable/ptz security camera/ptz_cctv_deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/repair bench/repairbench_deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/research table/researchtable_deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/search light/searchlight.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/sleeping bag/sleepingbag_leather_deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/small stash/small_stash_deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/tier 1 workbench/workbench1.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/tier 2 workbench/workbench2.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/tier 3 workbench/workbench3.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/tool cupboard/cupboard.tool.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/vendingmachine/vendingmachine.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/wooden loot crates/");
+    base_items.AddPath("assets/prefabs/deployable/woodenbox/woodbox_deployed.prefab");
+    base_items.AddPath("assets/prefabs/misc/decor_dlc/storagebarrel");
+    base_items.AddPath("assets/prefabs/misc/decor_dlc/rail road planter/railroadplanter.deployed.prefab");
+    base_items.AddPath("assets/prefabs/misc/twitch/hobobarrel/hobobarrel.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/planters");
+    base_items.AddPath("assets/prefabs/deployable/fridge/fridge.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/bbq/bbq.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/furnace");
+    base_items.AddPath("assets/prefabs/deployable/legacyfurnace");
+    base_items.AddPath("assets/prefabs/deployable/composter/composter.prefab");
+    base_items.AddPath("assets/prefabs/deployable/drone/drone.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/playerioents/electricfurnace/electricfurnace.deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/playerioents/generators");
+    base_items.AddPath("assets/prefabs/deployable/playerioents/batteries");
+    base_items.AddPath("assets/prefabs/deployable/oil refinery/refinery_small_deployed.prefab");
+    base_items.AddPath("assets/prefabs/deployable/oil refinery/refinery_large_deployed.prefab");
 
-	traps.AddPath("assets/prefabs/npc/autoturret/autoturret_deployed.prefab");
-	traps.AddPath("assets/prefabs/npc/sam_site_turret/sam_site_turret_deployed.prefab");
-	traps.AddPath("assets/prefabs/npc/flame turret/flameturret.deployed.prefab");
+    base_construction.AddPath("assets/prefabs/building/door.hinged");
+    base_construction.AddPath("assets/prefabs/building/door.double.hinged");
+    base_construction.AddPath("assets/prefabs/building/wall.frame.garagedoor/wall.frame.garagedoor.prefab");
+    base_construction.AddPath("assets/prefabs/building/floor.ladder.hatch");
+    base_construction.AddPath("assets/prefabs/building/floor.triangle.ladder");
+    base_construction.AddPath("assets/prefabs/building/ladder.wall.wood");
+    base_construction.AddPath("assets/prefabs/building/legacy.shelter.wood/legacy.shelter.wood.deployed.prefab");
+
+    traps.AddPath("assets/prefabs/npc/autoturret/autoturret_deployed.prefab");
+    traps.AddPath("assets/prefabs/npc/sam_site_turret/sam_site_turret_deployed.prefab");
+    traps.AddPath("assets/prefabs/npc/flame turret/flameturret.deployed.prefab");
+    traps.AddPath("assets/prefabs/deployable/bear trap/beartrap.prefab");
+    traps.AddPath("assets/prefabs/deployable/floor spikes/spikes.floor.prefab");
+    traps.AddPath("assets/prefabs/deployable/landmine/landmine.prefab");
+    traps.AddPath("assets/prefabs/deployable/playerioents/teslacoil/teslacoil.deployed.prefab");
+    traps.AddPath("assets/prefabs/deployable/single shot trap/guntrap.deployed.prefab");
 
     vehicles.AddPath("assets/content/vehicles/modularcar/_base_car_chassis.entity.prefab");
     vehicles.AddPath("assets/content/vehicles/modularcar/2module_car_spawned.entity.prefab");
@@ -110,17 +167,18 @@ void Filter::PopulateCategories()
         std::ref(berries),
         std::ref(ores),
         std::ref(misc),
-		std::ref(traps),
-		std::ref(base),
+        std::ref(traps),
+		std::ref(base_items),
+		std::ref(base_construction),
         std::ref(barrels),
         std::ref(crates),
         std::ref(vehicles),
         std::ref(npcs),
-		std::ref(dropped_items)
+        std::ref(dropped_items)
     };
 }
 
 bool Filter::IsDroppedItem(const std::string& obj_name)
 {
-	return obj_name.size() >= 7 && obj_name.compare(obj_name.size() - 7, 7, "(world)") == 0;
+    return obj_name.size() >= 7 && obj_name.compare(obj_name.size() - 7, 7, "(world)") == 0;
 }
