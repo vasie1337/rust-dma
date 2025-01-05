@@ -14,9 +14,9 @@ private:
 	void FetchGlobals(HANDLE scatter_handle);
 	void FetchEntities(HANDLE scatter_handle);
 
-	void FetchEntityData(HANDLE scatter_handle, const std::vector<Entity*>& entities_to_update);
-	void FetchPlayerData(HANDLE scatter_handle, const std::vector<Player*>& players_to_update);
-	void FetchPlayerBones(HANDLE scatter_handle, const std::vector<Player*>& players_to_update);
+	void FetchEntityData(HANDLE scatter_handle, std::vector<Entity*>& entities_to_update);
+	void FetchPlayerData(HANDLE scatter_handle, std::vector<Player*>& players_to_update);
+	void FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& players_to_update);
 
 	void UpdatePositions(HANDLE scatter_handle);
 	void UpdateViewMatrix(HANDLE scatter_handle);

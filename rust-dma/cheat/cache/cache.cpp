@@ -135,13 +135,11 @@ void Cache::FetchEntities(HANDLE scatter_handle)
         FetchPlayerData(scatter_handle, players_to_update);
     }
 
-	new_players.erase(std::remove_if(new_players.begin(), new_players.end(), [](const Player& player) { return player.is_npc; }), new_players.end());
-
     entities.store(std::move(new_entities));
     players.store(std::move(new_players));
 }
 
-void Cache::FetchEntityData(HANDLE scatter_handle, const std::vector<Entity*>& entities_to_update)
+void Cache::FetchEntityData(HANDLE scatter_handle, std::vector<Entity*>& entities_to_update)
 {
     for (auto* entity : entities_to_update) {
         dma.AddScatterRead(scatter_handle, entity->object_ptr + 0x10, &entity->base_object, sizeof(entity->base_object));
@@ -179,24 +177,33 @@ void Cache::FetchEntityData(HANDLE scatter_handle, const std::vector<Entity*>& e
     dma.ExecuteScatterRead(scatter_handle);
 }
 
-void Cache::FetchPlayerData(HANDLE scatter_handle, const std::vector<Player*>& players_to_update)
+void Cache::FetchPlayerData(HANDLE scatter_handle, std::vector<Player*>& players_to_update)
 {
     for (auto* player : players_to_update) {
         dma.AddScatterRead(scatter_handle, player->object_ptr + Offsets::player_model, &player->player_model, sizeof(player->player_model));
+    }
+    dma.ExecuteScatterRead(scatter_handle);
+
+    for (auto* player : players_to_update) {
+        dma.AddScatterRead(scatter_handle, player->player_model + Offsets::is_npc, &player->is_npc, sizeof(player->is_npc));
+    }
+    dma.ExecuteScatterRead(scatter_handle);
+
+	players_to_update.erase(std::remove_if(players_to_update.begin(), players_to_update.end(), [](const Player* player) { return player->is_npc; }), players_to_update.end());
+
+    for (auto* player : players_to_update) {
         dma.AddScatterRead(scatter_handle, player->object_ptr + Offsets::model, &player->model, sizeof(player->model));
         dma.AddScatterRead(scatter_handle, player->object_ptr + Offsets::player_name, &player->nameptr, sizeof(player->nameptr));
     }
     dma.ExecuteScatterRead(scatter_handle);
 
     for (auto* player : players_to_update) {
-        dma.AddScatterRead(scatter_handle, player->player_model + Offsets::is_npc, &player->is_npc, sizeof(player->is_npc));
         dma.AddScatterRead(scatter_handle, player->model + Offsets::bone_transforms, &player->bone_transforms, sizeof(player->bone_transforms));
         dma.AddScatterRead(scatter_handle, player->nameptr + 0x14, player->name_buffer, sizeof(player->name_buffer));
     }
     dma.ExecuteScatterRead(scatter_handle);
 
     for (auto* player : players_to_update) {
-        if (player->is_npc) continue;
         player->player_name = player->name_buffer;
         if (player->bones.empty()) {
             player->bones.resize(BoneList::max_bones);
@@ -206,10 +213,9 @@ void Cache::FetchPlayerData(HANDLE scatter_handle, const std::vector<Player*>& p
     FetchPlayerBones(scatter_handle, players_to_update);
 }
 
-void Cache::FetchPlayerBones(HANDLE scatter_handle, const std::vector<Player*>& players_to_update)
+void Cache::FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& players_to_update)
 {
     for (auto* player : players_to_update) {
-        if (player->is_npc) continue;
         for (int i = 0; i < max_bones; i++) {
             if (!player->IsIndexValid(i)) continue;
             dma.AddScatterRead(scatter_handle,
@@ -221,7 +227,6 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, const std::vector<Player*>& 
     dma.ExecuteScatterRead(scatter_handle);
 
     for (auto* player : players_to_update) {
-        if (player->is_npc) continue;
         for (auto& bone : player->bones) {
             if (!bone.address || bone.address_internal) continue;
             dma.AddScatterRead(scatter_handle,
@@ -233,7 +238,6 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, const std::vector<Player*>& 
     dma.ExecuteScatterRead(scatter_handle);
 
     for (auto* player : players_to_update) {
-        if (player->is_npc) continue;
         for (auto& bone : player->bones) {
             if (!bone.address_internal || bone.transformAccess) continue;
             dma.AddScatterRead(scatter_handle,
@@ -245,7 +249,6 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, const std::vector<Player*>& 
     dma.ExecuteScatterRead(scatter_handle);
 
     for (auto* player : players_to_update) {
-        if (player->is_npc) continue;
         for (auto& bone : player->bones) {
             if (!bone.transformAccess || bone.transformArrays) continue;
             dma.AddScatterRead(scatter_handle,
@@ -257,7 +260,6 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, const std::vector<Player*>& 
     dma.ExecuteScatterRead(scatter_handle);
 
     for (auto* player : players_to_update) {
-        if (player->is_npc) continue;
         for (auto& bone : player->bones) {
             bone.UpdateTrsXBuffer(scatter_handle);
             bone.UpdateParentIndicesBuffer(scatter_handle);
