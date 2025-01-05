@@ -16,9 +16,9 @@ Vector3 Transform::Position()
 	int index = parentIndicesBuffer[transformAccess.index];
 	int max = 0;
 
-	while (index >= 0 && index <= 100)
+	while (index >= 0 && index <= 200)
 	{
-		if (max++ > 100)
+		if (max++ > 200)
 			break;
 
 		auto& parent = trsBuffer[index];
@@ -38,9 +38,9 @@ Vector4 Transform::Rotation()
 	int index = parentIndicesBuffer[transformAccess.index];
 	int max = 0;
 
-	while (index >= 0 && index <= 100)
+	while (index >= 0 && index <= 200)
 	{
-		if (max++ > 100)
+		if (max++ > 200)
 			break;
 
 		auto& parent = trsBuffer[index];

@@ -38,7 +38,7 @@ private:
 	char pad_0014[4];
 };
 
-template <typename T, int Capacity = 100>
+template <typename T, int Capacity = 200>
 class StackBuffer
 {
 public:
