@@ -172,6 +172,9 @@ void Filter::PopulateCategories()
     npcs.AddPath("assets/rust.ai/agents/bottest/bottest.prefab");
     npcs.AddPath("assets/rust.ai/agents/chicken/chicken.prefab");
     npcs.AddPath("assets/rust.ai/agents/horse/horse.prefab");
+    npcs.AddPath("assets/rust.ai/agents/stag/stag.prefab");
+    npcs.AddPath("assets/rust.ai/agents/wolf/wolf.prefab");
+    npcs.AddPath("assets/rust.ai/agents/wolf/wolf2.prefab");
     npcs.AddPath("assets/rust.ai/agents/npcplayer/humannpc/scientist/scientistnpc_arena.prefab");
 	npcs.AddPath("assets/rust.ai/agents/npcplayer/humannpc/scientist/scientistnpc_bradley.prefab");
 	npcs.AddPath("assets/rust.ai/agents/npcplayer/humannpc/scientist/scientistnpc_bradley_heavy.prefab");
@@ -197,9 +200,6 @@ void Filter::PopulateCategories()
 	npcs.AddPath("assets/rust.ai/agents/npcplayer/humannpc/tunneldweller/npc_tunneldweller.prefab");
 	npcs.AddPath("assets/rust.ai/agents/npcplayer/humannpc/tunneldweller/npc_tunneldwellerspawned.prefab");
 	npcs.AddPath("assets/rust.ai/agents/npcplayer/humannpc/underwaterdweller/npc_underwaterdweller.prefab");
-	npcs.AddPath("assets/rust.ai/agents/stag/stag.prefab");
-	npcs.AddPath("assets/rust.ai/agents/wolf/wolf.prefab");
-	npcs.AddPath("assets/rust.ai/agents/wolf/wolf2.prefab");
 
     categories = {
         std::ref(collectable_ores),

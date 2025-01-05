@@ -60,7 +60,7 @@ void Cache::FetchGlobals(HANDLE scatter_handle)
 
 void Cache::FetchEntities(HANDLE scatter_handle)
 {
-    auto entity_list = dma.Read<EntityListData>(entity_list_address.load() + 0x10);
+    const EntityListData entity_list = dma.Read<EntityListData>(entity_list_address.load() + 0x10);
     if (!entity_list) {
         return;
     }
