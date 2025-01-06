@@ -50,6 +50,12 @@ int main()
 		return EXCEPTION_CONTINUE_SEARCH;
 	});
 
+	SetUnhandledExceptionFilter([](PEXCEPTION_POINTERS ExceptionInfo) -> LONG
+	{
+		DoStackWalk();
+		return EXCEPTION_CONTINUE_SEARCH;
+	});
+
 	try
 	{
 		Cheat cheat;

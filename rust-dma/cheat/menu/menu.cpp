@@ -56,6 +56,26 @@ void Menu::RenderVisuals(Overlay* overlay)
 		std::string color_label = category.Name() + " Color";
 		ImGui::ColorEdit4(color_label.c_str(), (float*)&category.color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 	}
+
+	if (ImGui::Button("Select All"))
+	{
+		for (auto& category_ref : Filter::categories)
+		{
+			auto& category = category_ref.get();
+			category.enabled = true;
+		}
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("Deselect All"))
+	{
+		for (auto& category_ref : Filter::categories)
+		{
+			auto& category = category_ref.get();
+			category.enabled = false;
+		}
+	}
 }
 
 void Menu::RenderSettings(Overlay* overlay)
