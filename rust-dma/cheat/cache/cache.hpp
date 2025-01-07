@@ -19,6 +19,7 @@ private:
 	void FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& players_to_update);
 
 	void UpdateFrame(HANDLE scatter_handle);
+	void UpdateView(HANDLE scatter_handle);
 
 	std::string FormatObjectName(const std::string& object_name);
 
@@ -37,6 +38,11 @@ public:
 		std::function<void(HANDLE)>(std::bind(&Cache::UpdateFrame, this, std::placeholders::_1)),
 		10,
 		"Frame Update"
+	);
+	CacheThread view_thread = CacheThread(
+		std::function<void(HANDLE)>(std::bind(&Cache::UpdateView, this, std::placeholders::_1)),
+		1,
+		"View Update"
 	);
 
 	static inline std::vector<std::reference_wrapper<CacheThread>> threads = {};

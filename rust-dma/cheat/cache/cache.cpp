@@ -5,8 +5,9 @@ void Cache::Run()
 	globals_thread.Run();
 	entities_thread.Run();
 	frame_thread.Run();
+    view_thread.Run();
 
-	threads = { globals_thread, entities_thread, frame_thread };
+	threads = { globals_thread, entities_thread, frame_thread, view_thread };
 }
 
 void Cache::Stop()
@@ -14,6 +15,7 @@ void Cache::Stop()
 	globals_thread.Stop();
 	entities_thread.Stop();
     frame_thread.Stop();
+    view_thread.Stop();
 }
 
 void Cache::FetchGlobals(HANDLE scatter_handle)
@@ -52,7 +54,6 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 
     std::unordered_map<uintptr_t, Entity> entity_cache;
     std::unordered_map<uintptr_t, Player> player_cache;
-
     entity_cache.reserve(current_entities.size());
     player_cache.reserve(current_players.size());
 
@@ -66,7 +67,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     std::vector<Entity> new_entities;
     new_entities.reserve(entity_list.size);
 
-    std::vector<Entity*> entities_to_update;
+    std::vector<size_t> entities_to_update;
     entities_to_update.reserve(entity_list.size);
 
     for (uint32_t i = 1; i < entity_list.size; i++) {
@@ -76,10 +77,11 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     }
     dma.ExecuteScatterRead(scatter_handle);
 
-    for (auto& entity : new_entities) {
+    for (size_t i = 0; i < new_entities.size(); i++) {
+        auto& entity = new_entities[i];
         auto it = entity_cache.find(entity.object_ptr);
         if (it == entity_cache.end()) {
-            entities_to_update.push_back(&entity);
+            entities_to_update.push_back(i);
         }
         else {
             entity = it->second;
@@ -87,20 +89,27 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     }
 
     if (!entities_to_update.empty()) {
-        FetchEntityData(scatter_handle, entities_to_update);
+        std::vector<Entity*> entity_ptrs;
+        entity_ptrs.reserve(entities_to_update.size());
+        for (size_t idx : entities_to_update) {
+            entity_ptrs.push_back(&new_entities[idx]);
+        }
+        FetchEntityData(scatter_handle, entity_ptrs);
     }
 
     std::vector<Player> new_players;
-    new_players.reserve(new_entities.size() / 4);
-    std::vector<Player*> players_to_update;
-    players_to_update.reserve(new_players.capacity());
+    new_players.reserve(entity_list.size);
+    std::vector<size_t> players_to_update;
+    players_to_update.reserve(entity_list.size);
 
     for (const auto& entity : new_entities) {
-        if (entity.tag == 6) {
+        if (entity.tag == 6) 
+        {
             auto it = player_cache.find(entity.object_ptr);
             if (it == player_cache.end()) {
-                auto& player = new_players.emplace_back(entity);
-                players_to_update.push_back(&player);
+                size_t player_idx = new_players.size();
+                new_players.emplace_back(entity);
+                players_to_update.push_back(player_idx);
             }
             else {
                 new_players.push_back(it->second);
@@ -109,7 +118,12 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     }
 
     if (!players_to_update.empty()) {
-        FetchPlayerData(scatter_handle, players_to_update);
+        std::vector<Player*> player_ptrs;
+        player_ptrs.reserve(players_to_update.size());
+        for (size_t idx : players_to_update) {
+            player_ptrs.push_back(&new_players[idx]);
+        }
+        FetchPlayerData(scatter_handle, player_ptrs);
     }
 
     entities.store(std::move(new_entities));
@@ -236,9 +250,6 @@ void Cache::UpdateFrame(HANDLE scatter_handle)
 	std::vector<Entity> new_entities = entities.load();
 	std::vector<Player> new_players = players.load();
 
-    Matrix4x4 new_view_matrix;
-    Vector3 new_camera_pos;
-
 	for (auto& entity : new_entities)
 	{
 		if (!entity.visual_state)
@@ -258,11 +269,6 @@ void Cache::UpdateFrame(HANDLE scatter_handle)
 		}
 	}
 
-    auto camera_address = CacheData::camera_address.load();
-
-    dma.AddScatterRead(scatter_handle, camera_address + Offsets::view_matrix, &new_view_matrix, sizeof(new_view_matrix));
-    dma.AddScatterRead(scatter_handle, camera_address + Offsets::camera_pos, &new_camera_pos, sizeof(new_camera_pos));
-
     dma.ExecuteScatterRead(scatter_handle);
 
     for (auto& player : new_players)
@@ -275,6 +281,19 @@ void Cache::UpdateFrame(HANDLE scatter_handle)
 
 	players.store(new_players);
 	entities.store(new_entities);
+}
+
+void Cache::UpdateView(HANDLE scatter_handle)
+{
+    Matrix4x4 new_view_matrix;
+    Vector3 new_camera_pos;
+
+    auto camera_address = CacheData::camera_address.load();
+
+    dma.AddScatterRead(scatter_handle, camera_address + Offsets::view_matrix, &new_view_matrix, sizeof(new_view_matrix));
+    dma.AddScatterRead(scatter_handle, camera_address + Offsets::camera_pos, &new_camera_pos, sizeof(new_camera_pos));
+
+    dma.ExecuteScatterRead(scatter_handle);
 
     view_matrix.store(new_view_matrix);
     camera_pos.store(new_camera_pos);
