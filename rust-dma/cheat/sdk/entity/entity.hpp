@@ -29,6 +29,16 @@ public:
 	std::uintptr_t visual_state = 0;
 
 	std::uintptr_t model = 0;
+
+	bool operator==(const Entity& other) const
+	{
+		return object_ptr == other.object_ptr;
+	}
+
+	bool operator!=(const Entity& other) const
+	{
+		return object_ptr != other.object_ptr;
+	}
 };
 
 class EntityListData 
