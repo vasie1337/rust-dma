@@ -10,7 +10,7 @@ void Transform::UpdateParentIndicesBuffer(HANDLE scatter_handle) const
 	parentIndicesBuffer.updateBuffer(scatter_handle, transformArrays.parentIndices, transformAccess.index + 1);
 }
 
-Vector3 Transform::Position()
+Vector3 Transform::CalculatePosition()
 {
 	Vector3 worldPos = trsBuffer[transformAccess.index].t;
 	int index = parentIndicesBuffer[transformAccess.index];
@@ -32,7 +32,7 @@ Vector3 Transform::Position()
 	return worldPos;
 }
 
-Vector4 Transform::Rotation()
+Vector4 Transform::CalculateRotation()
 {
 	Vector4 worldRot = trsBuffer[transformAccess.index].q;
 	int index = parentIndicesBuffer[transformAccess.index];

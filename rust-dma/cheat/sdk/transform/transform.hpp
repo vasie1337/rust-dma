@@ -78,6 +78,12 @@ public:
 	void UpdateTrsXBuffer(HANDLE scatter_handle) const;
 	void UpdateParentIndicesBuffer(HANDLE scatter_handle) const;
 
-	Vector3 Position();
-	Vector4 Rotation();
+	Vector3 cached_position;
+	Vector4 cached_rotation;
+
+	Vector3 Position() const { return cached_position; }
+	Vector4 Rotation() const { return cached_rotation; }
+
+	Vector3 CalculatePosition();
+	Vector4 CalculateRotation();
 };

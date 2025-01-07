@@ -6,6 +6,9 @@
 #include <string>
 #include <functional>
 #include <mutex>
+#include <atomic>
+#include <condition_variable>
+#include <shared_mutex>
 #include <algorithm>
 #include <fstream>
 #include <sstream>
