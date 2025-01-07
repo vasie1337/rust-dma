@@ -44,29 +44,37 @@ void Cache::FetchGlobals(HANDLE scatter_handle)
 
 void Cache::FetchEntities(HANDLE scatter_handle)
 {
+	static std::chrono::steady_clock::time_point last_full_recache = std::chrono::steady_clock::now();
+	const std::chrono::seconds RECACHE_INTERVAL = std::chrono::seconds(5);
+
     const EntityListData entity_list = dma.Read<EntityListData>(entity_list_address.load() + 0x10);
     if (!entity_list) {
         return;
     }
+
+    const auto current_time = std::chrono::steady_clock::now();
+    const bool force_recache = (current_time - last_full_recache) >= RECACHE_INTERVAL;
 
     const auto current_entities = entities.load();
     const auto current_players = players.load();
 
     std::unordered_map<uintptr_t, Entity> entity_cache;
     std::unordered_map<uintptr_t, Player> player_cache;
-    entity_cache.reserve(current_entities.size());
-    player_cache.reserve(current_players.size());
 
-    for (const auto& entity : current_entities) {
-        entity_cache[entity.object_ptr] = entity;
-    }
-    for (const auto& player : current_players) {
-        player_cache[player.object_ptr] = player;
+    if (!force_recache) {
+        entity_cache.reserve(current_entities.size());
+        player_cache.reserve(current_players.size());
+
+        for (const auto& entity : current_entities) {
+            entity_cache[entity.object_ptr] = entity;
+        }
+        for (const auto& player : current_players) {
+            player_cache[player.object_ptr] = player;
+        }
     }
 
     std::vector<Entity> new_entities;
     new_entities.reserve(entity_list.size);
-
     std::vector<size_t> entities_to_update;
     entities_to_update.reserve(entity_list.size);
 
@@ -79,12 +87,11 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 
     for (size_t i = 0; i < new_entities.size(); i++) {
         auto& entity = new_entities[i];
-        auto it = entity_cache.find(entity.object_ptr);
-        if (it == entity_cache.end()) {
+        if (force_recache || entity_cache.find(entity.object_ptr) == entity_cache.end()) {
             entities_to_update.push_back(i);
         }
         else {
-            entity = it->second;
+            entity = entity_cache[entity.object_ptr];
         }
     }
 
@@ -103,16 +110,14 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     players_to_update.reserve(entity_list.size);
 
     for (const auto& entity : new_entities) {
-        if (entity.tag == 6) 
-        {
-            auto it = player_cache.find(entity.object_ptr);
-            if (it == player_cache.end()) {
+        if (entity.tag == 6) {
+            if (force_recache || player_cache.find(entity.object_ptr) == player_cache.end()) {
                 size_t player_idx = new_players.size();
                 new_players.emplace_back(entity);
                 players_to_update.push_back(player_idx);
             }
             else {
-                new_players.push_back(it->second);
+                new_players.push_back(player_cache[entity.object_ptr]);
             }
         }
     }
@@ -124,6 +129,10 @@ void Cache::FetchEntities(HANDLE scatter_handle)
             player_ptrs.push_back(&new_players[idx]);
         }
         FetchPlayerData(scatter_handle, player_ptrs);
+    }
+
+    if (force_recache) {
+        last_full_recache = current_time;
     }
 
     entities.store(std::move(new_entities));
