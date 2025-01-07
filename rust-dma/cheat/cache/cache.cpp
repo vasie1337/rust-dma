@@ -18,7 +18,7 @@ void Cache::Stop()
 
 void Cache::FetchGlobals(HANDLE scatter_handle)
 {
-	if (!entity_list_address.load())
+	if (!entity_list_address)
 	{
 		uintptr_t base_net_workable = dma.Read<uintptr_t>(base_address + Offsets::base_net_workable);
 		uintptr_t bn_static_fields = dma.Read<uintptr_t>(base_net_workable + 0xB8);
@@ -26,7 +26,7 @@ void Cache::FetchGlobals(HANDLE scatter_handle)
 		uintptr_t bn_wrapper_class = decryption::BaseNetworkable(base_address, bn_wrapper_class_ptr);
 		uintptr_t bn_parent_static_fields = dma.Read<uintptr_t>(bn_wrapper_class + 0x10);
 		uintptr_t bn_parent_static_class = decryption::BaseNetworkable(base_address, bn_parent_static_fields);
-		entity_list_address.store(dma.Read<uintptr_t>(bn_parent_static_class + 0x18));
+        entity_list_address = dma.Read<uintptr_t>(bn_parent_static_class + 0x18);
 	}
 
     static uintptr_t main_camera_manager;
@@ -37,29 +37,32 @@ void Cache::FetchGlobals(HANDLE scatter_handle)
 
     uintptr_t camera_manager = dma.Read<uintptr_t>(main_camera_manager + 0xB8);
     uintptr_t camera = dma.Read<uintptr_t>(camera_manager + 0xE0);
-    camera_address.store(dma.Read<uintptr_t>(camera + 0x10));
+    camera_address = dma.Read<uintptr_t>(camera + 0x10);
 }
 
 void Cache::FetchEntities(HANDLE scatter_handle)
 {
-    const EntityListData entity_list = dma.Read<EntityListData>(entity_list_address.load() + 0x10);
+    const EntityListData entity_list = dma.Read<EntityListData>(entity_list_address + 0x10);
     if (!entity_list) {
         return;
     }
 
-    const auto current_entities = entities.load();
-    const auto current_players = players.load();
+	FrameData frame_buffer;
+	{
+		std::lock_guard<std::mutex> lock(frame_mtx);
+		frame_buffer = frame_data;
+	}
 
     std::unordered_map<uintptr_t, Entity> entity_cache;
     std::unordered_map<uintptr_t, Player> player_cache;
 
-    entity_cache.reserve(current_entities.size());
-    player_cache.reserve(current_players.size());
+    entity_cache.reserve(frame_buffer.entities.size());
+    player_cache.reserve(frame_buffer.players.size());
 
-    for (const auto& entity : current_entities) {
+    for (const auto& entity : frame_buffer.entities) {
         entity_cache[entity.object_ptr] = entity;
     }
-    for (const auto& player : current_players) {
+    for (const auto& player : frame_buffer.players) {
         player_cache[player.object_ptr] = player;
     }
 
@@ -112,8 +115,11 @@ void Cache::FetchEntities(HANDLE scatter_handle)
         FetchPlayerData(scatter_handle, players_to_update);
     }
 
-    entities.store(std::move(new_entities));
-    players.store(std::move(new_players));
+	{
+		std::lock_guard<std::mutex> lock(frame_mtx);
+		frame_data.entities = new_entities;
+		frame_data.players = new_players;
+	}
 }
 
 void Cache::FetchEntityData(HANDLE scatter_handle, std::vector<Entity*>& entities_to_update)
@@ -233,13 +239,13 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& player
 
 void Cache::UpdateFrame(HANDLE scatter_handle)
 {
-	std::vector<Entity> new_entities = entities.load();
-	std::vector<Player> new_players = players.load();
+	FrameData frame_buffer;
+    {
+		std::lock_guard<std::mutex> lock(frame_mtx);
+		frame_buffer = frame_data;
+    }
 
-    Matrix4x4 new_view_matrix;
-    Vector3 new_camera_pos;
-
-	for (auto& entity : new_entities)
+	for (auto& entity : frame_buffer.entities)
 	{
 		if (!entity.visual_state)
 			continue;
@@ -249,7 +255,7 @@ void Cache::UpdateFrame(HANDLE scatter_handle)
 		dma.AddScatterRead(scatter_handle, entity.visual_state + Offsets::vec3_position, &entity.position, sizeof(entity.position));
 	}
 
-	for (auto& player : new_players)
+	for (auto& player : frame_buffer.players)
 	{
 		for (auto& bone_transform : player.bones)
 		{
@@ -258,14 +264,12 @@ void Cache::UpdateFrame(HANDLE scatter_handle)
 		}
 	}
 
-    auto camera_address = CacheData::camera_address.load();
-
-    dma.AddScatterRead(scatter_handle, camera_address + Offsets::view_matrix, &new_view_matrix, sizeof(new_view_matrix));
-    dma.AddScatterRead(scatter_handle, camera_address + Offsets::camera_pos, &new_camera_pos, sizeof(new_camera_pos));
+    dma.AddScatterRead(scatter_handle, camera_address + Offsets::view_matrix, &frame_buffer.view_matrix, sizeof(frame_buffer.view_matrix));
+    dma.AddScatterRead(scatter_handle, camera_address + Offsets::camera_pos, &frame_buffer.camera_pos, sizeof(frame_buffer.camera_pos));
 
     dma.ExecuteScatterRead(scatter_handle);
 
-    for (auto& player : new_players)
+    for (auto& player : frame_buffer.players)
     {
         for (auto& bone_transform : player.bones)
         {
@@ -273,9 +277,6 @@ void Cache::UpdateFrame(HANDLE scatter_handle)
         }
     }
 
-	players.store(new_players);
-	entities.store(new_entities);
-
-    view_matrix.store(new_view_matrix);
-    camera_pos.store(new_camera_pos);
+	std::lock_guard<std::mutex> lock(frame_mtx);
+	frame_data = frame_buffer;
 }

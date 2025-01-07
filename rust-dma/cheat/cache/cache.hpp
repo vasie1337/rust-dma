@@ -25,7 +25,7 @@ private:
 public:
 	CacheThread globals_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchGlobals, this, std::placeholders::_1)), 
-		3000,
+		5000,
 		"Globals Fetch"
 	);
 	CacheThread entities_thread = CacheThread(
@@ -35,7 +35,7 @@ public:
 	);
 	CacheThread frame_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::UpdateFrame, this, std::placeholders::_1)),
-		10,
+		1,
 		"Frame Update"
 	);
 
