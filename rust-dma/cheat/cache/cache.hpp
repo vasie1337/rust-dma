@@ -18,8 +18,7 @@ private:
 	void FetchPlayerData(HANDLE scatter_handle, std::vector<Player*>& players_to_update);
 	void FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& players_to_update);
 
-	void UpdatePositions(HANDLE scatter_handle);
-	void UpdateViewMatrix(HANDLE scatter_handle);
+	void UpdateFrame(HANDLE scatter_handle);
 
 	std::string FormatObjectName(const std::string& object_name);
 
@@ -31,18 +30,13 @@ public:
 	);
 	CacheThread entities_thread = CacheThread(
 		std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)),
-		100,
+		1000,
 		"Entities Fetch"
 	);
-	CacheThread pos_thread = CacheThread(
-		std::function<void(HANDLE)>(std::bind(&Cache::UpdatePositions, this, std::placeholders::_1)),
+	CacheThread frame_thread = CacheThread(
+		std::function<void(HANDLE)>(std::bind(&Cache::UpdateFrame, this, std::placeholders::_1)),
 		10,
-		"Positions Update"
-	);
-	CacheThread view_thread = CacheThread(
-		std::function<void(HANDLE)>(std::bind(&Cache::UpdateViewMatrix, this, std::placeholders::_1)),
-		1,
-		"View Update"
+		"Frame Update"
 	);
 
 	static inline std::vector<std::reference_wrapper<CacheThread>> threads = {};

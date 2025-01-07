@@ -4,34 +4,16 @@ void Cache::Run()
 {
 	globals_thread.Run();
 	entities_thread.Run();
-	pos_thread.Run();
-	view_thread.Run();
+	frame_thread.Run();
 
-	threads = { globals_thread, entities_thread, pos_thread, view_thread };
+	threads = { globals_thread, entities_thread, frame_thread };
 }
 
 void Cache::Stop()
 {
 	globals_thread.Stop();
 	entities_thread.Stop();
-	pos_thread.Stop();
-	view_thread.Stop();
-}
-
-void Cache::UpdateViewMatrix(HANDLE scatter_handle)
-{
-	auto camera_address = CacheData::camera_address.load();
-
-	Matrix4x4 new_view_matrix;
-	Vector3 new_camera_pos;
-
-	dma.AddScatterRead(scatter_handle, camera_address + Offsets::view_matrix, &new_view_matrix, sizeof(new_view_matrix));
-	dma.AddScatterRead(scatter_handle, camera_address + Offsets::camera_pos, &new_camera_pos, sizeof(new_camera_pos));
-
-	dma.ExecuteScatterRead(scatter_handle);
-
-	view_matrix.store(new_view_matrix);
-	camera_pos.store(new_camera_pos);
+    frame_thread.Stop();
 }
 
 void Cache::FetchGlobals(HANDLE scatter_handle)
@@ -249,10 +231,13 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& player
     dma.ExecuteScatterRead(scatter_handle);
 }
 
-void Cache::UpdatePositions(HANDLE scatter_handle)
+void Cache::UpdateFrame(HANDLE scatter_handle)
 {
 	std::vector<Entity> new_entities = entities.load();
 	std::vector<Player> new_players = players.load();
+
+    Matrix4x4 new_view_matrix;
+    Vector3 new_camera_pos;
 
 	for (auto& entity : new_entities)
 	{
@@ -273,7 +258,12 @@ void Cache::UpdatePositions(HANDLE scatter_handle)
 		}
 	}
 
-	dma.ExecuteScatterRead(scatter_handle);
+    auto camera_address = CacheData::camera_address.load();
+
+    dma.AddScatterRead(scatter_handle, camera_address + Offsets::view_matrix, &new_view_matrix, sizeof(new_view_matrix));
+    dma.AddScatterRead(scatter_handle, camera_address + Offsets::camera_pos, &new_camera_pos, sizeof(new_camera_pos));
+
+    dma.ExecuteScatterRead(scatter_handle);
 
     for (auto& player : new_players)
     {
@@ -285,4 +275,7 @@ void Cache::UpdatePositions(HANDLE scatter_handle)
 
 	players.store(new_players);
 	entities.store(new_entities);
+
+    view_matrix.store(new_view_matrix);
+    camera_pos.store(new_camera_pos);
 }
