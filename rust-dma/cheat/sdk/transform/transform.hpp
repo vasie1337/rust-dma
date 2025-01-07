@@ -75,15 +75,20 @@ public:
 	TransformAccess transformAccess;
 	TransformArrays transformArrays;
 
-	void UpdateTrsXBuffer(HANDLE scatter_handle) const;
-	void UpdateParentIndicesBuffer(HANDLE scatter_handle) const;
+	void UpdateTrsXBuffer(HANDLE scatter_handle);
+	void UpdateParentIndicesBuffer(HANDLE scatter_handle);
+
+	void CalculatePosition();
+	void CalculateRotation();
 
 	Vector3 cached_position;
 	Vector4 cached_rotation;
 
-	Vector3 Position() const { return cached_position; }
-	Vector4 Rotation() const { return cached_rotation; }
+	Vector3 Position() {
+		return cached_position;
+	}
+	Vector4 Rotation() {
+		return cached_rotation; 
+	}
 
-	Vector3 CalculatePosition();
-	Vector4 CalculateRotation();
 };

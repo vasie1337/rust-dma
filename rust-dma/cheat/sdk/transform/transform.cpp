@@ -1,16 +1,16 @@
 #include "../../../include.hpp"
 
-void Transform::UpdateTrsXBuffer(HANDLE scatter_handle) const 
+void Transform::UpdateTrsXBuffer(HANDLE scatter_handle) 
 {
 	trsBuffer.updateBuffer(scatter_handle, transformArrays.localTransforms, transformAccess.index + 1);
 }
 
-void Transform::UpdateParentIndicesBuffer(HANDLE scatter_handle) const
+void Transform::UpdateParentIndicesBuffer(HANDLE scatter_handle)
 {
 	parentIndicesBuffer.updateBuffer(scatter_handle, transformArrays.parentIndices, transformAccess.index + 1);
 }
 
-Vector3 Transform::CalculatePosition()
+void Transform::CalculatePosition()
 {
 	Vector3 worldPos = trsBuffer[transformAccess.index].t;
 	int index = parentIndicesBuffer[transformAccess.index];
@@ -29,10 +29,11 @@ Vector3 Transform::CalculatePosition()
 
 		index = parentIndicesBuffer[index];
 	}
-	return worldPos;
+
+	cached_position = worldPos;
 }
 
-Vector4 Transform::CalculateRotation()
+void Transform::CalculateRotation()
 {
 	Vector4 worldRot = trsBuffer[transformAccess.index].q;
 	int index = parentIndicesBuffer[transformAccess.index];
@@ -49,5 +50,6 @@ Vector4 Transform::CalculateRotation()
 
 		index = parentIndicesBuffer[index];
 	}
-	return worldRot;
+
+	cached_rotation = worldRot;
 }
