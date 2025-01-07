@@ -58,61 +58,49 @@ void Cache::FetchGlobals(HANDLE scatter_handle)
     camera_address.store(dma.Read<uintptr_t>(camera + 0x10));
 }
 
-void Cache::FetchEntities(HANDLE scatter_handle) {
+void Cache::FetchEntities(HANDLE scatter_handle)
+{
     const EntityListData entity_list = dma.Read<EntityListData>(entity_list_address.load() + 0x10);
     if (!entity_list) {
         return;
     }
 
-    static std::vector<Entity> new_entities;
-    static std::vector<Entity*> entities_to_update;
-    static std::vector<Player> new_players;
-    static std::vector<Player*> players_to_update;
+    const auto current_entities = entities.load();
+    const auto current_players = players.load();
 
-    new_entities.clear();
-    entities_to_update.clear();
-    new_players.clear();
-    players_to_update.clear();
-
-    if (new_entities.capacity() < entity_list.size) {
-        new_entities.reserve(entity_list.size);
-        entities_to_update.reserve(entity_list.size);
-    }
-
-    const auto& current_entities = entities.load();
-    const auto& current_players = players.load();
-
-    static std::vector<std::pair<uintptr_t, Entity>> entity_cache;
-    static std::vector<std::pair<uintptr_t, Player>> player_cache;
-
-    entity_cache.clear();
-    player_cache.clear();
+    std::unordered_map<uintptr_t, Entity> entity_cache;
+    std::unordered_map<uintptr_t, Player> player_cache;
 
     entity_cache.reserve(current_entities.size());
+    player_cache.reserve(current_players.size());
+
     for (const auto& entity : current_entities) {
-        entity_cache.emplace_back(entity.object_ptr, entity);
+        entity_cache[entity.object_ptr] = entity;
+    }
+    for (const auto& player : current_players) {
+        player_cache[player.object_ptr] = player;
     }
 
-    std::sort(entity_cache.begin(), entity_cache.end(), [](const auto& a, const auto& b) { return a.first < b.first; });
+    std::vector<Entity> new_entities;
+    new_entities.reserve(entity_list.size);
+
+    std::vector<Entity*> entities_to_update;
+    entities_to_update.reserve(entity_list.size);
 
     for (uint32_t i = 1; i < entity_list.size; i++) {
         auto& entity = new_entities.emplace_back();
         entity.idx = i;
-        dma.AddScatterRead(scatter_handle, entity_list.content + (0x20 + (static_cast<uint64_t>(i) * 8)),
-            &entity.object_ptr, sizeof(entity.object_ptr));
+        dma.AddScatterRead(scatter_handle, entity_list.content + (0x20 + (static_cast<uint64_t>(i) * 8)), &entity.object_ptr, sizeof(entity.object_ptr));
     }
-
     dma.ExecuteScatterRead(scatter_handle);
 
     for (auto& entity : new_entities) {
-        auto it = std::lower_bound(entity_cache.begin(), entity_cache.end(), entity.object_ptr,
-            [](const auto& pair, uintptr_t ptr) { return pair.first < ptr; });
-
-        if (it != entity_cache.end() && it->first == entity.object_ptr) {
-            entity = it->second;
+        auto it = entity_cache.find(entity.object_ptr);
+        if (it == entity_cache.end()) {
+            entities_to_update.push_back(&entity);
         }
         else {
-            entities_to_update.push_back(&entity);
+            entity = it->second;
         }
     }
 
@@ -120,24 +108,20 @@ void Cache::FetchEntities(HANDLE scatter_handle) {
         FetchEntityData(scatter_handle, entities_to_update);
     }
 
-    entities.store(std::move(new_entities));
-
-    if (new_players.capacity() < new_entities.size() / 4) {
-        new_players.reserve(new_entities.size() / 4);
-        players_to_update.reserve(new_players.capacity());
-    }
+    std::vector<Player> new_players;
+    new_players.reserve(new_entities.size() / 4);
+    std::vector<Player*> players_to_update;
+    players_to_update.reserve(new_players.capacity());
 
     for (const auto& entity : new_entities) {
         if (entity.tag == 6) {
-            auto it = std::find_if(player_cache.begin(), player_cache.end(),
-                [&](const auto& pair) { return pair.first == entity.object_ptr; });
-
-            if (it != player_cache.end()) {
-                new_players.push_back(it->second);
-            }
-            else {
+            auto it = player_cache.find(entity.object_ptr);
+            if (it == player_cache.end()) {
                 auto& player = new_players.emplace_back(entity);
                 players_to_update.push_back(&player);
+            }
+            else {
+                new_players.push_back(it->second);
             }
         }
     }
@@ -146,6 +130,7 @@ void Cache::FetchEntities(HANDLE scatter_handle) {
         FetchPlayerData(scatter_handle, players_to_update);
     }
 
+    entities.store(std::move(new_entities));
     players.store(std::move(new_players));
 }
 
@@ -229,7 +214,7 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& player
         for (int i = 0; i < max_bones; i++) {
             if (!player->IsIndexValid(i)) 
                 continue;
-            dma.AddScatterRead(scatter_handle, player->bone_transforms + (0x20 + (static_cast<uint64_t>(i) * 0x8)), &player->bones[i].address, sizeof(player->bones[i].address));
+            dma.AddScatterRead(scatter_handle, player->bone_transforms + (0x20 + (static_cast<uint64_t>(i) * 0x8)),  &player->bones[i].address, sizeof(player->bones[i].address));
         }
     }
     dma.ExecuteScatterRead(scatter_handle);
@@ -266,8 +251,8 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& player
 
 void Cache::UpdatePositions(HANDLE scatter_handle)
 {
-	const std::vector<Entity>& new_entities = entities.load();
-	const std::vector<Player>& new_players = players.load();
+	std::vector<Entity> new_entities = entities.load();
+	std::vector<Player> new_players = players.load();
 
 	for (auto& entity : new_entities)
 	{
@@ -276,7 +261,7 @@ void Cache::UpdatePositions(HANDLE scatter_handle)
 		if (entity.is_static && !entity.position.invalid())
 			continue;
 
-		dma.AddScatterRead(scatter_handle, entity.visual_state + Offsets::vec3_position, (void*)&entity.position, sizeof(entity.position));
+		dma.AddScatterRead(scatter_handle, entity.visual_state + Offsets::vec3_position, &entity.position, sizeof(entity.position));
 	}
 
 	for (auto& player : new_players)
@@ -290,6 +275,6 @@ void Cache::UpdatePositions(HANDLE scatter_handle)
 
 	dma.ExecuteScatterRead(scatter_handle);
 
-	entities.store(new_entities);
 	players.store(new_players);
+	entities.store(new_entities);
 }

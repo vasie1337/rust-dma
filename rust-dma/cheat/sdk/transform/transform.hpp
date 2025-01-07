@@ -47,12 +47,12 @@ public:
 
 	StackBuffer() = default;
 
-	void updateBuffer(HANDLE scatter_handle, uintptr_t address, int capacity) const
+	void updateBuffer(HANDLE scatter_handle, uintptr_t address, int capacity)
 	{
 		if (capacity > Capacity) {
-			return;
+			throw std::out_of_range("Requested capacity exceeds buffer size");
 		}
-		dma.AddScatterRead(scatter_handle, address, (void*)buffer, capacity * sizeof(T));
+		dma.AddScatterRead(scatter_handle, address, buffer, capacity * sizeof(T));
 	}
 
 	T& operator[](int index)
@@ -75,8 +75,8 @@ public:
 	TransformAccess transformAccess;
 	TransformArrays transformArrays;
 
-	void UpdateTrsXBuffer(HANDLE scatter_handle) const;
-	void UpdateParentIndicesBuffer(HANDLE scatter_handle) const;
+	void UpdateTrsXBuffer(HANDLE scatter_handle);
+	void UpdateParentIndicesBuffer(HANDLE scatter_handle);
 
 	Vector3 Position();
 	Vector4 Rotation();
