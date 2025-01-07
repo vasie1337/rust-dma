@@ -2,18 +2,23 @@
 #include "../../../include.hpp"
 
 template <typename T>
-class BufferedData 
-{
+class BufferedData {
 public:
-    BufferedData() = default;
+    BufferedData() {
+        if constexpr (std::is_same_v<T, std::vector<Entity>> ||
+            std::is_same_v<T, std::vector<Player>>) {
+            front_buffer_.reserve(2000);
+            back_buffer_.reserve(2000);
+        }
+    }
 
-    void store(T new_data) noexcept {
+    void store(const T& new_data) noexcept {
         std::lock_guard<std::mutex> lock(mutex_);
         back_buffer_ = std::move(new_data);
         buffer_updated_ = true;
     }
 
-    T load() noexcept {
+    const T& load() noexcept {
         std::lock_guard<std::mutex> lock(mutex_);
         if (buffer_updated_) {
             std::swap(front_buffer_, back_buffer_);
@@ -22,14 +27,9 @@ public:
         return front_buffer_;
     }
 
-    T swap(T new_data) noexcept {
+    T& get_for_update() noexcept {
         std::lock_guard<std::mutex> lock(mutex_);
-        std::swap(front_buffer_, new_data);
-        return new_data;
-    }
-
-    bool has_update() const noexcept {
-        return buffer_updated_;
+        return back_buffer_;
     }
 
 private:

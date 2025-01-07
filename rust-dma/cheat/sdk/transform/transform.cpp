@@ -1,11 +1,11 @@
 #include "../../../include.hpp"
 
-void Transform::UpdateTrsXBuffer(HANDLE scatter_handle)
+void Transform::UpdateTrsXBuffer(HANDLE scatter_handle) const
 {
 	trsBuffer.updateBuffer(scatter_handle, transformArrays.localTransforms, transformAccess.index + 1);
 }
 
-void Transform::UpdateParentIndicesBuffer(HANDLE scatter_handle)
+void Transform::UpdateParentIndicesBuffer(HANDLE scatter_handle) const
 {
 	parentIndicesBuffer.updateBuffer(scatter_handle, transformArrays.parentIndices, transformAccess.index + 1);
 }

@@ -13,7 +13,6 @@ private:
     static inline std::vector<Player> player_list;
     static inline Vector3 camera_position;
     static inline Matrix4x4 view_matrix;
-    static inline Player local_player;
 
 public:
     static void Render()
