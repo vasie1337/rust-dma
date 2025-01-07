@@ -110,7 +110,7 @@ public:
 			return Vector3(0, 0, 0);
 		if (index >= bones.size())
 			return Vector3(0, 0, 0);
-		return bones[index].Position();
+		return bones[index].cached_position;
 	}
 
     inline Vector3 GetHeadPosition()

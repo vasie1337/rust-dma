@@ -273,16 +273,15 @@ void Cache::UpdatePositions(HANDLE scatter_handle)
 		}
 	}
 
-	for (auto& player : new_players)
-	{
-		for (auto& bone_transform : player.bones)
-		{
-			bone_transform.CalculatePosition();
-			//bone_transform.CalculateRotation();
-		}
-	}
-
 	dma.ExecuteScatterRead(scatter_handle);
+
+    for (auto& player : new_players)
+    {
+        for (auto& bone_transform : player.bones)
+        {
+			bone_transform.CalculatePosition();
+        }
+    }
 
 	players.store(new_players);
 	entities.store(new_entities);

@@ -83,12 +83,4 @@ public:
 
 	Vector3 cached_position;
 	Vector4 cached_rotation;
-
-	Vector3 Position() {
-		return cached_position;
-	}
-	Vector4 Rotation() {
-		return cached_rotation; 
-	}
-
 };
