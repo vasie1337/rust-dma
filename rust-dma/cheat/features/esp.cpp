@@ -11,18 +11,18 @@ std::string Esp::ws2s(const std::wstring& wstr)
 
 void Esp::RenderEntities()
 {
-    for (Entity& entity : entity_list)
+    for (Entity& entity : frame_buffer.entities)
     {
         const auto& category = Filter::GetCategory(entity.obj_name);
         if (!category.Enabled())
             continue;
 
-        float distance = camera_position.distance(entity.position);
+        float distance = frame_buffer.camera_pos.distance(entity.position);
         if (distance > max_entity_distance)
             continue;
 
         Vector2 screen_position;
-        if (Math::WorldToScreen(entity.position, screen_position, view_matrix))
+        if (Math::WorldToScreen(entity.position, screen_position, frame_buffer.view_matrix))
         {
             std::string text = entity.formatted_name + " [" + std::to_string(static_cast<int>(distance)) + "m]";
 
@@ -36,7 +36,7 @@ void Esp::RenderPlayers()
 	if (!player_enable)
 		return;
 
-    for (Player& player : player_list)
+    for (Player& player : frame_buffer.players)
     {
         if (player.is_npc)
 			continue;
@@ -49,14 +49,14 @@ void Esp::RenderPlayers()
 		if (feet_bone.invalid())
 			continue;
 
-        float distance = camera_position.distance(head_bone);
+        float distance = frame_buffer.camera_pos.distance(head_bone);
         if (distance > max_entity_distance)
             continue;
 
         if (player_head_circle)
         {
             Vector2 head_screen;
-            if (Math::WorldToScreen(head_bone, head_screen, view_matrix))
+            if (Math::WorldToScreen(head_bone, head_screen, frame_buffer.view_matrix))
             {
                 float radius = std::max<float>(1.0f, 40.0f / distance);
                 DrawCircle(head_screen, radius, player_color, 0);
@@ -75,7 +75,7 @@ void Esp::RenderPlayers()
 
                 Vector2 start_screen;
                 Vector2 end_screen;
-                if (Math::WorldToScreen(start, start_screen, view_matrix) && Math::WorldToScreen(end, end_screen, view_matrix))
+                if (Math::WorldToScreen(start, start_screen, frame_buffer.view_matrix) && Math::WorldToScreen(end, end_screen, frame_buffer.view_matrix))
                 {
                     DrawLine(start_screen, end_screen, 1.f, player_color);
                 }
@@ -97,7 +97,7 @@ void Esp::RenderPlayers()
                 max_box = max_box._max(bone_pos);
             }
 
-            DrawBoundingBox(min_box, max_box, view_matrix, player_color);
+            DrawBoundingBox(min_box, max_box, frame_buffer.view_matrix, player_color);
         }
 
         if (player_names)
@@ -105,7 +105,7 @@ void Esp::RenderPlayers()
             std::string player_name_converted = ws2s(player.player_name);
 
             Vector2 feet_screen;
-            if (Math::WorldToScreen(feet_bone, feet_screen, view_matrix))
+            if (Math::WorldToScreen(feet_bone, feet_screen, frame_buffer.view_matrix))
             {
                 std::string text = player_name_converted + " [" + std::to_string(static_cast<int>(distance)) + "m]";
                 DrawString(feet_screen, player_color, text);
@@ -115,7 +115,7 @@ void Esp::RenderPlayers()
         if (player_snaplines)
         {
             Vector2 head_screen;
-            Math::WorldToScreen(head_bone, head_screen, view_matrix, true);
+            Math::WorldToScreen(head_bone, head_screen, frame_buffer.view_matrix, true);
             
             Vector2 screen_center = Vector2(Math::screen_size.x / 2.f, 0.f);
             DrawLine(screen_center, head_screen, 1.f, player_color);

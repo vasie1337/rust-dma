@@ -9,19 +9,15 @@ private:
     static void RenderEntities();
     static void RenderPlayers();
 
-    static inline std::vector<Entity> entity_list;
-    static inline std::vector<Player> player_list;
-    static inline Vector3 camera_position;
-    static inline Matrix4x4 view_matrix;
-    static inline Player local_player;
+	static inline FrameData frame_buffer;
 
 public:
     static void Render()
     {
-        player_list = Cache::players.load();
-        entity_list = Cache::entities.load();
-        camera_position = Cache::camera_pos.load();
-        view_matrix = Cache::view_matrix.load();
+        {
+			std::lock_guard<std::mutex> lock(CacheData::frame_mtx);
+			frame_buffer = CacheData::frame_data;
+        }
 
 		RenderEntities();
         RenderPlayers();
