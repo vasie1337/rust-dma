@@ -5,9 +5,8 @@ void Cache::Run()
 	globals_thread.Run();
 	entities_thread.Run();
 	frame_thread.Run();
-  view_thread.Run();
 
-	threads = { globals_thread, entities_thread, frame_thread, view_thread };
+	threads = { globals_thread, entities_thread, frame_thread };
 }
 
 void Cache::Stop()
@@ -15,7 +14,6 @@ void Cache::Stop()
 	globals_thread.Stop();
 	entities_thread.Stop();
     frame_thread.Stop();
-    view_thread.Stop();
 }
 
 void Cache::FetchGlobals(HANDLE scatter_handle)
@@ -96,18 +94,13 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     }
 
     if (!entities_to_update.empty()) {
-        std::vector<Entity*> entity_ptrs;
-        entity_ptrs.reserve(entities_to_update.size());
-        for (size_t idx : entities_to_update) {
-            entity_ptrs.push_back(&new_entities[idx]);
-        }
-        FetchEntityData(scatter_handle, entity_ptrs);
+        FetchEntityData(scatter_handle, entities_to_update);
     }
 
     std::vector<Player> new_players;
-    new_players.reserve(entity_list.size);
-    std::vector<size_t> players_to_update;
-    players_to_update.reserve(entity_list.size);
+    new_players.reserve(new_entities.size() / 4);
+    std::vector<Player*> players_to_update;
+    players_to_update.reserve(new_players.capacity());
 
     for (const auto& entity : new_entities) {
         if (entity.tag == 6) {
@@ -122,16 +115,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     }
 
     if (!players_to_update.empty()) {
-        std::vector<Player*> player_ptrs;
-        player_ptrs.reserve(players_to_update.size());
-        for (size_t idx : players_to_update) {
-            player_ptrs.push_back(&new_players[idx]);
-        }
-        FetchPlayerData(scatter_handle, player_ptrs);
-    }
-
-    if (force_recache) {
-        last_full_recache = current_time;
+        FetchPlayerData(scatter_handle, players_to_update);
     }
 
     {
