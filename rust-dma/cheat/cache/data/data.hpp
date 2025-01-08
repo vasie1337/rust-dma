@@ -7,6 +7,7 @@ struct FrameData
 	Vector3 camera_pos;
 	std::vector<Entity> entities;
 	std::vector<Player> players;
+	std::chrono::steady_clock::time_point last_cache_time;
 };
 
 class CacheData 
