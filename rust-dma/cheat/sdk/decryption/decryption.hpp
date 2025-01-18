@@ -8,7 +8,7 @@ namespace decryption
 #pragma optimize("", off)
 
 #define TEST_BITD(x, y) ((x) & (1 << (y)))
-#define HANDLE_BASE 0xE1A5BF0
+#define HANDLE_BASE 0xE209F60
 #define LODWORD(x) (*((unsigned long*)&(x)))
 
 	// __int64 __fastcall il2cpp_gchandle_get_target_0(unsigned int a1)
@@ -35,21 +35,21 @@ namespace decryption
 
 	inline ULONG64 BaseNetworkable(uintptr_t base, ULONG64 Address)
 	{
-		int* v17; // rdx
-		int v18; // r8d
-		int v19; // eax
-		__m128 v36; // [rsp+68h] [rbp+20h] OVERLAPPED BYREF
+		int* v18; // rdx
+		int v5; // r8d
+		__m128 v25; // [rsp+20h] [rbp-28h] BYREF
+		int v6; // eax
 
-		v17 = (int*)&v36;
-		v18 = 2;
-		v36 = dma.Read<__m128>(Address + 24);
+		v18 = (int*)&v25;
+		v5 = 2;
+		v25 = dma.Read<__m128>(Address + 0x18);
 		do
 		{
-			v19 = *v17++;
-			*(v17 - 1) = ((((v19 + 2088045315) << 20) | ((unsigned int)(v19 + 2088045315) >> 12)) + 62779575) ^ 0xEA3B039;
-			--v18;
-		} while (v18);
-		signed __int64 v9 = *reinterpret_cast<signed __int64*>(&v36);
+			v6 = *v18++;
+			*(v18 - 1) = (((v6 + 1968032699) << 12) | ((unsigned int)(v6 + 1968032699) >> 20)) - 1455555583;
+			--v5;
+		} while (v5);
+		signed __int64 v9 = *reinterpret_cast<signed __int64*>(&v25);
 		return IL2CppGetHandle(base, v9);
 	}
 
