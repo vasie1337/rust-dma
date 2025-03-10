@@ -1,6 +1,31 @@
 #pragma once
 #include "../../../include.hpp"
 
+typedef          char   int8;
+typedef   signed char   sint8;
+typedef unsigned char   uint8;
+typedef          short  int16;
+typedef   signed short  sint16;
+typedef unsigned short  uint16;
+typedef          int    int32;
+typedef   signed int    sint32;
+typedef unsigned int    uint32;
+
+#define _BYTE  uint8
+#define _WORD  uint16
+#define _DWORD uint32
+#define _QWORD uint64
+
+#define LOBYTE(x)   (*((_BYTE*)&(x)))   // low byte
+#define LOWORD(x)   (*((_WORD*)&(x)))   // low word
+#define LODWORD(x)  (*((_DWORD*)&(x)))  // low dword
+#define HIBYTE(x)   (*((_BYTE*)&(x)+1))
+#define HIWORD(x)   (*((_WORD*)&(x)+1))
+#define HIDWORD(x)  (*((_DWORD*)&(x)+1))
+#define BYTEn(x, n)   (*((_BYTE*)&(x)+n))
+#define WORDn(x, n)   (*((_WORD*)&(x)+n))
+
+
 namespace decryption
 {
 #pragma warning(disable: 4319)
@@ -8,15 +33,13 @@ namespace decryption
 #pragma optimize("", off)
 
 #define TEST_BITD(x, y) ((x) & (1 << (y)))
-#define HANDLE_BASE 0xE1A5BF0
-#define LODWORD(x) (*((unsigned long*)&(x)))
 
 	// __int64 __fastcall il2cpp_gchandle_get_target_0(unsigned int a1)
 	inline ULONG64 IL2CppGetHandle(uintptr_t base, int32_t ObjectHandleID) {
 
 		uint64_t rdi_1 = ObjectHandleID >> 3;
 		uint64_t rcx_1 = (ObjectHandleID & 7) - 1;
-		uint64_t baseAddr = base + HANDLE_BASE + rcx_1 * 0x28;
+		uint64_t baseAddr = base + 0xBEB5B60 + rcx_1 * 0x28;
 		uint32_t limit = dma.Read<uint32_t>(baseAddr + 0x10);
 		if (rdi_1 < limit) {
 			uintptr_t objAddr = dma.Read<uintptr_t>(baseAddr);
@@ -28,29 +51,34 @@ namespace decryption
 					: ~dma.Read<uint32_t>(ObjectArray);
 			}
 		}
-
-		printf("IL2CppGetHandle: Failed to decrypt address\n");
 		return 0;
 	}
 
 	inline ULONG64 BaseNetworkable(uintptr_t base, ULONG64 Address)
 	{
-		int* v17; // rdx
-		int v18; // r8d
-		int v19; // eax
-		__m128 v36; // [rsp+68h] [rbp+20h] OVERLAPPED BYREF
+		__int64* v4; // rdx
+		int v5; // r8d
+		unsigned int v6; // ecx
+		unsigned int v7; // eax
+		__int64 v8; // kr00_8
+		__int64 v9; // rcx
+		__int64 v26; // [rsp+20h] [rbp-28h] BYREF
 
-		v17 = (int*)&v36;
-		v18 = 2;
-		v36 = dma.Read<__m128>(Address + 24);
+		v4 = &v26;
+		v26 = dma.Read<uintptr_t>(Address + 0x18);
+		v5 = 2;
 		do
 		{
-			v19 = *v17++;
-			*(v17 - 1) = ((((v19 + 2088045315) << 20) | ((unsigned int)(v19 + 2088045315) >> 12)) + 62779575) ^ 0xEA3B039;
-			--v18;
-		} while (v18);
-		signed __int64 v9 = *reinterpret_cast<signed __int64*>(&v36);
-		return IL2CppGetHandle(base, v9);
+			v6 = *(DWORD*)v4;
+			v7 = *(DWORD*)v4;
+			v4 = (__int64*)((char*)v4 + 4);
+			v8 = 8i64 * ((((v6 >> 3) | (v7 << 29)) ^ 0x1BD6DA3F) + 812328851);
+			*((DWORD*)v4 - 1) = v8 | HIDWORD(v8);
+			--v5;
+		} while (v5);
+		v9 = v26;
+
+		return IL2CppGetHandle(base, v26);
 	}
 
 #pragma optimize("", on)
