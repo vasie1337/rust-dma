@@ -63,6 +63,9 @@ inline std::string Cache::FormatObjectName(const std::string& object_name)
     result.reserve(name.size());
     bool capitalize_next = true;
     for (char c : name) {
+		if (c >= -1 && c <= 255) {
+			continue;
+		}
         if (c == '.') continue;
         if (c == '-' || c == '_') {
             result.push_back(' ');

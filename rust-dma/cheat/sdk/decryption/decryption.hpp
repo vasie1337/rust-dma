@@ -81,6 +81,31 @@ namespace decryption
 		return IL2CppGetHandle(base, v26);
 	}
 
+	inline uint64_t DecryptList(uintptr_t base, uint64_t pointer)
+	{
+		__int64* v4; // rdx
+		int v5; // r8d
+		unsigned int v6; // ecx
+		unsigned int v7; // eax
+		__int64 v8; // rcx
+		__int64 v23; // [rsp+20h] [rbp-28h] BYREF
+
+		v4 = &v23;
+		v23 = dma.Read<uintptr_t>(pointer + 24);
+		v5 = 2;
+		do
+		{
+			v6 = *(_DWORD*)v4;
+			v7 = *(_DWORD*)v4;
+			v4 = (__int64*)((char*)v4 + 4);
+			*((_DWORD*)v4 - 1) = (((v7 << 23) | (v6 >> 9)) - 2051686922) ^ 0x51B6E58C;
+			--v5;
+		} while (v5);
+		v8 = v23;
+
+		return IL2CppGetHandle(base, v23);
+	}
+
 #pragma optimize("", on)
 #pragma warning(default: 4319)
 #pragma warning(default: 4244)

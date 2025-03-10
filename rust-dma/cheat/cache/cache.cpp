@@ -25,7 +25,7 @@ void Cache::FetchGlobals(HANDLE scatter_handle)
 		uintptr_t bn_wrapper_class_ptr = dma.Read<uintptr_t>(bn_static_fields + 0x8);
 		uintptr_t bn_wrapper_class = decryption::BaseNetworkable(base_address, bn_wrapper_class_ptr);
 		uintptr_t bn_parent_static_fields = dma.Read<uintptr_t>(bn_wrapper_class + 0x10);
-		uintptr_t bn_parent_static_class = decryption::BaseNetworkable(base_address, bn_parent_static_fields);
+		uintptr_t bn_parent_static_class = decryption::DecryptList(base_address, bn_parent_static_fields);
         entity_list_address = dma.Read<uintptr_t>(bn_parent_static_class + 0x18);
 	}
 
