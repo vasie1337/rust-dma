@@ -2,38 +2,38 @@
 
 void Cache::Run()
 {
-	globals_thread.Run();
-	entities_thread.Run();
-	frame_thread.Run();
+    globals_thread.Run();
+    entities_thread.Run();
+    frame_thread.Run();
 
-	threads = { globals_thread, entities_thread, frame_thread };
+    threads = { globals_thread, entities_thread, frame_thread };
 }
 
 void Cache::Stop()
 {
-	globals_thread.Stop();
-	entities_thread.Stop();
+    globals_thread.Stop();
+    entities_thread.Stop();
     frame_thread.Stop();
 }
 
 void Cache::FetchGlobals(HANDLE scatter_handle)
 {
-	if (!entity_list_address)
-	{
-		uintptr_t base_net_workable = dma.Read<uintptr_t>(base_address + Offsets::base_net_workable);
-		uintptr_t bn_static_fields = dma.Read<uintptr_t>(base_net_workable + 0xB8);
-		uintptr_t bn_wrapper_class_ptr = dma.Read<uintptr_t>(bn_static_fields + 0x8);
-		uintptr_t bn_wrapper_class = decryption::BaseNetworkable(base_address, bn_wrapper_class_ptr);
-		uintptr_t bn_parent_static_fields = dma.Read<uintptr_t>(bn_wrapper_class + 0x10);
-		uintptr_t bn_parent_static_class = decryption::DecryptList(base_address, bn_parent_static_fields);
+    if (!entity_list_address)
+    {
+        uintptr_t base_net_workable = dma.Read<uintptr_t>(base_address + Offsets::base_net_workable);
+        uintptr_t bn_static_fields = dma.Read<uintptr_t>(base_net_workable + 0xB8);
+        uintptr_t bn_wrapper_class_ptr = dma.Read<uintptr_t>(bn_static_fields + 0x8);
+        uintptr_t bn_wrapper_class = decryption::BaseNetworkable(base_address, bn_wrapper_class_ptr);
+        uintptr_t bn_parent_static_fields = dma.Read<uintptr_t>(bn_wrapper_class + 0x10);
+        uintptr_t bn_parent_static_class = decryption::DecryptList(base_address, bn_parent_static_fields);
         entity_list_address = dma.Read<uintptr_t>(bn_parent_static_class + 0x18);
-	}
+    }
 
     static uintptr_t main_camera_manager;
-	if (!main_camera_manager)
-	{
-		main_camera_manager = dma.Read<uintptr_t>(base_address + Offsets::main_camera);
-	}
+    if (!main_camera_manager)
+    {
+        main_camera_manager = dma.Read<uintptr_t>(base_address + Offsets::main_camera);
+    }
 
     uintptr_t camera_manager = dma.Read<uintptr_t>(main_camera_manager + 0xB8);
     uintptr_t camera = dma.Read<uintptr_t>(camera_manager + 0xB0);
@@ -53,22 +53,16 @@ void Cache::FetchEntities(HANDLE scatter_handle)
         frame_buffer = frame_data;
     }
 
-    const auto current_time = std::chrono::steady_clock::now();
-
     std::unordered_map<uintptr_t, Entity> entity_cache;
     std::unordered_map<uintptr_t, Player> player_cache;
     entity_cache.reserve(frame_buffer.entities.size());
     player_cache.reserve(frame_buffer.players.size());
 
-    const bool use_cache = (current_time - frame_buffer.last_cache_time) < std::chrono::seconds(1);
-
-    if (use_cache) {
-        for (const auto& entity : frame_buffer.entities) {
-            entity_cache[entity.object_ptr] = entity;
-        }
-        for (const auto& player : frame_buffer.players) {
-            player_cache[player.object_ptr] = player;
-        }
+    for (const auto& entity : frame_buffer.entities) {
+        entity_cache[entity.object_ptr] = entity;
+    }
+    for (const auto& player : frame_buffer.players) {
+        player_cache[player.object_ptr] = player;
     }
 
     std::vector<Entity> new_entities;
@@ -85,7 +79,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     dma.ExecuteScatterRead(scatter_handle);
 
     for (auto& entity : new_entities) {
-        if (!use_cache || entity_cache.find(entity.object_ptr) == entity_cache.end()) {
+        if (entity_cache.find(entity.object_ptr) == entity_cache.end()) {
             entities_to_update.push_back(&entity);
         }
         else {
@@ -104,7 +98,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
 
     for (const auto& entity : new_entities) {
         if (entity.tag == 6) {
-            if (!use_cache || player_cache.find(entity.object_ptr) == player_cache.end()) {
+            if (player_cache.find(entity.object_ptr) == player_cache.end()) {
                 auto& player = new_players.emplace_back(entity);
                 players_to_update.push_back(&player);
             }
@@ -122,10 +116,6 @@ void Cache::FetchEntities(HANDLE scatter_handle)
         std::lock_guard<std::mutex> lock(frame_mtx);
         frame_data.entities = new_entities;
         frame_data.players = new_players;
-
-        if (!use_cache || !entities_to_update.empty() || !players_to_update.empty()) {
-            frame_data.last_cache_time = current_time;
-        }
     }
 }
 
@@ -179,7 +169,7 @@ void Cache::FetchPlayerData(HANDLE scatter_handle, std::vector<Player*>& players
     }
     dma.ExecuteScatterRead(scatter_handle);
 
-	players_to_update.erase(std::remove_if(players_to_update.begin(), players_to_update.end(), [](const Player* player) { return player->is_npc; }), players_to_update.end());
+    players_to_update.erase(std::remove_if(players_to_update.begin(), players_to_update.end(), [](const Player* player) { return player->is_npc; }), players_to_update.end());
 
     for (auto* player : players_to_update) {
         dma.AddScatterRead(scatter_handle, player->object_ptr + Offsets::model, &player->model, sizeof(player->model));
@@ -207,15 +197,18 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& player
 {
     for (auto* player : players_to_update) {
         for (int i = 0; i < max_bones; i++) {
-            if (!player->IsIndexValid(i)) 
+            if (!player->IsIndexValid(i))
                 continue;
-            dma.AddScatterRead(scatter_handle, player->bone_transforms + (0x20 + (static_cast<uint64_t>(i) * 0x8)),  &player->bones[i].address, sizeof(player->bones[i].address));
+
+            dma.AddScatterRead(scatter_handle, player->bone_transforms + (0x20 + (static_cast<uint64_t>(i) * 0x8)), &player->bones[i].address, sizeof(player->bones[i].address));
         }
     }
     dma.ExecuteScatterRead(scatter_handle);
 
     for (auto* player : players_to_update) {
+
         for (auto& bone : player->bones) {
+
             dma.AddScatterRead(scatter_handle, bone.address + 0x10, &bone.address_internal, sizeof(bone.address_internal));
         }
     }
@@ -246,30 +239,30 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& player
 
 void Cache::UpdateFrame(HANDLE scatter_handle)
 {
-	FrameData frame_buffer;
+    FrameData frame_buffer;
     {
-		std::lock_guard<std::mutex> lock(frame_mtx);
-		frame_buffer = frame_data;
+        std::lock_guard<std::mutex> lock(frame_mtx);
+        frame_buffer = frame_data;
     }
 
-	for (auto& entity : frame_buffer.entities)
-	{
-		if (!entity.visual_state)
-			continue;
-		if (entity.is_static && !entity.position.invalid())
-			continue;
+    for (auto& entity : frame_buffer.entities)
+    {
+        if (!entity.visual_state)
+            continue;
+        if (entity.is_static && !entity.position.invalid())
+            continue;
 
-		dma.AddScatterRead(scatter_handle, entity.visual_state + Offsets::vec3_position, &entity.position, sizeof(entity.position));
-	}
+        dma.AddScatterRead(scatter_handle, entity.visual_state + Offsets::vec3_position, &entity.position, sizeof(entity.position));
+    }
 
-	for (auto& player : frame_buffer.players)
-	{
-		for (auto& bone_transform : player.bones)
-		{
-			bone_transform.UpdateTrsXBuffer(scatter_handle);
-			bone_transform.UpdateParentIndicesBuffer(scatter_handle);
-		}
-	}
+    for (auto& player : frame_buffer.players)
+    {
+        for (auto& bone_transform : player.bones)
+        {
+            bone_transform.UpdateTrsXBuffer(scatter_handle);
+            bone_transform.UpdateParentIndicesBuffer(scatter_handle);
+        }
+    }
 
     dma.AddScatterRead(scatter_handle, camera_address + Offsets::view_matrix, &frame_buffer.view_matrix, sizeof(frame_buffer.view_matrix));
     dma.AddScatterRead(scatter_handle, camera_address + Offsets::camera_pos, &frame_buffer.camera_pos, sizeof(frame_buffer.camera_pos));
@@ -280,10 +273,10 @@ void Cache::UpdateFrame(HANDLE scatter_handle)
     {
         for (auto& bone_transform : player.bones)
         {
-			bone_transform.CalculatePosition();
+            bone_transform.CalculatePosition();
         }
     }
 
-	std::lock_guard<std::mutex> lock(frame_mtx);
-	frame_data = frame_buffer;
+    std::lock_guard<std::mutex> lock(frame_mtx);
+    frame_data = frame_buffer;
 }

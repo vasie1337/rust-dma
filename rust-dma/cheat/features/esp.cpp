@@ -38,9 +38,6 @@ void Esp::RenderPlayers()
 
     for (Player& player : frame_buffer.players)
     {
-        if (player.is_npc)
-			continue;
-
         Vector3 head_bone = player.GetBonePosition(BoneList::head);
         if (head_bone.invalid())
             continue;
