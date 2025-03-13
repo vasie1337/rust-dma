@@ -30,6 +30,7 @@ Cheat::Cheat()
 	printf("[CHEAT] Overlay Initialized\n");
 
 	Cache::Run();
+	Aimbot::Run();
 	Overlay::Run();
 }
 

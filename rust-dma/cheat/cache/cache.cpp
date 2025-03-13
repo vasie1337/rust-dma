@@ -77,7 +77,7 @@ void Cache::FetchEntities(HANDLE scatter_handle)
     }
 
     dma.ExecuteScatterRead(scatter_handle);
-
+    
     for (auto& entity : new_entities) {
         if (entity_cache.find(entity.object_ptr) == entity_cache.end()) {
             entities_to_update.push_back(&entity);

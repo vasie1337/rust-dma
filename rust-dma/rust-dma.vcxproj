@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cheat\features\aimbot.hpp" />
     <ClInclude Include="cheat\cache\cache.hpp" />
     <ClInclude Include="cheat\cache\data\data.hpp" />
     <ClInclude Include="cheat\cache\threads\threads.hpp" />
@@ -36,6 +37,7 @@
     <ClInclude Include="include.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cheat\features\aimbot.cpp" />
     <ClCompile Include="cheat\cache\cache.cpp" />
     <ClCompile Include="cheat\cache\threads\threads.cpp" />
     <ClCompile Include="cheat\cheat.cpp" />

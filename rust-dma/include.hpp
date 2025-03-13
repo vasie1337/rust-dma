@@ -54,5 +54,6 @@
 #include "cheat/cache/threads/threads.hpp"
 #include "cheat/cache/cache.hpp"
 #include "cheat/features/esp.hpp"
+#include "cheat/features/aimbot.hpp"
 #include "cheat/menu/menu.hpp"
 #include "cheat/cheat.hpp"
