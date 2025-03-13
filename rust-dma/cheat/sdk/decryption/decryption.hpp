@@ -1,6 +1,11 @@
 #pragma once
 #include "../../../include.hpp"
 
+#pragma warning(disable: 4319)
+#pragma warning(disable: 4244)
+#pragma warning(disable: 4005)
+#pragma optimize("", off)
+
 typedef          char   int8;
 typedef   signed char   sint8;
 typedef unsigned char   uint8;
@@ -25,15 +30,10 @@ typedef unsigned int    uint32;
 #define BYTEn(x, n)   (*((_BYTE*)&(x)+n))
 #define WORDn(x, n)   (*((_WORD*)&(x)+n))
 
+#define TEST_BITD(x, y) ((x) & (1 << (y)))
 
 namespace decryption
 {
-#pragma warning(disable: 4319)
-#pragma warning(disable: 4244)
-#pragma optimize("", off)
-
-#define TEST_BITD(x, y) ((x) & (1 << (y)))
-
 	// __int64 __fastcall il2cpp_gchandle_get_target_0(unsigned int a1)
 	inline ULONG64 IL2CppGetHandle(uintptr_t base, int32_t ObjectHandleID) {
 
@@ -105,8 +105,9 @@ namespace decryption
 
 		return IL2CppGetHandle(base, v23);
 	}
+}
 
 #pragma optimize("", on)
 #pragma warning(default: 4319)
 #pragma warning(default: 4244)
-}
+#pragma warning(default: 4005)

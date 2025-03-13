@@ -1,5 +1,6 @@
 ﻿#include <stdio.h>
 #include <Winsock2.h>
+#pragma comment(lib, "ws2_32.lib")
 #include "math.h"
 #pragma warning(disable : 4996)
 //������
