@@ -169,7 +169,7 @@ void Cache::FetchPlayerData(HANDLE scatter_handle, std::vector<Player*>& players
     }
     dma.ExecuteScatterRead(scatter_handle);
 
-    players_to_update.erase(std::remove_if(players_to_update.begin(), players_to_update.end(), [](const Player* player) { return player->is_npc; }), players_to_update.end());
+    //players_to_update.erase(std::remove_if(players_to_update.begin(), players_to_update.end(), [](const Player* player) { return player->is_npc; }), players_to_update.end());
 
     for (auto* player : players_to_update) {
         dma.AddScatterRead(scatter_handle, player->object_ptr + Offsets::model, &player->model, sizeof(player->model));
