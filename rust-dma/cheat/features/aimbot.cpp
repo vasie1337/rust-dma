@@ -2,15 +2,15 @@
 
 void Aimbot::Run()
 {
-	aimbot_thread = std::thread([]()
-	{
-		while (true)
-		{
-			Step();
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
-	});
-	aimbot_thread.detach();
+	//aimbot_thread = std::thread([]()
+	//{
+	//	while (true)
+	//	{
+	//		Step();
+	//		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	//	}
+	//});
+	//aimbot_thread.detach();
 }
 
 void Aimbot::Step()
@@ -19,6 +19,12 @@ void Aimbot::Step()
 		std::lock_guard<std::mutex> lock(CacheData::frame_mtx);
 		frame_buffer = CacheData::frame_data;
 	}
+
+	if (frame_buffer.players.empty())
+		return;
+
+	if (kmNet_monitor_mouse_right() == 0)
+		return;
 
 	Player* target = nullptr;
 	float best_fov = FLT_MAX;
@@ -49,5 +55,6 @@ void Aimbot::Step()
 	if (!Math::WorldToScreen(head_bone, head_screen, frame_buffer.view_matrix))
 		return;
 
+	kmNet_mouse_move_auto(head_screen.x, head_screen.y, 1);
 
 }

@@ -39,7 +39,7 @@ namespace decryption
 
 		uint64_t rdi_1 = ObjectHandleID >> 3;
 		uint64_t rcx_1 = (ObjectHandleID & 7) - 1;
-		uint64_t baseAddr = base + 0xBEB5B60 + rcx_1 * 0x28;
+		uint64_t baseAddr = base + 0xBEC73C0 + rcx_1 * 0x28;
 		uint32_t limit = dma.Read<uint32_t>(baseAddr + 0x10);
 		if (rdi_1 < limit) {
 			uintptr_t objAddr = dma.Read<uintptr_t>(baseAddr);
@@ -54,34 +54,7 @@ namespace decryption
 		return 0;
 	}
 
-	inline ULONG64 BaseNetworkable(uintptr_t base, ULONG64 Address)
-	{
-		__int64* v4; // rdx
-		int v5; // r8d
-		unsigned int v6; // ecx
-		unsigned int v7; // eax
-		__int64 v8; // kr00_8
-		__int64 v9; // rcx
-		__int64 v26; // [rsp+20h] [rbp-28h] BYREF
-
-		v4 = &v26;
-		v26 = dma.Read<uintptr_t>(Address + 0x18);
-		v5 = 2;
-		do
-		{
-			v6 = *(DWORD*)v4;
-			v7 = *(DWORD*)v4;
-			v4 = (__int64*)((char*)v4 + 4);
-			v8 = 8i64 * ((((v6 >> 3) | (v7 << 29)) ^ 0x1BD6DA3F) + 812328851);
-			*((DWORD*)v4 - 1) = v8 | HIDWORD(v8);
-			--v5;
-		} while (v5);
-		v9 = v26;
-
-		return IL2CppGetHandle(base, v26);
-	}
-
-	inline uint64_t DecryptList(uintptr_t base, uint64_t pointer)
+	inline ULONG64 BaseNetworkable(uintptr_t base, ULONG64 a1)
 	{
 		__int64* v4; // rdx
 		int v5; // r8d
@@ -91,14 +64,39 @@ namespace decryption
 		__int64 v23; // [rsp+20h] [rbp-28h] BYREF
 
 		v4 = &v23;
-		v23 = dma.Read<uintptr_t>(pointer + 24);
+		v23 = dma.Read<uintptr_t>(a1 + 24);
 		v5 = 2;
 		do
 		{
 			v6 = *(_DWORD*)v4;
 			v7 = *(_DWORD*)v4;
 			v4 = (__int64*)((char*)v4 + 4);
-			*((_DWORD*)v4 - 1) = (((v7 << 23) | (v6 >> 9)) - 2051686922) ^ 0x51B6E58C;
+			*((_DWORD*)v4 - 1) = (((v7 << 24) | (v6 >> 8)) ^ 0x904C85FC) - 1838680275;
+			--v5;
+		} while (v5);
+		v8 = v23;
+
+		return IL2CppGetHandle(base, v23);
+	}
+
+	inline uint64_t DecryptList(uintptr_t base, uint64_t a1)
+	{
+		__int64* v4; // rdx
+		int v5; // r8d
+		unsigned int v6; // ecx
+		unsigned int v7; // eax
+		__int64 v8; // rcx
+		__int64 v23; // [rsp+20h] [rbp-28h] BYREF
+
+		v4 = &v23;
+		v23 = dma.Read<uintptr_t>(a1 + 24);
+		v5 = 2;
+		do
+		{
+			v6 = *(_DWORD*)v4;
+			v7 = *(_DWORD*)v4;
+			v4 = (__int64*)((char*)v4 + 4);
+			*((_DWORD*)v4 - 1) = ((((v7 << 7) | (v6 >> 25)) + 542653242) << 22) | ((((v7 << 7) | (v6 >> 25)) + 542653242) >> 10);
 			--v5;
 		} while (v5);
 		v8 = v23;
