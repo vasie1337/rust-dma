@@ -19,7 +19,7 @@ namespace Offsets
 
 	// BaseCombatEntity
 	inline std::uintptr_t player_model = 0x3C0;
-	inline std::uintptr_t player_name = 0x450;
-	inline std::uintptr_t is_npc = 0x2E2;
+	inline std::uintptr_t player_name = 0x418;
+	inline std::uintptr_t is_npc = 0x30C;
 	inline std::uintptr_t bone_transforms = 0x50;
 }
