@@ -44,7 +44,10 @@ public:
 class Cache : public CacheData
 {
 public:
-	Cache() {}
+	Cache() {
+        cached_entities.reserve(1000);
+        cached_players.reserve(128);
+    }
 	~Cache() {}
 
 	void Run();
@@ -65,35 +68,45 @@ private:
 
     static std::string FormatObjectName(const std::string& object_name);
 
-public:
-
+    static inline std::vector<Entity> cached_entities;
+    static inline std::vector<Player> cached_players;
+    static inline std::unordered_map<uintptr_t, Entity*> entity_ptr_map;
+    static inline std::unordered_map<uintptr_t, Player*> player_ptr_map;
 };
 
 inline std::string Cache::FormatObjectName(const std::string& object_name)
 {
-    size_t start = object_name.find_last_of('/');
-    std::string name = (start == std::string::npos) ? object_name : object_name.substr(start + 1);
-    const std::array<std::string_view, 4> suffixes = { ".prefab", ".entity", "_spawned", "deployed" };
-    bool found_suffix;
-    do {
-        found_suffix = false;
-        for (const auto& suffix : suffixes) {
-            if (name.size() >= suffix.size() &&
-                name.compare(name.size() - suffix.size(), suffix.size(), suffix) == 0) {
-                name.resize(name.size() - suffix.size());
-                found_suffix = true;
-                break;
-            }
-        }
-    } while (found_suffix);
+    // Reserve memory for result string based on input size to avoid reallocations
     std::string result;
-    result.reserve(name.size());
+    result.reserve(object_name.size());
+    
+    // Find last slash once
+    size_t start = object_name.find_last_of('/');
+    std::string_view name_view = (start == std::string::npos) ? 
+                                std::string_view(object_name) : 
+                                std::string_view(object_name).substr(start + 1);
+    
+    // Check and remove suffixes
+    static const std::array<std::string_view, 4> suffixes = { ".prefab", ".entity", "_spawned", "deployed" };
+    size_t end_pos = name_view.size();
+    
+    for (const auto& suffix : suffixes) {
+        while (end_pos >= suffix.size() && 
+              std::string_view(name_view.data() + end_pos - suffix.size(), suffix.size()) == suffix) {
+            end_pos -= suffix.size();
+        }
+    }
+    
+    name_view = name_view.substr(0, end_pos);
+    
+    // Process the name and build the result string
     bool capitalize_next = true;
-    for (char c : name) {
-		if (c >= -1 && c <= 255) {
-			result.push_back(c);
-			continue;
-		}
+    
+    for (char c : name_view) {
+        if (c >= -1 && c <= 255) {
+            result.push_back(c);
+            continue;
+        }
         if (c == '.') continue;
         if (c == '-' || c == '_') {
             result.push_back(' ');
@@ -115,6 +128,7 @@ inline std::string Cache::FormatObjectName(const std::string& object_name)
         }
     }
 
+    // Use find and replace instead of creating substrings
     size_t world_pos = result.find("(world)");
     if (world_pos != std::string::npos) {
         result.replace(world_pos, 7, "(dropped)");
