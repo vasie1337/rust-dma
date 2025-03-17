@@ -16,7 +16,6 @@ public:
     inline static uintptr_t camera_address;
     inline static uintptr_t entity_list_address;
 
-	inline static std::mutex frame_mtx;
 	inline static FrameData frame_data;
 };
 

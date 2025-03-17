@@ -1,6 +1,46 @@
 #pragma once
 #include "../../include.hpp"
 
+class RateLimiter {
+private:
+    std::chrono::high_resolution_clock::time_point last_tick;
+    std::chrono::milliseconds interval;
+    std::mutex mtx;
+
+public:
+    explicit RateLimiter(int interval_ms)
+        : last_tick(std::chrono::high_resolution_clock::now())
+        , interval(interval_ms) {
+    }
+
+    bool should_run() {
+        std::lock_guard<std::mutex> lock(mtx);
+        auto now = std::chrono::high_resolution_clock::now();
+        auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick);
+
+        if (delta < interval)
+            return false;
+
+        last_tick = now;
+        return true;
+    }
+
+    static RateLimiter& get_globals() {
+        static RateLimiter instance(5000);
+        return instance;
+    }
+
+    static RateLimiter& get_entities() {
+        static RateLimiter instance(1000);
+        return instance;
+    }
+
+    static RateLimiter& get_frame() {
+        static RateLimiter instance(10);
+        return instance;
+    }
+};
+
 class Cache : public CacheData
 {
 public:
@@ -10,36 +50,23 @@ public:
 	void Run();
 	void Stop();
 
+	static void TickCache();
+
 private:
-	void FetchGlobals(HANDLE scatter_handle);
-	void FetchEntities(HANDLE scatter_handle);
+    static void FetchGlobals(HANDLE scatter_handle);
+    static void FetchEntities(HANDLE scatter_handle);
 
-	void FetchEntityData(HANDLE scatter_handle, std::vector<Entity*>& entities_to_update);
-	void FetchPlayerData(HANDLE scatter_handle, std::vector<Player*>& players_to_update);
-	void FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& players_to_update);
+    static void FetchEntityData(HANDLE scatter_handle, std::vector<Entity*>& entities_to_update);
+    static void FetchPlayerData(HANDLE scatter_handle, std::vector<Player*>& players_to_update);
+    static void FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& players_to_update);
 
-	void UpdateFrame(HANDLE scatter_handle);
+    static void UpdateFrame(HANDLE scatter_handle);
+    static void UpdateView(HANDLE scatter_handle);
 
-	std::string FormatObjectName(const std::string& object_name);
+    static std::string FormatObjectName(const std::string& object_name);
 
 public:
-	CacheThread globals_thread = CacheThread(
-		std::function<void(HANDLE)>(std::bind(&Cache::FetchGlobals, this, std::placeholders::_1)), 
-		5000,
-		"Globals Fetch"
-	);
-	CacheThread entities_thread = CacheThread(
-		std::function<void(HANDLE)>(std::bind(&Cache::FetchEntities, this, std::placeholders::_1)),
-		1000,
-		"Entities Fetch"
-	);
-	CacheThread frame_thread = CacheThread(
-		std::function<void(HANDLE)>(std::bind(&Cache::UpdateFrame, this, std::placeholders::_1)),
-		1,
-		"Frame Update"
-	);
 
-	static inline std::vector<std::reference_wrapper<CacheThread>> threads = {};
 };
 
 inline std::string Cache::FormatObjectName(const std::string& object_name)

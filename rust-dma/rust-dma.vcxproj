@@ -34,9 +34,7 @@
     <ClInclude Include="cheat\sdk\player\player.hpp" />
     <ClInclude Include="cheat\sdk\transform\transform.hpp" />
     <ClInclude Include="cheat\settings.hpp" />
-    <ClInclude Include="ext\kmbox\HidTable.h" />
     <ClInclude Include="include.hpp" />
-    <ClInclude Include="ext\kmbox\kmboxNet.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cheat\features\aimbot.cpp" />
@@ -48,7 +46,6 @@
     <ClCompile Include="cheat\menu\menu.cpp" />
     <ClCompile Include="cheat\sdk\transform\transform.cpp" />
     <ClCompile Include="entry.cpp" />
-    <ClCompile Include="ext\kmbox\kmboxNet.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

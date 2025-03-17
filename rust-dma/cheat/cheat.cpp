@@ -30,7 +30,6 @@ Cheat::Cheat()
 	printf("[CHEAT] Overlay Initialized\n");
 
 	Cache::Run();
-	Aimbot::Run();
 	Overlay::Run();
 }
 
@@ -50,8 +49,6 @@ void Cheat::StyleCallback(Overlay* overlay)
 
 void Cheat::WindowCallback(Overlay* overlay)
 {
-	Drawing::SetDrawList(overlay->DrawList);
-
 	if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_Insert))
 	{
 		overlay->MenuVisible = !overlay->MenuVisible;
@@ -65,6 +62,8 @@ void Cheat::WindowCallback(Overlay* overlay)
 
 void Cheat::RenderCallback(Overlay* overlay)
 {
+	Cache::TickCache();
+	Drawing::SetDrawList(overlay->DrawList);
 	Esp::Render();
 
 	if (crosshair)

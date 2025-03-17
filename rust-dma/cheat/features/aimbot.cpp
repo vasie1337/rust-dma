@@ -15,15 +15,9 @@ void Aimbot::Run()
 
 void Aimbot::Step()
 {
-	{
-		std::lock_guard<std::mutex> lock(CacheData::frame_mtx);
-		frame_buffer = CacheData::frame_data;
-	}
+	frame_buffer = CacheData::frame_data;
 
 	if (frame_buffer.players.empty())
-		return;
-
-	if (kmNet_monitor_mouse_right() == 0)
 		return;
 
 	Player* target = nullptr;
@@ -54,7 +48,5 @@ void Aimbot::Step()
 	Vector2 head_screen;
 	if (!Math::WorldToScreen(head_bone, head_screen, frame_buffer.view_matrix))
 		return;
-
-	kmNet_mouse_move_auto(head_screen.x, head_screen.y, 1);
 
 }

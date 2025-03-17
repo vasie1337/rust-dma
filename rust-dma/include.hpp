@@ -27,9 +27,6 @@
 #include <memory>
 #include <codecvt>
 
-// EXT
-#include "ext/kmbox/kmboxNet.h"
-
 // DMA LIB
 #include "../libs/dma-library/dma-library/dma/dma.hpp"
 #pragma comment(lib, "dma-library.lib")

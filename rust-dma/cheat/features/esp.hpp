@@ -14,10 +14,7 @@ private:
 public:
     static void Render()
     {
-        {
-			std::lock_guard<std::mutex> lock(CacheData::frame_mtx);
-			frame_buffer = CacheData::frame_data;
-        }
+        frame_buffer = CacheData::frame_data;
 
 		RenderEntities();
         RenderPlayers();
