@@ -2,7 +2,7 @@
 
 void Menu::Render(Overlay* overlay)
 {
-	ImGui::Begin("Awhare Rust", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Begin("DMA Rust", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
 	ImGui::BeginTabBar("Tabs");
 	for (int i = 0; i < IM_ARRAYSIZE(tabs); i++)

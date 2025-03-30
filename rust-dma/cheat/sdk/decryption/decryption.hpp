@@ -4,6 +4,7 @@
 #pragma warning(disable: 4319)
 #pragma warning(disable: 4244)
 #pragma warning(disable: 4005)
+#pragma warning(disable: 4101)
 #pragma optimize("", off)
 
 typedef          char   int8;
@@ -35,11 +36,11 @@ typedef unsigned int    uint32;
 namespace decryption
 {
 	// __int64 __fastcall il2cpp_gchandle_get_target_0(unsigned int a1)
-	inline ULONG64 IL2CppGetHandle(uintptr_t base, int32_t ObjectHandleID) {
+	inline ULONG64 Il2cppGetHandle(uintptr_t base, int32_t ObjectHandleID) {
 
 		uint64_t rdi_1 = ObjectHandleID >> 3;
 		uint64_t rcx_1 = (ObjectHandleID & 7) - 1;
-		uint64_t baseAddr = base + 0xBEC73C0 + rcx_1 * 0x28;
+		uint64_t baseAddr = base + 0xBF9ABA0 + rcx_1 * 0x28;
 		uint32_t limit = dma.Read<uint32_t>(baseAddr + 0x10);
 		if (rdi_1 < limit) {
 			uintptr_t objAddr = dma.Read<uintptr_t>(baseAddr);
@@ -54,58 +55,68 @@ namespace decryption
 		return 0;
 	}
 
-	inline ULONG64 BaseNetworkable(uintptr_t base, ULONG64 a1)
-	{
-		__int64* v4; // rdx
-		int v5; // r8d
-		unsigned int v6; // ecx
-		unsigned int v7; // eax
-		__int64 v8; // rcx
-		__int64 v23; // [rsp+20h] [rbp-28h] BYREF
+    inline uint64_t networkable_key(uintptr_t base, uint64_t pointer) {
+        std::uint64_t* v4; // rdx
+        std::uint64_t* a2; // rdx
+        int v5; // r8d
+        int v6; // eax
+        std::uint64_t v22; // [rsp+20h] [rbp-28h] BYREF
+        std::uint64_t v23; // [rsp+20h] [rbp-28h] BYREF
+        std::uint64_t a3; // [rsp+20h] [rbp-28h] BYREF
+        char v7;
+        a2 = &v23;
+        v23 = dma.Read<uintptr_t>(pointer + 24);
+        LODWORD(a3) = 2;
+        do
+        {
+            v5 = *(_DWORD*)a2;
+            v6 = *(_DWORD*)a2;
+            a2 = (std::uint64_t*)((char*)a2 + 4);
+            *((_DWORD*)a2 - 1) = ((((v6 << 11) | (v5 >> 21)) + 1490921071) << 17) | ((((v6 << 11) | (v5 >> 21)) + 1490921071) >> 15);
+            v7 = (_DWORD)a3 == 1;
+            a3 = (unsigned int)(a3 - 1);
+        } while (!v7);
 
-		v4 = &v23;
-		v23 = dma.Read<uintptr_t>(a1 + 24);
-		v5 = 2;
-		do
-		{
-			v6 = *(_DWORD*)v4;
-			v7 = *(_DWORD*)v4;
-			v4 = (__int64*)((char*)v4 + 4);
-			*((_DWORD*)v4 - 1) = (((v7 << 24) | (v6 >> 8)) ^ 0x904C85FC) - 1838680275;
-			--v5;
-		} while (v5);
-		v8 = v23;
+        const auto handle = Il2cppGetHandle(base, static_cast<std::int32_t>(v23));
+        if (!handle)
+            return 0;
 
-		return IL2CppGetHandle(base, v23);
-	}
+        return handle;
+    }
 
-	inline uint64_t DecryptList(uintptr_t base, uint64_t a1)
-	{
-		__int64* v4; // rdx
-		int v5; // r8d
-		unsigned int v6; // ecx
-		unsigned int v7; // eax
-		__int64 v8; // rcx
-		__int64 v23; // [rsp+20h] [rbp-28h] BYREF
 
-		v4 = &v23;
-		v23 = dma.Read<uintptr_t>(a1 + 24);
-		v5 = 2;
-		do
-		{
-			v6 = *(_DWORD*)v4;
-			v7 = *(_DWORD*)v4;
-			v4 = (__int64*)((char*)v4 + 4);
-			*((_DWORD*)v4 - 1) = ((((v7 << 7) | (v6 >> 25)) + 542653242) << 22) | ((((v7 << 7) | (v6 >> 25)) + 542653242) >> 10);
-			--v5;
-		} while (v5);
-		v8 = v23;
+    inline uint64_t networkable_key2(uintptr_t base, uint64_t pointer) {
+        std::uint64_t* v4; // rdx
+        std::uint64_t* a2; // rdx
+        int v5; // r8d
+        int v6; // eax
+        std::uint64_t v22; // [rsp+20h] [rbp-28h] BYREF
+        std::uint64_t v23; // [rsp+20h] [rbp-28h] BYREF
+        std::uint64_t a3; // [rsp+20h] [rbp-28h] BYREF
+        char v7;
+        a2 = &v23;
+        v23 = dma.Read<uintptr_t>(pointer + 24);
+        LODWORD(a3) = 2;
+        do
+        {
+            v6 = *(_DWORD*)a2;
+            a2 = (std::uint64_t*)((char*)a2 + 4);
+            *((_DWORD*)a2 - 1) = (((v6 - 232845115) << 13) | ((unsigned int)(v6 - 232845115) >> 19)) - 1716329210;
+            v7 = (_DWORD)a3 == 1;
+            a3 = (unsigned int)(a3 - 1);
+        } while (!v7);
 
-		return IL2CppGetHandle(base, v23);
-	}
+        const auto handle = Il2cppGetHandle(base, static_cast<std::int32_t>(v23));
+        if (!handle)
+            return 0;
+
+        return handle;
+
+    }
 }
 
 #pragma optimize("", on)
+#pragma warning(default: 4101)
 #pragma warning(default: 4319)
 #pragma warning(default: 4244)
 #pragma warning(default: 4005)

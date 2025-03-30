@@ -3,8 +3,8 @@
 namespace Offsets
 {
 	// Global
-	inline std::uintptr_t main_camera = 0xBC0FF48;
-	inline std::uintptr_t base_net_workable = 0xBBCDD08;
+	inline std::uintptr_t main_camera = 0xbca44a0;
+	inline std::uintptr_t base_net_workable = 0xBC85B10;
 	inline std::uintptr_t view_matrix = 0x30C;
 	inline std::uintptr_t camera_pos = 0x454;
 
@@ -19,7 +19,7 @@ namespace Offsets
 
 	// BaseCombatEntity
 	inline std::uintptr_t player_model = 0x3C0;
-	inline std::uintptr_t player_name = 0x418;
+	inline std::uintptr_t player_name = 0x268;
 	inline std::uintptr_t is_npc = 0x30C;
 	inline std::uintptr_t bone_transforms = 0x50;
 }
