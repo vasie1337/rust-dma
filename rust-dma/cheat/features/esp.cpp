@@ -94,7 +94,9 @@ void Esp::RenderPlayers()
                 max_box = max_box._max(bone_pos);
             }
 
-            DrawBoundingBox(min_box, max_box, frame_buffer.view_matrix, player_color);
+            auto box = GetBoundingBox(min_box, max_box, frame_buffer.view_matrix);
+            DrawRect({ box.Min.x, box.Min.y }, { box.Max .x,box.Max .y}, player_color, 1.f);
+            
         }
 
         if (player_names)

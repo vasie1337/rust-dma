@@ -28,7 +28,7 @@
 #include <codecvt>
 
 // DMA LIB
-#include "../libs/dma-library/dma-library/dma/dma.hpp"
+#include "../libs/dma-library/Memory/Memory.h"
 #pragma comment(lib, "dma-library.lib")
 
 // OVERLAY LIB
@@ -42,6 +42,8 @@
 #pragma comment(lib, "cheat-library.lib")
 
 // Project
+#include "memory/wrapper.hpp"
+
 #include "cheat/settings.hpp"
 #include "cheat/sdk/offsets/offsets.hpp"
 #include "cheat/sdk/decryption/decryption.hpp"

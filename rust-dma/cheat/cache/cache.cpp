@@ -18,7 +18,7 @@ void Cache::Stop()
 
 void Cache::TickCache()
 {
-    static auto scatter_handle = dma.CreateScatterHandle();
+    static auto scatter_handle = dma.CreateScatter();
 
 	FetchGlobals(scatter_handle);
 	FetchEntities(scatter_handle);
@@ -89,10 +89,10 @@ void Cache::FetchEntities(HANDLE scatter_handle)
         cached_entities.emplace_back();
         Entity& entity = cached_entities.back();
         entity.idx = i;
-        dma.AddScatterRead(scatter_handle, entity_list.content + (0x20 + (static_cast<uint64_t>(i) * 8)), &entity.object_ptr, sizeof(entity.object_ptr));
+        dma.AddScatter(scatter_handle, entity_list.content + (0x20 + (static_cast<uint64_t>(i) * 8)), &entity.object_ptr, sizeof(entity.object_ptr));
     }
 
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
     
     for (auto& entity : cached_entities) {
         if (entity_ptr_map.find(entity.object_ptr) == entity_ptr_map.end()) {
@@ -140,27 +140,27 @@ void Cache::FetchEntityData(HANDLE scatter_handle, std::vector<Entity*>& entitie
         return;
 
     for (auto* entity : entities_to_update) {
-        dma.AddScatterRead(scatter_handle, entity->object_ptr + 0x10, &entity->base_object, sizeof(entity->base_object));
+        dma.AddScatter(scatter_handle, entity->object_ptr + 0x10, &entity->base_object, sizeof(entity->base_object));
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto* entity : entities_to_update) {
-        dma.AddScatterRead(scatter_handle, entity->base_object + 0x30, &entity->object, sizeof(entity->object));
+        dma.AddScatter(scatter_handle, entity->base_object + 0x30, &entity->object, sizeof(entity->object));
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto* entity : entities_to_update) {
-        dma.AddScatterRead(scatter_handle, entity->object + Offsets::object_class, &entity->object_class, sizeof(entity->object_class));
-        dma.AddScatterRead(scatter_handle, entity->object + Offsets::tag, &entity->tag, sizeof(entity->tag));
-        dma.AddScatterRead(scatter_handle, entity->object + Offsets::prefab_name, &entity->nameptr, sizeof(entity->nameptr));
+        dma.AddScatter(scatter_handle, entity->object + Offsets::object_class, &entity->object_class, sizeof(entity->object_class));
+        dma.AddScatter(scatter_handle, entity->object + Offsets::tag, &entity->tag, sizeof(entity->tag));
+        dma.AddScatter(scatter_handle, entity->object + Offsets::prefab_name, &entity->nameptr, sizeof(entity->nameptr));
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto* entity : entities_to_update) {
-        dma.AddScatterRead(scatter_handle, entity->object_class + Offsets::transform, &entity->transform, sizeof(entity->transform));
-        dma.AddScatterRead(scatter_handle, entity->nameptr, entity->name_buffer, sizeof(entity->name_buffer));
+        dma.AddScatter(scatter_handle, entity->object_class + Offsets::transform, &entity->transform, sizeof(entity->transform));
+        dma.AddScatter(scatter_handle, entity->nameptr, entity->name_buffer, sizeof(entity->name_buffer));
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto* entity : entities_to_update) {
         entity->obj_name = std::string(entity->name_buffer);
@@ -170,9 +170,9 @@ void Cache::FetchEntityData(HANDLE scatter_handle, std::vector<Entity*>& entitie
     }
 
     for (auto* entity : entities_to_update) {
-        dma.AddScatterRead(scatter_handle, entity->transform + Offsets::visual_state, &entity->visual_state, sizeof(entity->visual_state));
+        dma.AddScatter(scatter_handle, entity->transform + Offsets::visual_state, &entity->visual_state, sizeof(entity->visual_state));
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 }
 
 void Cache::FetchPlayerData(HANDLE scatter_handle, std::vector<Player*>& players_to_update)
@@ -181,28 +181,28 @@ void Cache::FetchPlayerData(HANDLE scatter_handle, std::vector<Player*>& players
         return;
 
     for (auto* player : players_to_update) {
-        dma.AddScatterRead(scatter_handle, player->object_ptr + Offsets::player_model, &player->player_model, sizeof(player->player_model));
+        dma.AddScatter(scatter_handle, player->object_ptr + Offsets::player_model, &player->player_model, sizeof(player->player_model));
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto* player : players_to_update) {
-        dma.AddScatterRead(scatter_handle, player->player_model + Offsets::is_npc, &player->is_npc, sizeof(player->is_npc));
+        dma.AddScatter(scatter_handle, player->player_model + Offsets::is_npc, &player->is_npc, sizeof(player->is_npc));
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     players_to_update.erase(std::remove_if(players_to_update.begin(), players_to_update.end(), [](const Player* player) { return player->is_npc; }), players_to_update.end());
 
     for (auto* player : players_to_update) {
-        dma.AddScatterRead(scatter_handle, player->object_ptr + Offsets::model, &player->model, sizeof(player->model));
-        dma.AddScatterRead(scatter_handle, player->object_ptr + Offsets::player_name, &player->nameptr, sizeof(player->nameptr));
+        dma.AddScatter(scatter_handle, player->object_ptr + Offsets::model, &player->model, sizeof(player->model));
+        dma.AddScatter(scatter_handle, player->object_ptr + Offsets::player_name, &player->nameptr, sizeof(player->nameptr));
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto* player : players_to_update) {
-        dma.AddScatterRead(scatter_handle, player->model + Offsets::bone_transforms, &player->bone_transforms, sizeof(player->bone_transforms));
-        dma.AddScatterRead(scatter_handle, player->nameptr + 0x14, player->name_buffer, sizeof(player->name_buffer));
+        dma.AddScatter(scatter_handle, player->model + Offsets::bone_transforms, &player->bone_transforms, sizeof(player->bone_transforms));
+        dma.AddScatter(scatter_handle, player->nameptr + 0x14, player->name_buffer, sizeof(player->name_buffer));
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto* player : players_to_update) {
         player->player_name = player->name_buffer;
@@ -225,40 +225,40 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& player
             if (!player->IsIndexValid(i))
                 continue;
 
-            dma.AddScatterRead(scatter_handle, player->bone_transforms + (0x20 + (static_cast<uint64_t>(i) * 0x8)), &player->bones[i].address, sizeof(player->bones[i].address));
+            dma.AddScatter(scatter_handle, player->bone_transforms + (0x20 + (static_cast<uint64_t>(i) * 0x8)), &player->bones[i].address, sizeof(player->bones[i].address));
         }
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto* player : players_to_update) {
         for (auto& bone : player->bones) {
             if (bone.address == 0)
                 continue;
                 
-            dma.AddScatterRead(scatter_handle, bone.address + 0x10, &bone.address_internal, sizeof(bone.address_internal));
+            dma.AddScatter(scatter_handle, bone.address + 0x10, &bone.address_internal, sizeof(bone.address_internal));
         }
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto* player : players_to_update) {
         for (auto& bone : player->bones) {
             if (bone.address_internal == 0)
                 continue;
                 
-            dma.AddScatterRead(scatter_handle, bone.address_internal + 0x38, &bone.transformAccess, sizeof(bone.transformAccess));
+            dma.AddScatter(scatter_handle, bone.address_internal + 0x38, &bone.transformAccess, sizeof(bone.transformAccess));
         }
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto* player : players_to_update) {
         for (auto& bone : player->bones) {
             if (bone.transformAccess.hierarchyAddr == 0)
                 continue;
                 
-            dma.AddScatterRead(scatter_handle, bone.transformAccess.hierarchyAddr + 0x18, &bone.transformArrays, sizeof(bone.transformArrays));
+            dma.AddScatter(scatter_handle, bone.transformAccess.hierarchyAddr + 0x18, &bone.transformArrays, sizeof(bone.transformArrays));
         }
     }
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto* player : players_to_update) {
         for (auto& bone : player->bones) {
@@ -267,7 +267,7 @@ void Cache::FetchPlayerBones(HANDLE scatter_handle, std::vector<Player*>& player
         }
     }
     
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 }
 
 void Cache::UpdateFrame(HANDLE scatter_handle)
@@ -298,7 +298,7 @@ void Cache::UpdateFrame(HANDLE scatter_handle)
             if (entity.is_static && !entity.position.invalid())
                 continue;
 
-            dma.AddScatterRead(scatter_handle, entity.visual_state + Offsets::vec3_position, &entity.position, sizeof(entity.position));
+            dma.AddScatter(scatter_handle, entity.visual_state + Offsets::vec3_position, &entity.position, sizeof(entity.position));
         }
     }
 
@@ -311,7 +311,7 @@ void Cache::UpdateFrame(HANDLE scatter_handle)
         }
     }
 
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.ExecuteScatter(scatter_handle);
 
     for (auto& player : frame_data.players)
     {
@@ -324,7 +324,7 @@ void Cache::UpdateFrame(HANDLE scatter_handle)
 
 void Cache::UpdateView(HANDLE scatter_handle)
 {
-    dma.AddScatterRead(scatter_handle, camera_address + Offsets::view_matrix, &frame_data.view_matrix, sizeof(frame_data.view_matrix));
-    dma.AddScatterRead(scatter_handle, camera_address + Offsets::camera_pos, &frame_data.camera_pos, sizeof(frame_data.camera_pos));
-    dma.ExecuteScatterRead(scatter_handle);
+    dma.AddScatter(scatter_handle, camera_address + Offsets::view_matrix, &frame_data.view_matrix, sizeof(frame_data.view_matrix));
+    dma.AddScatter(scatter_handle, camera_address + Offsets::camera_pos, &frame_data.camera_pos, sizeof(frame_data.camera_pos));
+    dma.ExecuteScatter(scatter_handle);
 }

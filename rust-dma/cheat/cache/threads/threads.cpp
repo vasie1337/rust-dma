@@ -2,7 +2,7 @@
 
 void CacheThread::Run()
 {
-    scatter_handle = dma.CreateScatterHandle();
+    scatter_handle = dma.CreateScatter();
     running = true;
     thread = std::thread([this]()
     {
@@ -32,7 +32,7 @@ void CacheThread::Stop()
     if (thread.joinable()) {
         thread.join();
     }
-    dma.CloseScatterHandle(scatter_handle);
+    dma.CloseScatter(scatter_handle);
 }
 
 CacheStatistics CacheThread::GetStatistics() const

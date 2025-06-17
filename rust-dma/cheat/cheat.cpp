@@ -2,14 +2,14 @@
 
 Cheat::Cheat()
 {
-	if (!dma.Initialize("RustClient.exe"))
+	if (!dma.Init("RustClient.exe"))
 	{
 		throw std::exception("Failed to initialize DMA");
 	}
 	
 	printf("[CHEAT] Initialized\n");
 
-	Cache::base_address = dma.GetModuleBaseAddress("GameAssembly.dll");
+	Cache::base_address = dma.GetBase("GameAssembly.dll");
 	if (!Cache::base_address)
 	{
 		printf("[CHEAT] Failed to get base address\n");

@@ -52,7 +52,7 @@ public:
 		if (capacity > Capacity) {
 			return;
 		}
-		dma.AddScatterRead(scatter_handle, address, (void*)buffer, capacity * sizeof(T));
+		dma.AddScatter(scatter_handle, address, (void*)buffer, capacity * sizeof(T));
 	}
 
 	T& operator[](int index)
