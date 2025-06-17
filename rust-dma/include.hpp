@@ -32,13 +32,13 @@
 #pragma comment(lib, "dma-library.lib")
 
 // OVERLAY LIB
-#include "../libs/overlay-library/overlay-library/overlay.hpp"
+#include "../libs/overlay-library/overlay.hpp"
 #pragma comment(lib, "overlay-library.lib")
 
 // CHEAT LIB
-#include "../libs/cheat-library/cheat-library/math/math.hpp"
-#include "../libs/cheat-library/cheat-library/drawing/drawing.hpp"
-#include "../libs/cheat-library/cheat-library/timer/timer.hpp"
+#include "../libs/cheat-library/math/math.hpp"
+#include "../libs/cheat-library/drawing/drawing.hpp"
+#include "../libs/cheat-library/timer/timer.hpp"
 #pragma comment(lib, "cheat-library.lib")
 
 // Project
