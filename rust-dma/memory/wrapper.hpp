@@ -25,8 +25,6 @@ public:
 		{
 			return false;
 		}
-
-		return true;
 	}
 
 	static uintptr_t GetBase(std::string mod_name) {
@@ -186,5 +184,6 @@ private:
 class Mem : public LocalMemory {};
 #else
 class Mem : public DmaMemory {};
-inline Mem dma;
 #endif
+
+inline Mem dma;
