@@ -5,16 +5,15 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cheat-library", "libs\cheat-library\cheat-library\cheat-library.vcxproj", "{FB7EDB66-3780-4EA0-8880-AAF21A2FE242}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dma-library", "libs\dma-library\dma-library\dma-library.vcxproj", "{8C79CAA4-CD81-4AA7-8324-46582DB0213A}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "overlay-library", "libs\overlay-library\overlay-library\overlay-library.vcxproj", "{72FDA80B-C497-4D94-81EC-E1DCBAB294D6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rust-dma", "rust-dma\rust-dma.vcxproj", "{9E2A54F7-0192-45A7-9885-8807A3E3B6EB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{72FDA80B-C497-4D94-81EC-E1DCBAB294D6} = {72FDA80B-C497-4D94-81EC-E1DCBAB294D6}
-		{8C79CAA4-CD81-4AA7-8324-46582DB0213A} = {8C79CAA4-CD81-4AA7-8324-46582DB0213A}
 		{FB7EDB66-3780-4EA0-8880-AAF21A2FE242} = {FB7EDB66-3780-4EA0-8880-AAF21A2FE242}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dma-library", "..\cs2-dma\libs\dma-library\dma-library.vcxproj", "{F02F56B1-10CD-4654-B744-93ABE6E15FF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,14 +31,6 @@ Global
 		{FB7EDB66-3780-4EA0-8880-AAF21A2FE242}.Release|x64.Build.0 = Release|x64
 		{FB7EDB66-3780-4EA0-8880-AAF21A2FE242}.Release|x86.ActiveCfg = Release|Win32
 		{FB7EDB66-3780-4EA0-8880-AAF21A2FE242}.Release|x86.Build.0 = Release|Win32
-		{8C79CAA4-CD81-4AA7-8324-46582DB0213A}.Debug|x64.ActiveCfg = Debug|x64
-		{8C79CAA4-CD81-4AA7-8324-46582DB0213A}.Debug|x64.Build.0 = Debug|x64
-		{8C79CAA4-CD81-4AA7-8324-46582DB0213A}.Debug|x86.ActiveCfg = Debug|Win32
-		{8C79CAA4-CD81-4AA7-8324-46582DB0213A}.Debug|x86.Build.0 = Debug|Win32
-		{8C79CAA4-CD81-4AA7-8324-46582DB0213A}.Release|x64.ActiveCfg = Release|x64
-		{8C79CAA4-CD81-4AA7-8324-46582DB0213A}.Release|x64.Build.0 = Release|x64
-		{8C79CAA4-CD81-4AA7-8324-46582DB0213A}.Release|x86.ActiveCfg = Release|Win32
-		{8C79CAA4-CD81-4AA7-8324-46582DB0213A}.Release|x86.Build.0 = Release|Win32
 		{72FDA80B-C497-4D94-81EC-E1DCBAB294D6}.Debug|x64.ActiveCfg = Debug|x64
 		{72FDA80B-C497-4D94-81EC-E1DCBAB294D6}.Debug|x64.Build.0 = Debug|x64
 		{72FDA80B-C497-4D94-81EC-E1DCBAB294D6}.Debug|x86.ActiveCfg = Debug|Win32
@@ -56,6 +47,14 @@ Global
 		{9E2A54F7-0192-45A7-9885-8807A3E3B6EB}.Release|x64.Build.0 = Release|x64
 		{9E2A54F7-0192-45A7-9885-8807A3E3B6EB}.Release|x86.ActiveCfg = Release|Win32
 		{9E2A54F7-0192-45A7-9885-8807A3E3B6EB}.Release|x86.Build.0 = Release|Win32
+		{F02F56B1-10CD-4654-B744-93ABE6E15FF0}.Debug|x64.ActiveCfg = Debug|x64
+		{F02F56B1-10CD-4654-B744-93ABE6E15FF0}.Debug|x64.Build.0 = Debug|x64
+		{F02F56B1-10CD-4654-B744-93ABE6E15FF0}.Debug|x86.ActiveCfg = Debug|Win32
+		{F02F56B1-10CD-4654-B744-93ABE6E15FF0}.Debug|x86.Build.0 = Debug|Win32
+		{F02F56B1-10CD-4654-B744-93ABE6E15FF0}.Release|x64.ActiveCfg = Release|x64
+		{F02F56B1-10CD-4654-B744-93ABE6E15FF0}.Release|x64.Build.0 = Release|x64
+		{F02F56B1-10CD-4654-B744-93ABE6E15FF0}.Release|x86.ActiveCfg = Release|Win32
+		{F02F56B1-10CD-4654-B744-93ABE6E15FF0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

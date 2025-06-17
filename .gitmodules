@@ -1,0 +1,9 @@
+[submodule "libs/overlay-library"]
+	path = libs/overlay-library
+	url = https://github.com/banzdotclub/overlay-library.git
+[submodule "libs/cheat-library"]
+	path = libs/cheat-library
+	url = https://github.com/banzdotclub/cheat-library.git
+[submodule "libs/dma-library"]
+	path = libs/dma-library
+	url = https://github.com/banzdotclub/dma-library.git
